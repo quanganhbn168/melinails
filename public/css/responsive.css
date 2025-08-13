@@ -1,0 +1,52 @@
+@media (max-width: 1199.98px) {
+    .product-widget_wrapper {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+@media (max-width: 991.98px) {
+    .product-widget_wrapper {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+@media (max-width: 767.98px) {
+    body {
+        padding-bottom: 70px;
+    }
+    .product-widget_wrapper {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
+    }
+    .product-item_info h3 {
+        font-size: 15px;
+        height: 45px;
+    }
+    .news .section-title {
+        flex-direction: column; 
+        align-items: flex-start;
+        gap: 10px;
+    }
+    .news .col-md-6:last-child {
+        margin-top: 25px; 
+    }
+    .big-news h3 a {
+        font-size: 18px; 
+    }
+    .feature-item {
+        margin-bottom: 24px; 
+    }
+    .feature .col-6:nth-last-child(-n+2) .feature-item {
+        margin-bottom: 0;
+    }
+    .bottom-contact {
+        display: none;
+    }
+    .product-widget_wrapper {
+        gap: 15px;
+    }
+}
+@media (max-width: 575.98px) {
+    .item_list-img a {
+        width: 80px;
+        height: 65px;
+    }
+}

@@ -58,13 +58,12 @@ class Order extends Model
     {
         return $this->belongsTo(User::class, 'user_id');
     }
-    
     /**
      * Lấy tất cả các chi tiết trong đơn hàng này.
-     * Đổi tên từ items() -> details() để khớp với model OrderDetail
      */
     public function orderItems()
     {
         return $this->hasMany(OrderDetail::class);
     }
+
 }

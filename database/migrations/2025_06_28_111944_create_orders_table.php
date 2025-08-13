@@ -26,7 +26,6 @@ return new class extends Migration
 
 
             // --- THÔNG TIN ĐƠN HÀNG ---
-            // ID của người thợ được gán, có thể không có
             $table->string('payment_method')->default('cod');
             $table->decimal('total_price', 15, 2)->default(0);
             $table->string('status')->default('pending'); // ví dụ: pending, processing, completed, cancelled

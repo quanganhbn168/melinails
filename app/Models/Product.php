@@ -19,6 +19,8 @@ class Product extends Model
         'slug',
         'image',
         'banner',
+        'sm',
+        'll',
         'price', 
         'price_discount',
         'description',
