@@ -56,7 +56,7 @@ class CategoryProductSeeder extends Seeder
             );
 
             $category = Category::create([
-                'parent_id'  => null,
+                'parent_id'  => 0,
                 'name'       => $cateName,
                 'slug'       => $catSlug,
                 'image'      => $categoryImage,  // storage/uploads/categories/{slug}/cat-*.jpg
@@ -65,8 +65,8 @@ class CategoryProductSeeder extends Seeder
                 'is_home'    => false,
                 'is_menu'    => true,
                 'is_footer'  => false,
-                'meta_des'   => $cateName,
-                'meta_key'   => $cateName,
+                'meta_description'   => $cateName,
+                'meta_keywords'   => $cateName,
                 'meta_image' => $categoryImage,
             ]);
 
@@ -94,12 +94,12 @@ class CategoryProductSeeder extends Seeder
                     'description'     => 'Mô tả ngắn cho ' . $productName,
                     'content'         => 'Nội dung chi tiết cho ' . $productName,
                     'specifications'  => 'Thông số kỹ thuật mẫu cho ' . $productName,
-                    'status'          => true,
-                    'is_home'         => false,
-                    'is_featured'     => false,
-                    'is_on_sale'      => false,
-                    'meta_des'        => $productName,
-                    'meta_key'        => $productName,
+                    'status'          => 1,
+                    'is_home'         => 1,
+                    'is_featured'     => 1,
+                    'is_on_sale'      => 0,
+                    'meta_description'        => $productName,
+                    'meta_keywords'        => $productName,
                     'meta_image'      => $productImage,
                 ]);
 

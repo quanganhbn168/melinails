@@ -26,6 +26,9 @@ return new class extends Migration
             $table->longText('content')->nullable();
             $table->longText('specifications')->nullable();
             $table->boolean('status')->default(1);
+            $table->boolean('is_home')->default(1);
+            $table->boolean('is_featured')->default(1);
+            $table->boolean('is_on_sale')->default(1);
             $table->text('meta_description')->nullable();
             $table->text('meta_keywords')->nullable();   
             $table->string('meta_image')->nullable();   
