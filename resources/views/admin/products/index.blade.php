@@ -2,7 +2,7 @@
 @extends('layouts.admin')
 
 @section('title', 'Danh sách sản phẩm')
-@section('content_header', 'Danh sách sản phẩm')
+@section('content_header_title', 'Danh sách sản phẩm')
 @section('content')
     <div class="card">
         <div class="card-header">

@@ -1,15 +1,21 @@
-{{-- resources/views/components/sidebar-menu.blade.php (Đã sửa lỗi cú pháp) --}}
-
 <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
     @foreach ($menu as $item)
         @php
             $hasSub = !empty($item['submenu']);
-            $isMenuActive = $hasSub ? $component->isOpen($item) : $component->isActive($item);
+            
+            // SỬA Ở ĐÂY: Đổi tên biến từ "$isOpen" thành "$isMenuOpen"
+            $isMenuOpen = $hasSub ? $isOpen($item) : false;
+            
+            // SỬA Ở ĐÂY: Đổi tên biến từ "$isMenuActive" thành "$isItemActive" cho rõ ràng
+            $isItemActive = $isMenuOpen || (!$hasSub && $isActive($item));
+            
             $url = $hasSub ? '#' : (isset($item['route']) ? route($item['route'], $item['params'] ?? []) : '#');
         @endphp
 
-        <li class="nav-item {{ $hasSub && $isMenuActive ? 'menu-is-opening menu-open' : '' }}">
-            <a href="{{ $url }}" class="nav-link {{ $isMenuActive ? 'active' : '' }}">
+        {{-- SỬA Ở ĐÂY: Dùng biến "$isMenuOpen" --}}
+        <li class="nav-item {{ $isMenuOpen ? 'menu-is-opening menu-open' : '' }}">
+            {{-- SỬA Ở ĐÂY: Dùng biến "$isItemActive" --}}
+            <a href="{{ $url }}" class="nav-link {{ $isItemActive ? 'active' : '' }}">
                 <i class="nav-icon {{ $item['icon'] }}"></i>
                 <p>
                     {{ $item['title'] }}
@@ -24,8 +30,7 @@
                     @foreach ($item['submenu'] as $sub)
                         <li class="nav-item">
                             <a href="{{ isset($sub['route']) ? route($sub['route'], $sub['params'] ?? []) : '#' }}"
-                               {{-- SỬA LẠI: Gọi phương thức qua biến $component --}}
-                               class="nav-link {{ $component->isActive($sub) ? 'active' : '' }}">
+                               class="nav-link {{ $isActive($sub) ? 'active' : '' }}">
                                 <i class="{{ $sub['icon'] ?? 'far fa-circle' }} nav-icon"></i>
                                 <p>{{ $sub['title'] }}</p>
                             </a>

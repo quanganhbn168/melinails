@@ -15,29 +15,38 @@ class ProductVariant extends Model
         'product_id',
         'sku',
         'price',
-        'original_price',
-        'quantity',
+        'compare_at_price',
+        'stock',
+        'image',
         'is_default',
+        
     ];
 
-    /**
-     * Một biến thể thuộc về một sản phẩm.
-     */
+    // -- Accessors cho Giá --
+    public function getIsOnSaleAttribute(): bool
+    {
+        return $this->compare_at_price > $this->price;
+    }
+
+    public function getDiscountPercentAttribute(): int
+    {
+        if ($this->getIsOnSaleAttribute()) {
+            return round((($this->compare_at_price - $this->price) / $this->compare_at_price) * 100);
+        }
+        return 0;
+    }
+
+    // -- Các mối quan hệ (Relationships) --
     public function product(): BelongsTo
     {
         return $this->belongsTo(Product::class);
     }
 
     /**
-     * Một biến thể có nhiều giá trị thuộc tính (qua bảng nối).
+     * Các giá trị thuộc tính định nghĩa nên biến thể này (VD: Đỏ, Size L).
      */
     public function attributeValues(): BelongsToMany
     {
-        return $this->belongsToMany(
-            AttributeValue::class,
-            'product_variant_attribute_value',
-            'product_variant_id',             
-            'attribute_value_id'              
-        );
+        return $this->belongsToMany(AttributeValue::class, 'product_variant_attribute_value');
     }
 }

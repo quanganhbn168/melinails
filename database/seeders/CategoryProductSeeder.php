@@ -61,10 +61,10 @@ class CategoryProductSeeder extends Seeder
                 'slug'       => $catSlug,
                 'image'      => $categoryImage,  // storage/uploads/categories/{slug}/cat-*.jpg
                 'banner'     => null,
-                'status'     => true,
-                'is_home'    => false,
-                'is_menu'    => true,
-                'is_footer'  => false,
+                'status'     => 1,
+                'is_home'    => 0,
+                'is_menu'    => 1,
+                'is_footer'  => 0,
                 'meta_description'   => $cateName,
                 'meta_keywords'   => $cateName,
                 'meta_image' => $categoryImage,
@@ -120,9 +120,9 @@ class CategoryProductSeeder extends Seeder
                             'product_id'     => $product->id,
                             'sku'            => 'SKU-' . Str::upper(Str::random(8)),
                             'price'          => $product->price + rand(10000, 30000),
-                            'original_price' => $product->price,
-                            'quantity'       => rand(5, 20),
-                            'is_default'     => false,
+                            'compare_at_price' => $product->price,
+                            'stock'       => rand(5, 20),
+                            'is_default'     => 0,
                         ]);
 
                         $variant->attributeValues()->attach([$colorVal->id, $sizeVal->id]);
@@ -130,7 +130,7 @@ class CategoryProductSeeder extends Seeder
                 }
 
                 // 3.4) Mark biến thể mặc định
-                $product->variants()->first()?->update(['is_default' => true]);
+                $product->variants()->first()?->update(['is_default' => 1]);
             }
         }
     }
@@ -169,7 +169,6 @@ class CategoryProductSeeder extends Seeder
             try {
                 $product->addImage($publicPath, [
                     'position' => $position,
-                    'alt'      => $product->name . ' - Gallery ' . $position,
                 ]);
                 return;
             } catch (\Throwable $e) {
@@ -181,13 +180,11 @@ class CategoryProductSeeder extends Seeder
             $product->images()->create([
                 'path'      => $publicPath,
                 'position'  => $position,
-                'alt'       => $product->name . ' - Gallery ' . $position,
             ]);
         } catch (\Throwable $e) {
             $product->images()->create([
                 'image'     => $publicPath,
                 'position'  => $position,
-                'alt'       => $product->name . ' - Gallery ' . $position,
             ]);
         }
     }

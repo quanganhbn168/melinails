@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('images', function (Blueprint $table) {
             $table->id();
             $table->string('name')->nullable();
+            $table->unsignedInteger('position')->default(0)->index();
             $table->string('image');
             $table->morphs('item');
             $table->timestamps();

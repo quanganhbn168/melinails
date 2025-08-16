@@ -3,6 +3,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+
 class Category extends Model
 {
     /** @use HasFactory<\Database\Factories\CategoryFactory> */
@@ -17,17 +19,27 @@ class Category extends Model
         'is_home',
         'is_menu',
         'is_footer',
-        'meta_des',
-        'meta_key',
+        'position',
+        'meta_description',
+        'meta_keywords',
         'meta_image'
     ];
     protected $casts = [
-        'status' => 'boolean',
-        'is_home' => 'boolean',
-        'is_menu' => 'boolean',
-        'is_footer' => 'boolean',
-        'parent_id' => 'integer',
+        'status'     => 'boolean',
+        'is_home'    => 'boolean',
+        'is_menu'    => 'boolean',
+        'is_footer'  => 'boolean',
+        'parent_id'  => 'integer',
+        'position'   => 'integer',
     ];
+    protected static function booted(): void
+    {
+        static::creating(function ($model) {
+            if (empty($model->position) || $model->position === 0) {
+                $model->position = static::max('position') + 1;
+            }
+        });
+    }
     public function parent()
     {
         return $this->belongsTo(self::class, 'parent_id');
@@ -50,7 +62,7 @@ class Category extends Model
     }
     public function slug()
     {
-        return $this->morphOne(\App\Models\Slug::class, 'sluggable');
+        return $this->morphOne(Slug::class, 'sluggable');
     }
     public function getSlugUrlAttribute()
     {
@@ -60,4 +72,9 @@ class Category extends Model
     {
         return $this->hasMany(Product::class);
     }
+    public function attributes(): BelongsToMany
+    {
+        return $this->belongsToMany(Attribute::class, 'category_attribute');
+    }
+
 }

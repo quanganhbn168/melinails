@@ -76,17 +76,6 @@
         });
     </script>
     @endif
-    <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            document.querySelector(".gotop").addEventListener("click", function(e) {
-                e.preventDefault();
-                window.scrollTo({
-                    top: 0,
-                    behavior: "smooth"
-                });
-            });
-        });
-    </script>
     <script type="text/javascript">
         function googleTranslateElementInit() {
             new google.translate.TranslateElement({
@@ -133,18 +122,24 @@
             observer.observe(document.body, { attributes: true });
         };
     </script>
-    <script type="text/javascript" src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
     <script>
         $(document).ready(function(){
             $('#contactModal').on('show.bs.modal', function (event) {
-            var button = $(event.relatedTarget); 
-            var productName = button.data('name'); 
-            var modal = $(this);
-            var messageContent = "Tôi đang quan tâm đến sản phẩm: " + productName + "\n\n";
-            var messageTextarea = modal.find('textarea#message');
-            messageTextarea.val(messageContent).focus();
-            messageTextarea[0].setSelectionRange(messageContent.length, messageContent.length);
-        });
+                var button = $(event.relatedTarget); 
+                var productName = button.data('name'); 
+                var modal = $(this);
+                var messageContent = "Tôi đang quan tâm đến sản phẩm: " + productName + "\n\n";
+                var messageTextarea = modal.find('textarea#message');
+                messageTextarea.val(messageContent).focus();
+                messageTextarea[0].setSelectionRange(messageContent.length, messageContent.length);
+            });
+
+            $('.footer__menu .menu-title').on('click', function() {
+                if (window.innerWidth < 768) { 
+                    $(this).toggleClass('active');
+                    $(this).siblings('.menu-list').slideToggle(300);
+                }
+            });
         });
     </script>
     @stack('js')

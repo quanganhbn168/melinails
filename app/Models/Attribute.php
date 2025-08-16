@@ -1,12 +1,24 @@
 <?php
+
 namespace App\Models;
+
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class Attribute extends Model {
+class Attribute extends Model
+{
     use HasFactory;
-    protected $fillable = ['name'];
+
+    protected $fillable = [
+        'name',
+        'type',
+        'is_variant_defining',
+    ];
+
+    protected $casts = [
+        'is_variant_defining' => 'boolean',
+    ];
 
     public function values(): HasMany
     {

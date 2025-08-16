@@ -12,37 +12,56 @@
     body {
         padding-bottom: 70px;
     }
-    .product-widget_wrapper {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 15px;
+    .header-hotline{display: none;}
+    .header-address{display: none;}
+    .frame-fix .text-box{display: none;}
+    .swiper_category .swiper-wrapper{
+        overflow: initial;
+        -ms-flex-wrap: nowrap;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        scroll-snap-type: x mandatory;
+        margin-right: -14px;
+        margin-left: -14px;
+        padding-left: 7px;
+        padding-right: 7px;
+        width: auto;
     }
-    .product-item_info h3 {
-        font-size: 15px;
-        height: 45px;
+    .swiper_category .swiper-wrapper .swiper-slide{
+        padding-left: 7px;
+        padding-right: 7px;
+        -ms-flex: 0 0 35%;
+        flex: 0 0 38%;
+        max-width: 38%;
+        min-width: 38%;
     }
-    .news .section-title {
-        flex-direction: column; 
-        align-items: flex-start;
-        gap: 10px;
+    
+    .slider-controls{display: none}
+    .section-index .section-title h2{
+        font-size: 2rem;
     }
-    .news .col-md-6:last-child {
-        margin-top: 25px; 
+    .product-slider .swiper-wrapper{
+        overflow: initial;
+        -ms-flex-wrap: nowrap;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        scroll-snap-type: x mandatory;
+        margin-right: -14px;
+        margin-left: -14px;
+        padding-left: 7px;
+        padding-right: 7px;
+        width: auto;
     }
-    .big-news h3 a {
-        font-size: 18px; 
+    .product-slider .swiper-wrapper .swiper-slide{
+        padding-left: 7px;
+        padding-right: 7px;
+        -ms-flex: 0 0 60%;
+        flex: 0 0 60%;
+        max-width: 60%;
+        min-width: 60%;
     }
-    .feature-item {
-        margin-bottom: 24px; 
-    }
-    .feature .col-6:nth-last-child(-n+2) .feature-item {
-        margin-bottom: 0;
-    }
-    .bottom-contact {
-        display: none;
-    }
-    .product-widget_wrapper {
-        gap: 15px;
-    }
+    
+
 }
 @media (max-width: 575.98px) {
     .item_list-img a {

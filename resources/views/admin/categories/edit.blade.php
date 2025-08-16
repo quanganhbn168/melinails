@@ -1,7 +1,7 @@
 @extends('layouts.admin')
 
 @section('title', 'Chỉnh sửa danh mục')
-@section('content_header', 'Chỉnh sửa danh mục')
+@section('content_header_title', 'Chỉnh sửa danh mục')
 
 @section('content')
 <div class="card">
@@ -20,15 +20,7 @@
                 label="Tên danh mục"
                 :value="old('name', $category->name)"
             />
-
-            <x-form.input
-                type="text"
-                name="slug"
-                label="Slug (URL thân thiện)"
-                :value="old('slug', $category->slug)"
-            />
-
-            <x-form.select
+            <x-form.category-select
                 name="parent_id"
                 label="Danh mục cha"
                 :options="$categories"
@@ -55,12 +47,12 @@
             />
             <x-form.switch
                 name="is_menu"
-                label="Trạng thái"
+                label="Menu"
                 :checked="old('is_menu', $category->is_menu)"
             />
             <x-form.switch
                 name="is_footer"
-                label="Trạng thái"
+                label="Chân trang"
                 :checked="old('is_footer', $category->is_footer)"
             />
             

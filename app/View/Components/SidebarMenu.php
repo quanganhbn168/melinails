@@ -3,68 +3,64 @@
 namespace App\View\Components;
 
 use Illuminate\View\Component;
-use Illuminate\Contracts\View\View;
-use Illuminate\Support\Facades\Request;
+use Illuminate\Support\Facades\Route;
 
 class SidebarMenu extends Component
 {
-    /**
-     * The menu array.
-     *
-     * @var array
-     */
-    public $menu;
+    public array $menu;
 
     /**
-     * Create a new component instance.
-     *
-     * @return void
+     * Khởi tạo component.
      */
     public function __construct()
     {
+        // Lấy mảng menu từ file config
+        // Anh cần tạo file config/menu.php và trả về mảng menu của mình
         $this->menu = config('menu', []);
     }
 
     /**
-     * Check if a menu item is active.
-     *
-     * @param  array  $item
-     * @return bool
+     * Kiểm tra xem một item menu có đang active hay không.
      */
     public function isActive($item): bool
     {
-        if (isset($item['active_routes'])) {
-            foreach ($item['active_routes'] as $routePattern) {
-                if (Request::routeIs($routePattern)) {
+        // Ưu tiên dùng active_pattern, nếu không có thì dùng route
+        $patterns = $item['active_pattern'] ?? ($item['route'] ?? null);
+
+        if (!$patterns) {
+            return false;
+        }
+
+        // Nếu $patterns là một mảng, lặp qua và kiểm tra từng cái
+        if (is_array($patterns)) {
+            foreach ($patterns as $pattern) {
+                if (Route::is($pattern)) {
                     return true;
                 }
             }
-            return false;
+            return false; // Không có pattern nào khớp
         }
 
-        if (!isset($item['route'])) {
-            return false;
-        }
-
-        return Request::routeIs($item['route'] . '*');
+        // Nếu là một chuỗi, kiểm tra như cũ (thêm .* để khớp cả create, edit)
+        return Route::is($patterns) || Route::is($patterns . '.*');
     }
 
-
     /**
-     * Check if a parent menu item should be open.
-     *
-     * @param  array  $item
-     * @return bool
+     * Kiểm tra xem một menu cha có nên được mở hay không.
      */
     public function isOpen($item): bool
     {
-        if (!isset($item['submenu'])) {
-            return false;
+        // Nếu menu cha có active_pattern riêng, dùng nó để kiểm tra
+        if (isset($item['active_pattern'])) {
+            return $this->isActive($item);
         }
 
-        foreach ($item['submenu'] as $sub) {
-            if ($this->isActive($sub)) {
-                return true;
+        // Nếu không, kiểm tra các submenu con của nó
+        if (!empty($item['submenu'])) {
+            foreach ($item['submenu'] as $sub) {
+                if ($this->isActive($sub)) {
+                    return true;
+                }
             }
         }
 
@@ -72,15 +68,12 @@ class SidebarMenu extends Component
     }
 
     /**
-     * Get the view / contents that represent the component.
-     *
-     * @return \Illuminate\Contracts\View\View
+     * Lấy view / nội dung của component.
      */
-    public function render(): View
+    public function render()
     {
-        return view('components.sidebar-menu')->with([
-            'menu' => $this->menu,
-            'component' => $this,
-        ]);
+        // Trỏ đến file view của component
+        // Laravel sẽ tự tìm file resources/views/components/sidebar-menu.blade.php
+        return view('components.sidebar-menu');
     }
 }

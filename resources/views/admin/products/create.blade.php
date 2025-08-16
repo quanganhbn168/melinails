@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 @section('title','Thêm sản phẩm mới')
-@section('content_header', 'Thêm sản phẩm mới')
+@section('content_header_title', 'Thêm sản phẩm mới')
 @section('content')
 <form action="{{ route('admin.products.store') }}" method="POST" enctype="multipart/form-data">
     @csrf

@@ -1,7 +1,7 @@
 @extends('layouts.admin')
 
 @section('title','Chỉnh sửa sản phẩm')
-@section('content_header', 'Chỉnh sửa sản phẩm')
+@section('content_header_title', 'Chỉnh sửa sản phẩm')
 
 @section('content')
 {{-- Thay đổi action và thêm method PUT cho việc cập nhật --}}

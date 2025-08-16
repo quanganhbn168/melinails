@@ -1,5 +1,5 @@
 
-    <div class="swiper slider h-100">
+    <div class="swiper main-slider h-100">
         <div class="swiper-wrapper">
             @foreach($slides as $key => $slide)
             <div class="swiper-slide">

@@ -3,7 +3,6 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
-
 return new class extends Migration
 {
     /**
@@ -24,6 +23,8 @@ return new class extends Migration
             $table->boolean('is_home')->default(1);
             $table->boolean('is_menu')->default(1);
             $table->boolean('is_footer')->default(1);
+            $table->enum('category_type', ['physical', 'service'])->default('physical');
+            $table->unsignedInteger('position')->default(0)->index();
             $table->text('meta_description')->nullable();
             $table->text('meta_keywords')->nullable();   
             $table->string('meta_image')->nullable();   

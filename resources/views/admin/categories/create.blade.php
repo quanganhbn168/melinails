@@ -1,7 +1,7 @@
 @extends('layouts.admin')
 
 @section('title', 'Thêm danh mục mới')
-@section('content_header', 'Thêm danh mục mới')
+@section('content_header_title', 'Thêm danh mục mới')
 
 @section('content')
 <div class="card">
@@ -13,9 +13,7 @@
         @csrf
         <div class="card-body">
             <x-form.input type="text" name="name" label="Tên danh mục" :value="old('name')" />
-
-            <x-form.input type="text" name="slug" label="Slug (URL thân thiện)" :value="old('slug')" placeholder="Tự động tạo nếu để trống" />
-
+            
             <x-form.category-select
                 name="parent_id"
                 label="Danh mục cha"

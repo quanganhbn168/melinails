@@ -4,81 +4,92 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Str;
-use App\Traits\HasImageGallery;
-use App\Traits\UploadImageTrait;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+
 class Product extends Model
 {
-    /** @use HasFactory<\Database\Factories\ProductFactory> */
-    use HasFactory, HasImageGallery, UploadImageTrait;
+    use HasFactory;
+
     protected $fillable = [
+        'type',
         'category_id',
+        'brand_id',
         'name',
         'code',
         'slug',
         'image',
-        'banner',
-        'sm',
-        'll',
-        'price', 
-        'price_discount',
         'description',
         'content',
-        'specifications',
-        'is_home',
-        'is_featured',
-        'is_on_sale',
-        'meta_des',
-        'meta_key',
-        'meta_image',
+        'price',
+        'price_discount',
+        'stock',
         'status',
+        'is_featured',
+        'meta_title',
+        'meta_description',
+        'meta_image',
+        'meta_keywords',
     ];
 
     protected $casts = [
-        'price' => 'float',
-        'price_discount' => 'float',
         'status' => 'boolean',
-        'is_home' => 'boolean',
         'is_featured' => 'boolean',
-        'is_on_sale' => 'boolean',
     ];
+    
+    // -- Accessors cho Giá --
+    public function getIsOnSaleAttribute(): bool
+    {
+        return $this->price_discount > $this->price;
+    }
 
+    public function getDiscountPercentAttribute(): int
+    {
+        if ($this->getIsOnSaleAttribute()) {
+            return round((($this->price_discount - $this->price) / $this->price_discount) * 100);
+        }
+        return 0;
+    }
 
-    public function category()
+    // -- Các mối quan hệ (Relationships) --
+    public function category(): BelongsTo
     {
         return $this->belongsTo(Category::class);
     }
-    public function slug()
+
+    public function brand(): BelongsTo
     {
-        return $this->morphOne(Slug::class, 'sluggable');
+        return $this->belongsTo(Brand::class);
     }
 
-    public function getSlugUrlAttribute()
-    {
-        return url($this->slug->slug ?? '#');
-    }
-
-    public function attributes() {
-        return $this->belongsToMany(Attribute::class)
-                    ->withPivot('value') 
-                    ->withTimestamps();
-    }
-    
+    /**
+     * Quan hệ cho các Biến thể (SKUs).
+     */
     public function variants(): HasMany
     {
         return $this->hasMany(ProductVariant::class);
+    }
+
+    /**
+     * Quan hệ cho các Thuộc tính Lọc/Thông số kỹ thuật.
+     */
+    public function specifications(): BelongsToMany
+    {
+        return $this->belongsToMany(AttributeValue::class, 'attribute_value_product');
+    }
+
+    public function slug()
+    {
+        return $this->morphOne(\App\Models\Slug::class, 'sluggable');
     }
     public function images()
     {
         return $this->morphMany(Image::class, 'item');
     }
-    public function brand()
+    
+    public function getSlugUrlAttribute()
     {
-        return $this->belongsTo(Brand::class);
-    }
-    public function tags()
-    {
-        return $this->belongsToMany(Tag::class, 'product_tag');
+        return url($this->slug->slug ?? '#');
     }
 }

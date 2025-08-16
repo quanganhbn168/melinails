@@ -2,8 +2,8 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\CategoryController;
-use App\Http\Controllers\ProductController;
+use App\Http\Controllers\Admin\CategoryController;
+use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\PostCategoryController;
 use App\Http\Controllers\PostController;
@@ -22,9 +22,8 @@ use App\Http\Controllers\TagController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\WarrantyController;
-use App\Http\Controllers\AttributeController;
-use App\Http\Controllers\AttributeValueController;
-
+use App\Http\Controllers\Admin\AttributeController;
+use App\Http\Controllers\Admin\AttributeValueController;
 // use App\Http\Controllers\ToggleController;
 
 Route::middleware(['auth:admin'])->prefix('admin')->as('admin.')->group(function () {
@@ -40,6 +39,9 @@ Route::middleware(['auth:admin'])->prefix('admin')->as('admin.')->group(function
     Route::resource('post-categories', PostCategoryController::class);
     Route::resource('posts', PostController::class);
     Route::resource('slides', SlideController::class);
+    Route::resource('attributes', AttributeController::class);
+    Route::resource('attributes.values', AttributeValueController::class)->shallow()->except(['index', 'show']);
+
     Route::post('/slides/{slide}/toggle-status', [SlideController::class, 'toggleStatus'])
       ->name('slides.toggle-status');
     Route::resource('projects', ProjectController::class);

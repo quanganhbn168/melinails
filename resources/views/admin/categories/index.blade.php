@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 @section('title','Danh sách danh mục')
-@section('content_header','Danh sách danh mục')
+@section('content_header_title','Danh sách danh mục')
 @section('content')
 
 <div class="card">

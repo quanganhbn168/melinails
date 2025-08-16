@@ -281,7 +281,7 @@
                         <div class="swiper-button-next"></div>
                     </div>
                 </div>
-                <a href="{{route('products.by_category',$category->slug)}}" title="Xem tất cả" class="btn btn-primary">
+                <a href="{{route('products.by_category',$category->slug)}}" title="Xem tất cả" class="btn btn-primary d-none d-sm-block">
                     <span>Xem tất cả</span>
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
                         <path fill-rule="evenodd" d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8z"/>
@@ -301,11 +301,94 @@
                         @endforeach
                     </div>
                 </div>
+                <div class="block-see-more text-center d-block d-md-none mt-3">
+                    <a href="{{route('products.by_category',$category->slug)}}" title="Xem tất cả" class="btn btn-primary">
+                        <span>Xem tất cả</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                            <path fill-rule="evenodd" d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8z"/>
+                        </svg>
+                    </a>
+                </div>
             </div>
         </div>
     </div>
 </section>
 @endforeach
+<div class="container-fluid">
+    <div class="row" style="height: 350px;">
+
+        <div class="col-md-6 p-3">
+            <div class="bg-primary w-100 h-100 d-flex align-items-center justify-content-center text-white">
+                Ảnh lớn bên trái
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="row h-100">
+
+                <div class="col-12 h-50 p-3">
+                    <div class="bg-success w-100 h-100 d-flex align-items-center justify-content-center text-white">
+                        Ảnh trên bên phải
+                    </div>
+                </div>
+
+                <div class="col-12 h-50">
+                    <div class="row h-100">
+                        <div class="col-6 p-3 h-100">
+                            <div class="bg-warning w-100 h-100 d-flex align-items-center justify-content-center">
+                                Ảnh dưới 1
+                            </div>
+                        </div>
+                        <div class="col-6 p-3 h-100">
+                            <div class="bg-danger w-100 h-100 d-flex align-items-center justify-content-center text-white">
+                                Ảnh dưới 2
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+<section class="section seciton_deal">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="block-title col-lg-3 col-xl-2">
+                <div class="section-title side-left has-control">
+                    <h2>
+                        'Bão Deal' giảm giá
+                    </h2>
+                    <div class="slider-controls">
+                        <div class="swiper-button-prev"></div>
+                        <div class="swiper-button-next"></div>
+                    </div>
+                </div>
+                <a href="{{route('products.by_category',$category->slug)}}" title="Xem tất cả" class="btn btn-primary">
+                    <span>Xem tất cả</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd" d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8z"/>
+                    </svg>
+                </a>
+            </div>
+
+            <div class="block-product-list col-lg-9 col-xl-10">
+                <div class="product-slider swiper">
+                    <div class="swiper-wrapper">
+                        {{-- Giả sử anh có biến $products từ controller --}}
+                        @foreach($saleProducts as $product)
+                            <div class="swiper-slide">
+                                {{-- Gọi partial item sản phẩm đã sửa ở Bước 1 --}}
+                                @include('partials.frontend.product_item', ['product' => $product])
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>      
 <section class="news">
     <div class="container">
         <h2 class="section-title">
@@ -474,9 +557,34 @@
         });
 </script>
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
+document.addEventListener('DOMContentLoaded', function () {
 
-    
+    // --- 1. KHỞI TẠO SLIDER CHÍNH (LUÔN CHẠY) ---
+    const mainSliderEl = document.querySelector('.main-slider');
+    if (mainSliderEl) {
+        const mainSlider = new Swiper(mainSliderEl, {
+            loop: true,
+            autoplay: {
+                delay: 5000,
+                disableOnInteraction: false,
+            },
+            lazy: {
+                loadPrevNext: true,
+            },
+            // QUAN TRỌNG: Chỉ tìm nút điều hướng bên trong chính slider này
+            pagination: {
+                el: mainSliderEl.querySelector('.swiper-pagination'),
+                clickable: true,
+            },
+            navigation: {
+                nextEl: mainSliderEl.querySelector('.swiper-button-next'),
+                prevEl: mainSliderEl.querySelector('.swiper-button-prev'),
+            },
+        });
+    }
+
+    // --- 2. HÀM KHỞI TẠO CÁC SLIDER RESPONSIVE (chỉ chạy trên màn hình lớn) ---
+    // Hàm này đã được viết tốt, giữ nguyên
     const setupResponsiveSwiper = (sectionElement, swiperSelector, options, breakpointWidth = 992) => {
         if (!sectionElement) return;
 
@@ -485,7 +593,6 @@
 
         const initializeSwiper = () => {
             if (breakpoint.matches === true && swiperInstance === null) {
-                
                 const swiperEl = sectionElement.querySelector(swiperSelector);
                 const nextEl = sectionElement.querySelector('.swiper-button-next');
                 const prevEl = sectionElement.querySelector('.swiper-button-prev');
@@ -496,7 +603,6 @@
                     navigation: { nextEl, prevEl },
                     pagination: { el: paginationEl, clickable: true },
                 };
-                
                 
                 if (swiperEl) {
                     swiperInstance = new Swiper(swiperEl, finalOptions);
@@ -511,9 +617,7 @@
         window.addEventListener('resize', initializeSwiper);
     };
 
-    
-
-    
+    // --- 3. ÁP DỤNG HÀM RESPONSIVE CHO CÁC SECTION TƯƠNG ỨNG ---
     const categorySection = document.querySelector('.section_category');
     if (categorySection) {
         setupResponsiveSwiper(
@@ -532,12 +636,8 @@
         );
     }
     
-
-    
-    
     const productSections = document.querySelectorAll('.section_product');
     productSections.forEach(section => {
-        
         setupResponsiveSwiper(
             section, 
             '.product-slider',

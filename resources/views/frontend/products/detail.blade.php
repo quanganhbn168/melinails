@@ -85,7 +85,7 @@
                                 <div class="variant-group">
                                     <label class="variant-label">{{ $attributeName }}:</label>
                                     <div class="variant-options">
-                                        @foreach ($variants->pluck('attributeValues.first')->unique('id') as $attributeValue)
+                                        @foreach ($variants->pluck('attributeValues.first')->filter()->unique('id') as $attributeValue)
                                             <div class="variant-item">
                                                 <input type="radio" id="variant_{{ $attributeValue->id }}" name="attribute_{{ Str::slug($attributeName) }}" value="{{ $attributeValue->id }}" class="variant-selector">
                                                 <label for="variant_{{ $attributeValue->id }}">{{ $attributeValue->value }}</label>
@@ -109,7 +109,7 @@
 
                         {{-- Nút bấm hành động --}}
                         <div class="action-buttons">
-                            <button id="add-to-cart-btn" class="btn btn-add-to-cart"
+                            <button id="add-to-cart-btn" class="btn btn-add-to-cart btn-primary"
                                 data-id="{{ $product->id }}"
                                 data-name="{{ $product->name }}"
                                 data-price="{{ $product->price_discount ?? $product->price }}"

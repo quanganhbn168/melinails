@@ -4,104 +4,60 @@ namespace App\Services;
 
 use App\Models\Attribute;
 use App\Models\AttributeValue;
-use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Storage;
 
 class AttributeService
 {
-    /**
-     * Lấy danh sách attribute kèm value phổ biến để preload cho trang Create
-     *
-     * @param int $valueLimit Giới hạn số value cho mỗi attribute
-     * @return \Illuminate\Support\Collection
-     */
-    public function getAttributesWithValues(int $valueLimit = 20): Collection
+    public function getAllAttributesPaginated(int $perPage = 15)
     {
-        return Attribute::with(['values' => function ($q) use ($valueLimit) {
-                $q->orderBy('value')->limit($valueLimit);
-            }])
-            ->orderBy('name')
-            ->get()
-            ->map(function ($attr) {
-                return [
-                    'id' => $attr->id,
-                    'name' => $attr->name,
-                    'values' => $attr->values->map(fn($v) => [
-                        'id' => $v->id,
-                        'value' => $v->value,
-                    ]),
-                ];
-            });
+        return Attribute::with('values')->latest()->paginate($perPage);
     }
 
-    /**
-     * Tìm hoặc tạo mới attribute theo tên
-     *
-     * @param string $name
-     * @return int ID của attribute
-     */
-    public function resolveOrCreate(string $name): int
+    public function createAttribute(array $data): Attribute
     {
-        $attribute = Attribute::firstOrCreate(['name' => $name]);
-        return $attribute->id;
+        return Attribute::create($data);
     }
 
-    /**
-     * Tìm hoặc tạo mới value cho attribute
-     *
-     * @param int $attributeId
-     * @param string $value
-     * @return int ID của attribute value
-     */
-    public function resolveOrCreateValue(int $attributeId, string $value): int
+    public function updateAttribute(Attribute $attribute, array $data): bool
     {
-        $attributeValue = AttributeValue::firstOrCreate([
-            'attribute_id' => $attributeId,
-            'value' => $value,
-        ]);
-
-        return $attributeValue->id;
+        return $attribute->update($data);
     }
 
-    /**
-     * Lấy danh sách attribute cho Select2 Ajax
-     *
-     * @param string|null $keyword
-     * @return array
-     */
-    public function getAttributesForSelect2(?string $keyword = null): array
+    public function deleteAttribute(Attribute $attribute): ?bool
     {
-        $query = Attribute::query();
-
-        if ($keyword) {
-            $query->where('name', 'LIKE', "%{$keyword}%");
+        // Xóa các ảnh của giá trị con trước khi xóa cha
+        foreach ($attribute->values as $value) {
+            if ($value->image) {
+                Storage::disk('public')->delete($value->image);
+            }
         }
-
-        return $query->orderBy('name')
-            ->limit(20)
-            ->get(['id', 'name'])
-            ->map(fn($attr) => ['id' => $attr->id, 'name' => $attr->name])
-            ->toArray();
+        return $attribute->delete();
     }
 
-    /**
-     * Lấy danh sách value cho Select2 Ajax theo attribute_id
-     *
-     * @param int $attributeId
-     * @param string|null $keyword
-     * @return array
-     */
-    public function getValuesForSelect2(int $attributeId, ?string $keyword = null): array
+    public function createAttributeValue(Attribute $attribute, array $data): AttributeValue
     {
-        $query = AttributeValue::query()->where('attribute_id', $attributeId);
-
-        if ($keyword) {
-            $query->where('value', 'LIKE', "%{$keyword}%");
+        if (isset($data['image'])) {
+            $data['image'] = $data['image']->store('attribute_values', 'public');
         }
+        return $attribute->values()->create($data);
+    }
 
-        return $query->orderBy('value')
-            ->limit(20)
-            ->get(['id', 'value'])
-            ->map(fn($v) => ['id' => $v->id, 'name' => $v->value])
-            ->toArray();
+    public function updateAttributeValue(AttributeValue $value, array $data): bool
+    {
+        if (isset($data['image'])) {
+            if ($value->image) {
+                Storage::disk('public')->delete($value->image);
+            }
+            $data['image'] = $data['image']->store('attribute_values', 'public');
+        }
+        return $value->update($data);
+    }
+
+    public function deleteAttributeValue(AttributeValue $value): ?bool
+    {
+        if ($value->image) {
+            Storage::disk('public')->delete($value->image);
+        }
+        return $value->delete();
     }
 }
