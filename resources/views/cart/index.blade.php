@@ -4,7 +4,6 @@
 <div class="container py-5">
     <h2 class="mb-4">Giỏ hàng của bạn</h2>
     <div class="row">
-        {{-- Bảng chứa các sản phẩm trong giỏ hàng --}}
         <div class="col-lg-8">
             <div class="table-responsive">
                 <table class="table table-hover align-middle">
@@ -17,13 +16,11 @@
                             <th scope="col" class="text-center">Xóa</th>
                         </tr>
                     </thead>
-                    {{-- JavaScript sẽ render các dòng sản phẩm vào tbody này --}}
                     <tbody id="cart-items-container">
                     </tbody>
                 </table>
             </div>
         </div>
-        {{-- Cột tóm tắt đơn hàng --}}
         <div class="col-lg-4">
             <div class="card shadow-sm">
                 <div class="card-body">
@@ -44,7 +41,7 @@
                             <span><strong id="summary-total">0đ</strong></span>
                         </li>
                     </ul>
-                    <a href="{{ route('checkout.index') }}" class="btn btn-primary w-100 mt-3">
+                    <a href="{{ route('checkout.index') }}" class="btn bg-main w-100 mt-3">
                         Tiến hành Thanh toán
                     </a>
                 </div>
@@ -52,18 +49,17 @@
         </div>
     </div>
 </div>
-{{-- TEMPLATE CHO MỘT DÒNG SẢN PHẨM TRONG BẢNG (GIAO DIỆN MỚI) --}}
 <template id="cart-item-template">
     <tr class="cart-item-row" data-id="__ID__">
         <td style="width: 80px;">
             <img src="__IMAGE__" class="img-fluid rounded" alt="__NAME__">
         </td>
         <td>
-            <h6 class="mb-0">__NAME__</h6>
+            <h3 class="mb-0">__NAME__</h3>
+            <div class="text-muted small">__VARIANT__</div>
         </td>
         <td class="text-center price-per-item" data-price="__PRICE_RAW__">__PRICE__</td>
         <td style="width: 150px;" class="text-center">
-            {{-- Bắt đầu khối Input Group đã nâng cấp --}}
             <div class="input-group input-group-sm mx-auto" style="max-width: 120px;">
                 <div class="input-group-prepend">
                     <button class="btn btn-outline-secondary btn-minus" type="button">-</button>
@@ -73,7 +69,6 @@
                     <button class="btn btn-outline-secondary btn-plus" type="button">+</button>
                 </div>
             </div>
-            {{-- Kết thúc khối Input Group --}}
         </td>
         <td class="text-end item-subtotal">__SUBTOTAL__</td>
         <td class="text-center">
@@ -107,33 +102,56 @@ $(document).ready(function() {
         $('#summary-total').text(formatCurrency(total));
     }
     function renderCart(items) {
-        cartTbody.empty();
-        if (!items || items.length === 0) {
-            const emptyRow = `<tr><td colspan="6" class="text-center py-4">Giỏ hàng của bạn đang trống.</td></tr>`;
-            cartTbody.html(emptyRow);
-            updateCartSummary();
-            return;
-        }
-        items.forEach(item => {
-            const product = isGuest ? item : item.product;
-            const price = parseFloat(product.price_discount || product.price);
-            const quantity = item.quantity;
-            const itemHtml = itemTemplate
-                .replace(/__ID__/g, isGuest ? item.id : item.id) 
-                .replace(/__IMAGE__/g, isGuest ? item.image : `${baseUrl}/${product.image}`)
-                .replace(/__NAME__/g, product.name)
-                .replace(/__PRICE_RAW__/g, price)
-                .replace(/__PRICE__/g, formatCurrency(price))
-                .replace(/__QUANTITY__/g, quantity)
-                .replace(/__SUBTOTAL__/g, formatCurrency(price * quantity));
-            cartTbody.append(itemHtml);
-        });
-        updateCartSummary();
+  cartTbody.empty();
+  if (!items || items.length === 0) {
+    cartTbody.html(`<tr><td colspan="6" class="text-center py-4">Giỏ hàng của bạn đang trống.</td></tr>`);
+    updateCartSummary();
+    return;
+  }
+  items.forEach(item => {
+    if (isGuest) {
+      const id        = item.cartId;                       
+      const image     = item.image;                        
+      const name      = item.name;
+      const price     = Number(item.price);
+      const quantity  = Number(item.quantity);
+      const variant   = item.variantText || '';            
+      const html = itemTemplate
+        .replace(/__ID__/g, id)
+        .replace(/__IMAGE__/g, image)
+        .replace(/__NAME__/g, name)
+        .replace(/__VARIANT__/g, variant)                  
+        .replace(/__PRICE_RAW__/g, price)
+        .replace(/__PRICE__/g, formatCurrency(price))
+        .replace(/__QUANTITY__/g, quantity)
+        .replace(/__SUBTOTAL__/g, formatCurrency(price * quantity));
+      cartTbody.append(html);
+    } else {
+      const product   = item.product || {};
+      const id        = item.id;                           
+      const image     = `${baseUrl}/${product.image}`;
+      const name      = product.name;
+      const price     = Number(product.price_discount || product.price);
+      const quantity  = Number(item.quantity);
+      const variant   = item.variant_text || item.variantText || '';  
+      const html = itemTemplate
+        .replace(/__ID__/g, id)
+        .replace(/__IMAGE__/g, image)
+        .replace(/__NAME__/g, name)
+        .replace(/__VARIANT__/g, variant)
+        .replace(/__PRICE_RAW__/g, price)
+        .replace(/__PRICE__/g, formatCurrency(price))
+        .replace(/__QUANTITY__/g, quantity)
+        .replace(/__SUBTOTAL__/g, formatCurrency(price * quantity));
+      cartTbody.append(html);
     }
+  });
+  updateCartSummary();
+}
     function handleQuantityChange(input) {
         const cartItemRow = $(input).closest('.cart-item-row');
         const quantity = parseInt($(input).val(), 10);
-        const itemId = cartItemRow.data('id');
+        const itemKey = cartItemRow.data('id');
         if (!isGuest) { 
             $.ajax({
                 url: `/cart/update/${itemId}`,
@@ -151,11 +169,11 @@ $(document).ready(function() {
         } else { 
             let cart = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
             if (quantity == 0) {
-                cart = cart.filter(item => item.id != itemId);
+                cart = cart.filter(it => it.cartId != itemKey);
                 cartItemRow.remove();
             } else {
-                const itemInCart = cart.find(item => item.id == itemId);
-                if (itemInCart) itemInCart.quantity = quantity;
+                const it = cart.find(x => x.cartId == itemKey);  
+                if (it) it.quantity = quantity;
             }
             localStorage.setItem(STORAGE_KEY, JSON.stringify(cart));
             updateCartSummary();
@@ -163,7 +181,7 @@ $(document).ready(function() {
     }
     function handleRemoveItem(button) {
         const cartItemRow = $(button).closest('.cart-item-row');
-        const itemId = cartItemRow.data('id');
+        const itemKey = cartItemRow.data('id');
         if (!isGuest) { 
             if (!confirm('Bạn chắc chắn muốn xóa sản phẩm này?')) return;
             $.ajax({
@@ -180,7 +198,7 @@ $(document).ready(function() {
             });
         } else { 
             let cart = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
-            cart = cart.filter(item => item.id != itemId);
+            cart = cart.filter(it => it.cartId != itemKey); 
             localStorage.setItem(STORAGE_KEY, JSON.stringify(cart));
             cartItemRow.remove();
             updateCartSummary();

@@ -69,201 +69,25 @@
 
         <div class="swiper_category swiper">
             <div class="swiper-wrapper">
-                
+                @foreach($allCategoriesHome as $key => $allCategoyHome)
                 <div class="swiper-slide">
-                    <a href="/quan-ao-bao-ho" title="Quần áo bảo hộ" class="cate-item">
+                    <a href="{{route('products.by_category',$allCategoyHome->slug)}}" title="{{$allCategoyHome->name}}" class="cate-item">
                         <div class="bg-thumb">
                             <div class="thumb">
-                                <img src="//bizweb.dktcdn.net/100/504/717/themes/933859/assets/image_cate_1.png?1734490427077" alt="Quần áo bảo hộ" loading="lazy">
+                                <img src="{{ $allCategoyHome->icon ? asset($allCategoyHome->icon) : asset('images/setting/no-image.png') }}" alt="{{ $allCategoyHome->name }}" loading="lazy">
                             </div>
                         </div>
                         <div class="cate-content">
-                            <h3 class="line-clamp-2-new">Quần áo bảo hộ</h3>
+                            <h3 class="line-clamp-2-new">{{$allCategoyHome->name}}</h3>
                             <div class="status">
-                                <span class="total-product">32 sản phẩm</span>
+                                <span class="total-product">{{$allCategoyHome->products()->count()}} sản phẩm</span>
                                 <span class="view-more">Xem chi tiết</span>
                             </div>
                         </div>
                     </a>
                 </div>
-                <div class="swiper-slide">
-                    <a href="/ao-gile-phan-quang" title="Áo gile/áo lưới" class="cate-item">
-                        <div class="bg-thumb">
-                            <div class="thumb">
-                                <img src="//bizweb.dktcdn.net/100/504/717/themes/933859/assets/image_cate_2.png?1734490427077" alt="Áo gile/áo lưới" loading="lazy">
-                            </div>
-                        </div>
-                        <div class="cate-content">
-                            <h3 class="line-clamp-2-new">Áo gile/áo lưới</h3>
-                            <div class="status">
-                                <span class="total-product">10 sản phẩm</span>
-                                <span class="view-more">Xem chi tiết</span>
-                            </div>
-                        </div>
-                    </a>
-                </div>
-                <div class="swiper-slide">
-                    <a href="/giay-bao-ho" title="Giày bảo hộ" class="cate-item">
-                        <div class="bg-thumb">
-                            <div class="thumb">
-                                <img src="//bizweb.dktcdn.net/100/504/717/themes/933859/assets/image_cate_3.png?1734490427077" alt="Giày bảo hộ" loading="lazy">
-                            </div>
-                        </div>
-                        <div class="cate-content">
-                            <h3 class="line-clamp-2-new">Giày bảo hộ</h3>
-                            <div class="status">
-                                <span class="total-product">7 sản phẩm</span>
-                                <span class="view-more">Xem chi tiết</span>
-                            </div>
-                        </div>
-                    </a>
-                </div>
-                <div class="swiper-slide">
-                    <a href="/giay-bao-ho" title="Giày bảo hộ" class="cate-item">
-                        <div class="bg-thumb">
-                            <div class="thumb">
-                                <img src="//bizweb.dktcdn.net/100/504/717/themes/933859/assets/image_cate_3.png?1734490427077" alt="Giày bảo hộ" loading="lazy">
-                            </div>
-                        </div>
-                        <div class="cate-content">
-                            <h3 class="line-clamp-2-new">Giày bảo hộ</h3>
-                            <div class="status">
-                                <span class="total-product">7 sản phẩm</span>
-                                <span class="view-more">Xem chi tiết</span>
-                            </div>
-                        </div>
-                    </a>
-                </div>
-                <div class="swiper-slide">
-                    <a href="/giay-bao-ho" title="Giày bảo hộ" class="cate-item">
-                        <div class="bg-thumb">
-                            <div class="thumb">
-                                <img src="//bizweb.dktcdn.net/100/504/717/themes/933859/assets/image_cate_3.png?1734490427077" alt="Giày bảo hộ" loading="lazy">
-                            </div>
-                        </div>
-                        <div class="cate-content">
-                            <h3 class="line-clamp-2-new">Giày bảo hộ</h3>
-                            <div class="status">
-                                <span class="total-product">7 sản phẩm</span>
-                                <span class="view-more">Xem chi tiết</span>
-                            </div>
-                        </div>
-                    </a>
-                </div>
-                <div class="swiper-slide">
-                    <a href="/giay-bao-ho" title="Giày bảo hộ" class="cate-item">
-                        <div class="bg-thumb">
-                            <div class="thumb">
-                                <img src="//bizweb.dktcdn.net/100/504/717/themes/933859/assets/image_cate_3.png?1734490427077" alt="Giày bảo hộ" loading="lazy">
-                            </div>
-                        </div>
-                        <div class="cate-content">
-                            <h3 class="line-clamp-2-new">Giày bảo hộ</h3>
-                            <div class="status">
-                                <span class="total-product">7 sản phẩm</span>
-                                <span class="view-more">Xem chi tiết</span>
-                            </div>
-                        </div>
-                    </a>
-                </div>
-                <div class="swiper-slide">
-                    <a href="/giay-bao-ho" title="Giày bảo hộ" class="cate-item">
-                        <div class="bg-thumb">
-                            <div class="thumb">
-                                <img src="//bizweb.dktcdn.net/100/504/717/themes/933859/assets/image_cate_3.png?1734490427077" alt="Giày bảo hộ" loading="lazy">
-                            </div>
-                        </div>
-                        <div class="cate-content">
-                            <h3 class="line-clamp-2-new">Giày bảo hộ</h3>
-                            <div class="status">
-                                <span class="total-product">7 sản phẩm</span>
-                                <span class="view-more">Xem chi tiết</span>
-                            </div>
-                        </div>
-                    </a>
-                </div>
-                <div class="swiper-slide">
-                    <a href="/giay-bao-ho" title="Giày bảo hộ" class="cate-item">
-                        <div class="bg-thumb">
-                            <div class="thumb">
-                                <img src="//bizweb.dktcdn.net/100/504/717/themes/933859/assets/image_cate_3.png?1734490427077" alt="Giày bảo hộ" loading="lazy">
-                            </div>
-                        </div>
-                        <div class="cate-content">
-                            <h3 class="line-clamp-2-new">Giày bảo hộ</h3>
-                            <div class="status">
-                                <span class="total-product">7 sản phẩm</span>
-                                <span class="view-more">Xem chi tiết</span>
-                            </div>
-                        </div>
-                    </a>
-                </div>
-                <div class="swiper-slide">
-                    <a href="/giay-bao-ho" title="Giày bảo hộ" class="cate-item">
-                        <div class="bg-thumb">
-                            <div class="thumb">
-                                <img src="//bizweb.dktcdn.net/100/504/717/themes/933859/assets/image_cate_3.png?1734490427077" alt="Giày bảo hộ" loading="lazy">
-                            </div>
-                        </div>
-                        <div class="cate-content">
-                            <h3 class="line-clamp-2-new">Giày bảo hộ</h3>
-                            <div class="status">
-                                <span class="total-product">7 sản phẩm</span>
-                                <span class="view-more">Xem chi tiết</span>
-                            </div>
-                        </div>
-                    </a>
-                </div>
-                <div class="swiper-slide">
-                    <a href="/giay-bao-ho" title="Giày bảo hộ" class="cate-item">
-                        <div class="bg-thumb">
-                            <div class="thumb">
-                                <img src="//bizweb.dktcdn.net/100/504/717/themes/933859/assets/image_cate_3.png?1734490427077" alt="Giày bảo hộ" loading="lazy">
-                            </div>
-                        </div>
-                        <div class="cate-content">
-                            <h3 class="line-clamp-2-new">Giày bảo hộ</h3>
-                            <div class="status">
-                                <span class="total-product">7 sản phẩm</span>
-                                <span class="view-more">Xem chi tiết</span>
-                            </div>
-                        </div>
-                    </a>
-                </div>
-                <div class="swiper-slide">
-                    <a href="/giay-bao-ho" title="Giày bảo hộ" class="cate-item">
-                        <div class="bg-thumb">
-                            <div class="thumb">
-                                <img src="//bizweb.dktcdn.net/100/504/717/themes/933859/assets/image_cate_3.png?1734490427077" alt="Giày bảo hộ" loading="lazy">
-                            </div>
-                        </div>
-                        <div class="cate-content">
-                            <h3 class="line-clamp-2-new">Giày bảo hộ</h3>
-                            <div class="status">
-                                <span class="total-product">7 sản phẩm</span>
-                                <span class="view-more">Xem chi tiết</span>
-                            </div>
-                        </div>
-                    </a>
-                </div>
-                <div class="swiper-slide">
-                    <a href="/giay-bao-ho" title="Giày bảo hộ" class="cate-item">
-                        <div class="bg-thumb">
-                            <div class="thumb">
-                                <img src="//bizweb.dktcdn.net/100/504/717/themes/933859/assets/image_cate_3.png?1734490427077" alt="Giày bảo hộ" loading="lazy">
-                            </div>
-                        </div>
-                        <div class="cate-content">
-                            <h3 class="line-clamp-2-new">Giày bảo hộ</h3>
-                            <div class="status">
-                                <span class="total-product">7 sản phẩm</span>
-                                <span class="view-more">Xem chi tiết</span>
-                            </div>
-                        </div>
-                    </a>
-                </div>
-                
-                </div>
+                @endforeach                
+            </div>
         </div>
     </div>
 </section>
@@ -314,58 +138,86 @@
     </div>
 </section>
 @endforeach
-<div class="container-fluid">
-    <div class="row" style="height: 350px;">
+@php
+    // Chỉ hiển thị section này khi có đủ 4 danh mục nổi bật
+    // Vì layout này được thiết kế cứng cho 4 mục
+@endphp
+@if(isset($featuredCategories) && $featuredCategories->count() >= 4)
+<section class="section-index section_group_banner">
+    <div class="container-fluid"> {{-- Hoặc container nếu anh muốn có khoảng cách hai bên --}}
+        <div class="grid">
+            
+            {{-- CỘT BÊN TRÁI (Ảnh lớn nhất) --}}
+            <div class="col-left">
+                <div class="banner_1 banner-box">
+                    @php $cat = $featuredCategories[0]; @endphp
+                    <a href="{{ route('products.by_category', $cat->slug) }}" title="{{ $cat->name }}">
+                        <img src="{{ asset($cat->image ?? 'images/setting/no-image.png') }}" alt="{{ $cat->name }}" loading="lazy" class="lazyload duration-300">
+                        <div class="box-title">
+                            <h3>{{ $cat->name }}</h3>
+                        </div>
+                    </a>
+                </div>
+            </div>
 
-        <div class="col-md-6 p-3">
-            <div class="bg-primary w-100 h-100 d-flex align-items-center justify-content-center text-white">
-                Ảnh lớn bên trái
+            {{-- CỘT BÊN PHẢI (3 ảnh còn lại) --}}
+            <div class="col-right">
+                <div class="grid-sub">
+                    
+                    {{-- Ảnh trên --}}
+                    <div class="banner_2 banner-box">
+                        @php $cat = $featuredCategories[1]; @endphp
+                        <a href="{{ route('products.by_category', $cat->slug) }}" title="{{ $cat->name }}">
+                            <img src="{{ asset($cat->image ?? 'images/setting/no-image.png') }}" alt="{{ $cat->name }}" loading="lazy" class="lazyload duration-300">
+                            <div class="box-title">
+                                <h3>{{ $cat->name }}</h3>
+                            </div>
+                        </a>
+                    </div>
+                    
+                    {{-- Ảnh dưới bên trái --}}
+                    <div class="banner_3 banner-box">
+                        @php $cat = $featuredCategories[2]; @endphp
+                        <a href="{{ route('products.by_category', $cat->slug) }}" title="{{ $cat->name }}">
+                            <img src="{{ asset($cat->image ?? 'images/setting/no-image.png') }}" alt="{{ $cat->name }}" loading="lazy" class="lazyload duration-300">
+                            <div class="box-title">
+                                <h3>{{ $cat->name }}</h3>
+                            </div>
+                        </a>
+                    </div>
+
+                    {{-- Ảnh dưới bên phải --}}
+                    <div class="banner_4 banner-box">
+                        @php $cat = $featuredCategories[3]; @endphp
+                        <a href="{{ route('products.by_category', $cat->slug) }}" title="{{ $cat->name }}">
+                            <img src="{{ asset($cat->image ?? 'images/setting/no-image.png') }}" alt="{{ $cat->name }}" loading="lazy" class="lazyload duration-300">
+                            <div class="box-title">
+                                <h3>{{ $cat->name }}</h3>
+                            </div>
+                        </a>
+                    </div>
+
+                </div>
             </div>
         </div>
-
-        <div class="col-md-6">
-            <div class="row h-100">
-
-                <div class="col-12 h-50 p-3">
-                    <div class="bg-success w-100 h-100 d-flex align-items-center justify-content-center text-white">
-                        Ảnh trên bên phải
-                    </div>
-                </div>
-
-                <div class="col-12 h-50">
-                    <div class="row h-100">
-                        <div class="col-6 p-3 h-100">
-                            <div class="bg-warning w-100 h-100 d-flex align-items-center justify-content-center">
-                                Ảnh dưới 1
-                            </div>
-                        </div>
-                        <div class="col-6 p-3 h-100">
-                            <div class="bg-danger w-100 h-100 d-flex align-items-center justify-content-center text-white">
-                                Ảnh dưới 2
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-        </div>
-
     </div>
-</div>
-<section class="section seciton_deal">
+</section>
+@endif
+@if(isset($saleProducts) && $saleProducts->count() > 0)
+<section class="section-index section_product sale_product">
     <div class="container-fluid">
         <div class="row">
             <div class="block-title col-lg-3 col-xl-2">
                 <div class="section-title side-left has-control">
                     <h2>
-                        'Bão Deal' giảm giá
+                        <a href="{{route('products.by_category',$category->slug)}}">{{ $category->name }}</a>
                     </h2>
                     <div class="slider-controls">
                         <div class="swiper-button-prev"></div>
                         <div class="swiper-button-next"></div>
                     </div>
                 </div>
-                <a href="{{route('products.by_category',$category->slug)}}" title="Xem tất cả" class="btn btn-primary">
+                <a href="#" title="Xem tất cả" class="btn btn-primary d-none d-sm-block">
                     <span>Xem tất cả</span>
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
                         <path fill-rule="evenodd" d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8z"/>
@@ -385,125 +237,91 @@
                         @endforeach
                     </div>
                 </div>
+                <div class="block-see-more text-center d-block d-md-none mt-3">
+                    <a href="#" title="Xem tất cả" class="btn btn-primary">
+                        <span>Xem tất cả</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                            <path fill-rule="evenodd" d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8z"/>
+                        </svg>
+                    </a>
+                </div>
             </div>
         </div>
     </div>
-</section>      
-<section class="news">
-    <div class="container">
-        <h2 class="section-title">
-            <a href="">Tin tức</a>
-            <div class="section-tool">
-                <a href="">Xem thêm <i class="fa-solid fa-angles-right"></i></a>
-            </div>
-        </h2>
-            <div class="row">
-                <div class="col-12 col-md-6">
-                    <div class="big-news">
-                        <div class="big-news-image">
-                            <img src="https://placehold.co/400" alt="">
-                        </div>
-                        <h3>
-                            <a href="">Tin mới nhất</a>
-                        </h3>
+</section>
+@endif
+
+<section class="section-index section_feedback">
+    <div class="bg-section">
+        <div class="container">
+            {{-- PHẦN TIÊU ĐỀ --}}
+            <div class="section-title side-left has-control">
+                <h2>
+                    Khách hàng nói về chúng tôi
+                    <div class="desc">
+                        Hơn +50,000 khách hàng đang sử dụng cảm nhận như thế nào về chúng tôi
                     </div>
+                </h2>
+                <div class="slider-controls">
+                    <div class="swiper-button-prev"></div>
+                    <div class="swiper-button-next"></div>
                 </div>
-                <div class="col-12 col-md-6">
-                    <div class="news-item_list">
-                        <div class="item_list-img">
-                            <a href="">
-                                <img src="https://placehold.co/400" alt="" width="80" height="80">
-                            </a>
+            </div>
+
+            {{-- PHẦN SLIDER --}}
+            <div class="swiper_feedback swiper-container control-top">
+                <div class="swiper-wrapper">
+                    
+                    {{-- DÙNG VÒNG LẶP ĐỂ HIỂN THỊ CÁC ĐÁNH GIÁ --}}
+                    @foreach($testimonials as $testimonial)
+                        <div class="swiper-slide">
+                            {{-- Gọi partial đã được sửa ở trên --}}
+                            @include('partials.frontend.feedback_item', ['feedback' => $testimonial])
                         </div>
-                        <div class="item_list-info">
-                            <a href="">Tin tức 1</a>
-                        </div>
-                    </div>
-                    <div class="news-item_list">
-                        <div class="item_list-img">
-                            <a href="">
-                                <img src="https://placehold.co/400" alt="" width="80" height="80">
-                            </a>
-                        </div>
-                        <div class="item_list-info">
-                            <a href="">Tin tức 1</a>
-                        </div>
-                    </div>
-                    <div class="news-item_list">
-                        <div class="item_list-img">
-                            <a href="">
-                                <img src="https://placehold.co/400" alt="" width="80" height="80">
-                            </a>
-                        </div>
-                        <div class="item_list-info">
-                            <a href="">Tin tức 1</a>
-                        </div>
-                    </div>
-                    <div class="news-item_list">
-                        <div class="item_list-img">
-                            <a href="">
-                                <img src="https://placehold.co/400" alt="" width="80" height="80">
-                            </a>
-                        </div>
-                        <div class="item_list-info">
-                            <a href="">Tin tức 1</a>
-                        </div>
-                    </div>
+                    @endforeach
                     
                 </div>
             </div>
+        </div>
     </div>
 </section>
-<section id="contact" class="py-3">
+
+
+<section class="section-index section-blog">
     <div class="container">
-        <div class="row">
-            <div class="col-12 col-md-6 box-shadow bg-light mb-4">
-                <h2 class="section-title text-dark text-center my-4">Liên hệ với chúng tôi</h2>
-                <form id="contact-form" action="{{ route('contact.store') }}" method="POST" novalidate>
-                    @csrf
-                    <div class="form-row">
-                        <div class="form-group col-md-6">
-                            <label for="name">Họ và tên <span class="text-danger">*</span></label>
-                            <input type="text" name="name" id="name" class="form-control" required>
-                        </div>
-
-                        <div class="form-group col-md-6">
-                            <label for="phone">Số điện thoại <span class="text-danger">*</span></label>
-                            <input type="text" name="phone" id="phone" class="form-control" required>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="email">Email (không bắt buộc)</label>
-                        <input type="email" name="email" id="email" class="form-control">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="message">Nội dung liên hệ</label>
-                        <textarea name="message" id="message" rows="5" class="form-control" value="Tôi đang quan tâm đến sản phẩm"></textarea>
-                    </div>
-
-                    <div class="text-center mb-3">
-                        <button type="submit" class="btn btn-dark">Gọi cho tôi</button>
-                    </div>
-                </form>
+        <div class="section-title side-left has-control">
+            <h2>
+                <a href="">Tin tức mới nhất</a>
+            </h2>
+            <div class="slider-controls">
+                <div class="swiper-button-prev"></div>
+                <div class="swiper-button-next"></div>
             </div>
-            <div class="col-md-6 d-none d-md-block">
-                <div class="contact-info__image">
-                    <img src="{{asset($setting->logo)}}" alt="{{$setting->name}}">
-                    <p class="">{{$setting->name}}</p>
-                </div>
-                <p class="contact-info__text">
-                    Năng lượng mặt trời Tài Nguyễn
-                </p>
-                <div class="contact-info__button">
-                    <a href="" class="w-100 btn btn-light rounded-pill d-block mb-3">{{$setting->phone}}</a>
-                    <a href="" class="w-100 btn btn-dark rounded-pill d-block mb-3">Chat ngay</a>
+            <div class="swiper_blog swiper">
+                
+            </div>
+        </div>
+    </div>
+</section>
+<section class="section-index section-brand">
+    <div class="container">
+        <div class="section-title side-left has-control">
+            <h2>
+                <a href="">Thương hiệu nổi bật</a>
+            </h2>
+            <div class="slider-controls">
+                <div class="swiper-button-prev"></div>
+                <div class="swiper-button-next"></div>
+            </div>
+            <div class="swiper_brand swiper">
+                <div class="swiper-wrapper">
+                                  
                 </div>
             </div>
         </div>
     </div>
-</section>      
+</section>
+
 @endsection
 @push('js')
 <script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.5/dist/jquery.validate.min.js"></script>
@@ -582,6 +400,60 @@ document.addEventListener('DOMContentLoaded', function () {
             },
         });
     }
+    // Tìm đến section cha chứa cả slider và các nút điều khiển
+    const feedbackSection = document.querySelector('.section_feedback');
+
+    if (feedbackSection) {
+        // Tìm đến element của slider bên trong section đó
+        const swiperFeedbackEl = feedbackSection.querySelector('.swiper_feedback');
+
+        if (swiperFeedbackEl) {
+            const swiperFeedback = new Swiper(swiperFeedbackEl, {
+                // Hiển thị 3 slide trên màn hình lớn (desktop) làm mặc định
+                slidesPerView: 3,
+                // Khoảng cách giữa các slide là 20px
+                spaceBetween: 20,
+
+                loop: true,
+                autoplay: {
+                    delay: 5000,
+                    disableOnInteraction: false,
+                },
+                lazy: {
+                    loadPrevNext: true,
+                },
+                
+                // Sửa lỗi: Tìm pagination và navigation bên trong section hiện tại
+                pagination: {
+                    el: feedbackSection.querySelector('.swiper-pagination'),
+                    clickable: true,
+                },
+                navigation: {
+                    nextEl: feedbackSection.querySelector('.swiper-button-next'),
+                    prevEl: feedbackSection.querySelector('.swiper-button-prev'),
+                },
+
+                // Responsive: Tùy chỉnh số lượng slide theo kích thước màn hình
+                breakpoints: {
+                    // Dưới 768px (Mobile)
+                    0: {
+                        slidesPerView: 1,
+                        spaceBetween: 10,
+                    },
+                    // Từ 768px đến 1199px (Tablet)
+                    768: {
+                        slidesPerView: 2,
+                        spaceBetween: 20,
+                    },
+                    // Từ 1200px trở lên (Desktop)
+                    1200: {
+                        slidesPerView: 3,
+                        spaceBetween: 20,
+                    },
+                },
+            });
+        }
+    }
 
     // --- 2. HÀM KHỞI TẠO CÁC SLIDER RESPONSIVE (chỉ chạy trên màn hình lớn) ---
     // Hàm này đã được viết tốt, giữ nguyên
@@ -627,7 +499,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 spaceBetween: 20,
                 slidesPerView: 2,
                 breakpoints: {
-                    1200: { slidesPerView: 6 },
+                    1200: { slidesPerView: 8 },
                     992: { slidesPerView: 5 },
                     768: { slidesPerView: 4 }
                 }

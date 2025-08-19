@@ -12,10 +12,11 @@ class OrderDetail extends Model
 
     // Tên bảng nếu bạn giữ là 'order_details'
     // protected $table = 'order_details'; 
-
+    protected $table = 'order_details';
     protected $fillable = [
         'order_id',
         'product_id',
+        'product_variant_id',
         'product_name',
         'product_price',
         'quantity',
@@ -40,4 +41,7 @@ class OrderDetail extends Model
     {
         return $this->belongsTo(Order::class);
     }
+
+    public function variant() { return $this->belongsTo(ProductVariant::class, 'product_variant_id'); }
+
 }

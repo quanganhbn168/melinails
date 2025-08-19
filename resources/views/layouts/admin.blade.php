@@ -74,14 +74,6 @@
             timer: 3000,
             timerProgressBar: true,
         });
-
-        // Kích hoạt select2 cho tất cả các element có class .select2
-        $(function () {
-            $('.select2').select2({
-                theme: 'bootstrap4'
-            });
-        });
-
         // "Chống đạn": Dùng Event Delegation để script hoạt động cả trong DataTables
         $(document).on('click', '.btn-toggle', function () {
             const btn = $(this);

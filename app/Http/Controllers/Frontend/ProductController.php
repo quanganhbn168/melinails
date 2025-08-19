@@ -53,12 +53,36 @@ class ProductController extends Controller
      */
     public function show(Product $product)
     {
-        $product->load('category', 'images', 'tags', 'variants.attributeValues.attribute');
+        $product->load('category', 'images', 'variants.attributeValues.attribute');
+        $variantAttributes = [];
+            foreach ($product->variants as $variant) {
+                foreach ($variant->attributeValues as $attributeValue) {
+                    $attributeName = $attributeValue->attribute->name;
+                    $valueId = $attributeValue->id;
+                    $value = $attributeValue->value;
+                    if (!isset($variantAttributes[$attributeName])) {
+                        $variantAttributes[$attributeName] = [];
+                    }
+                    $variantAttributes[$attributeName][$valueId] = $value;
+                }
+            }
+        $variantMap = $product->variants
+        ->filter(fn($variant) => $variant->attributeValues->isNotEmpty()) 
+        ->mapWithKeys(function ($variant) {
+            $key = $variant->attributeValues->pluck('id')->sort()->implode('-');
+            return [$key => [
+                'id' => $variant->id,
+                'price' => $variant->price_discount ?? $variant->price, 
+                'compare_at_price' => $variant->price, 
+                'sku' => $variant->code, 
+                'stock' => $variant->stock,
+            ]];
+        });
         $relatedProducts = Product::where('id', '!=', $product->id)
             ->where('category_id', $product->category_id)
             ->inRandomOrder()
             ->take(4)
             ->get();
-        return view('frontend.products.detail', compact('product', 'relatedProducts'));
+        return view('frontend.products.detail', compact('product', 'relatedProducts','variantAttributes','variantMap'));
     }
 }

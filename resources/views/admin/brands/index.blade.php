@@ -22,9 +22,9 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach ($brands as $item)
+                @foreach ($brands as $key => $item)
                 <tr>
-                    <td>{{ $loop->iteration }}</td>
+                    <td>{{ $key + 1 }}</td>
                     <td>{{ $item->name }}</td>
                     <td>{{ $item->slug }}</td>
                     <td>
@@ -33,12 +33,18 @@
                         @endif
                     </td>
                     <td>
-                        <x-form.toggle :checked="$item->status" :id="$item->id" model="Brand" field="status" />
+                        <x-boolean-toggle model="Brand" :record="$item" field="status" />
                     </td>
                     <td>{{ $item->created_at->format('d/m/Y') }}</td>
                     <td>
                         <a href="{{ route('admin.brands.edit', $item) }}" class="btn btn-sm btn-info"><i class="fas fa-edit"></i></a>
-                        <x-form.delete :action="route('admin.brands.destroy', $item)" />
+                        <form action="{{ route('admin.brands.destroy', $item) }}" method="POST" class="d-inline form-delete">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="btn btn-danger delete">
+                                <i class="far fa-trash-alt"></i>
+                            </button>
+                        </form>
                     </td>
                 </tr>
                 @endforeach

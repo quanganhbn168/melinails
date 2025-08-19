@@ -1,58 +1,114 @@
 <?php
+
 namespace App\Services;
+
+use App\Http\Requests\CategoryRequest;
 use App\Models\Category;
 use App\Traits\UploadImageTrait;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
-use Illuminate\Database\Eloquent\Collection; 
+use Illuminate\Support\Facades\DB;
+use Exception;
 class CategoryService
 {
+    // Sử dụng Trait để xử lý upload ảnh đã cung cấp trước đó
     use UploadImageTrait;
 
-    public function create(array $data): Category
+    /**
+     * Tạo một danh mục mới.
+     *
+     * @param CategoryRequest $request Dữ liệu đã được validate.
+     * @return Category Danh mục vừa được tạo.
+     */
+    public function store(CategoryRequest $request): Category
     {
-        $data['slug'] = $data['slug'] ?? Str::slug($data['name']);
-        if (isset($data['image'])) {
-            $data['image'] = $this->uploadImage($data['image'], 'uploads/categories', 800, 800);
-        }
-        if (isset($data['banner'])) {
-            $data['banner'] = $this->uploadImage($data['banner'], 'uploads/categories', 1920, 600);
-        }
-        if (isset($data['meta_image'])) {
-            $data['meta_image'] = $this->uploadImage($data['meta_image'], 'uploads/categories', 1200, 638);
-        }
-        return Category::create($data);
+        // Bọc trong transaction để đảm bảo toàn vẹn dữ liệu
+        return DB::transaction(function () use ($request) {
+            $category = new Category();
+            $this->saveCategoryData($category, $request);
+            return $category;
+        });
     }
-    
 
-    public function update(Category $category, array $data): bool
+    /**
+     * Cập nhật một danh mục đã có.
+     *
+     * @param CategoryRequest $request Dữ liệu đã được validate.
+     * @param Category $category Danh mục cần cập nhật.
+     * @return Category Danh mục vừa được cập nhật.
+     */
+    public function update(CategoryRequest $request, Category $category): Category
     {
-        $attributes = Arr::pull($data, 'attributes', []);
-        $data['slug'] = $data['slug'] ?? Str::slug($data['name']);
-        if (isset($data['image'])) {
-            $this->deleteImage($category->image);
-            $data['image'] = $this->uploadImage($data['image'], 'uploads/categories', 800, 800);
-        }
-        if (isset($data['banner'])) {
-            $this->deleteImage($category->banner);
-            $data['banner'] = $this->uploadImage($data['banner'], 'uploads/categories', 1920, 600);
-        }
-        if (isset($data['meta_image'])) {
-            $this->deleteImage($category->meta_image);
-            $data['meta_image'] = $this->uploadImage($data['meta_image'], 'uploads/categories', 1200, 638);
-        }
-        $category->attributes()->sync($attributes);
-        return $category->update($data);
+        return DB::transaction(function () use ($request, $category) {
+            $this->saveCategoryData($category, $request);
+            return $category;
+        });
     }
-    public function getCategoryOptions(): Collection
+
+    /**
+     * Phương thức private chứa logic chung cho việc lưu dữ liệu Category.
+     *
+     * @param Category $category Instance của Category (mới hoặc đã có).
+     * @param CategoryRequest $request Dữ liệu từ request.
+     */
+    private function saveCategoryData(Category $category, CategoryRequest $request): void
     {
-        return Category::select('id', 'name', 'parent_id')->get();
+        // Lấy tất cả dữ liệu đã được validate từ FormRequest
+        $validatedData = $request->validated();
+
+        // Tự động tạo slug nếu người dùng không nhập
+        if (empty($validatedData['slug'])) {
+            $validatedData['slug'] = Str::slug($validatedData['name']);
+        }
+
+        // Xử lý upload các file ảnh (image, icon, banner)
+        $imageFields = ['image', 'icon', 'banner'];
+        foreach ($imageFields as $field) {
+            if ($request->hasFile($field)) {
+                // Quan trọng: Nếu là update và đã có ảnh cũ, hãy xóa nó đi
+                if ($category->{$field}) {
+                    $this->deleteImage($category->{$field});
+                }
+                // Upload ảnh mới và gán đường dẫn vào dữ liệu
+                $validatedData[$field] = $this->uploadImage($request->file($field), 'categories');
+            }
+        }
+
+        // Gán dữ liệu vào model và lưu
+        $category->fill($validatedData)->save();
+
+        // Đồng bộ hóa các thuộc tính (quan hệ nhiều-nhiều)
+        // sync() là phương thức tối ưu, nó sẽ tự động thêm/xóa các mối quan hệ cần thiết
+        if ($request->has('attributes')) {
+            $category->attributes()->sync($validatedData['attributes']);
+        } else {
+            // Nếu không có thuộc tính nào được gửi lên, xóa tất cả các mối quan hệ cũ
+            $category->attributes()->sync([]);
+        }
     }
-    public function delete(Category $category): ?bool
+
+    public function destroy(Category $category): bool
     {
-        $this->deleteImage($category->image);
-        $this->deleteImage($category->banner);
-        $this->deleteImage($category->meta_image);
-        return $category->delete();
+        // 1. Kiểm tra xem danh mục có danh mục con không
+        if ($category->children()->count() > 0) {
+            throw new Exception('Không thể xóa danh mục này vì nó chứa danh mục con.');
+        }
+
+        // 2. Kiểm tra xem danh mục có sản phẩm nào không
+        if ($category->products()->count() > 0) {
+            throw new Exception('Không thể xóa danh mục này vì nó chứa sản phẩm.');
+        }
+
+        return DB::transaction(function () use ($category) {
+            // 3. Xóa các ảnh liên quan
+            $imageFields = ['image', 'icon', 'banner'];
+            foreach ($imageFields as $field) {
+                if ($category->{$field}) {
+                    $this->deleteImage($category->{$field});
+                }
+            }
+
+            // 4. Xóa bản ghi
+            return $category->delete();
+        });
     }
 }

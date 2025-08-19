@@ -219,9 +219,9 @@
                 <span id="guest-cart-total" class="total-price">0đ</span>
             </div>
             <a href="/cart" class="btn btn-dark w-100">Xem Giỏ Hàng</a>
-            <a href="/checkout" class="btn btn-primary w-100 mt-2">Thanh Toán</a>
+            <a href="/checkout" class="btn bg-main w-100 mt-2">Thanh Toán</a>
         </div>
-    @endguest
+    @endauth   
 </div>
 <template id="guest-cart-item-template">
     <div class="cart-item">
@@ -230,6 +230,7 @@
         </div>
         <div class="cart-item_info">
             <a href="__URL__" class="item-name">__NAME__</a>
+            <div class="item-variant text-muted small">__VARIANT__</div>
             <div class="item-meta">
                 <span class="item-price">__PRICE__đ</span>
                 <span class="item-quantity">x __QUANTITY__</span>

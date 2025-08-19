@@ -100,10 +100,24 @@ return [
         'permission' => 'manage-settings',
     ],
     [
+        'title' => 'Quản lý feedback',
+        'icon' => 'bi bi-images',
+        'route' => 'admin.testimonials.index',
+        'active_pattern' => 'admin.testimonials.*',
+        'permission' => 'manage-settings',
+    ],
+    [
         'title' => 'Quản lý giới thiệu',
         'icon' => 'bi bi-images',
         'route' => 'admin.intros.index',
         'active_pattern' => 'admin.intros.*',
+        'permission' => 'manage-settings',
+    ],
+    [
+        'title' => 'Quản lý thương hiệu',
+        'icon' => 'bi bi-images',
+        'route' => 'admin.brands.index',
+        'active_pattern' => 'admin.brands.*',
         'permission' => 'manage-settings',
     ],
     [

@@ -4,11 +4,15 @@ namespace App\Services;
 
 use App\Models\Order;
 use App\Models\Product;
+use App\Models\ProductVariant;
+
 use App\Models\User;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Schema;
 class OrderService
 {
     /**
@@ -91,25 +95,27 @@ class OrderService
     }
 
     /**
-     * FRONT: tạo đơn từ trang checkout (đã có sẵn).
+     * FRONT: tạo đơn từ trang checkout.
+     * - $cartItems: collection cart của user (nên ->with('product') trước ở Controller)
+     * - $guestCart: mảng từ localStorage JSON 'guest_cart'
      */
     public function createFromCheckout(array $customerData, Collection $cartItems, array $guestCart): Order
     {
         return DB::transaction(function () use ($customerData, $cartItems, $guestCart) {
+            // 1) Xác định user (nếu guest thì tạo/ghép theo phone)
             $user = Auth::guard('web')->user();
-
             if (!$user) {
-                // Nếu bảng users bắt buộc password NOT NULL → gán chuỗi ngẫu nhiên / hoặc dùng bcrypt('')
                 $user = User::firstOrCreate(
                     ['phone' => $customerData['customer_phone']],
                     [
                         'name'     => $customerData['customer_name'],
                         'address'  => $customerData['customer_address'] ?? null,
-                        'password' => bcrypt(str()->random(16)),
+                        'password' => bcrypt(Str::random(16)),
                     ]
                 );
             }
 
+            // 2) Tạo order trước
             $order = Order::create([
                 'user_id'          => $user->id,
                 'status'           => 'pending',
@@ -121,132 +127,192 @@ class OrderService
                 'total_price'      => 0,
             ]);
 
-            $itemsToProcess = [];
+            // 3) Gom item thô từ 2 nguồn (auth cart / guest cart)
+            $raw = [];
 
-            if ($user && !$cartItems->isEmpty()) {
-                foreach ($cartItems as $item) {
-                    $itemsToProcess[] = [
-                        'product_id'   => $item->product_id,
-                        'product_name' => $item->product->name,
-                        // Bạn có thể ưu tiên price_discount nếu có
-                        'price'        => $item->product->price_discount ?: $item->product->price,
-                        'quantity'     => $item->quantity,
+            if (Auth::check() && !$cartItems->isEmpty()) {
+                foreach ($cartItems as $ci) {
+                    $raw[] = [
+                        'product_id'   => (int) ($ci->product_id ?? $ci->product?->id),
+                        'product_variant_id' => $ci->product_variant_id
+    ? (int)$ci->product_variant_id
+    : (isset($ci->variant_id) ? (int)$ci->variant_id : null),
+                        'quantity'     => (int) $ci->quantity,
+                        'variant_text' => $ci->variant_text ?? null,
                     ];
                 }
-                $user->cartItems()->delete();
-            } elseif (!empty($guestCart)) {
-                $productIds = array_column($guestCart, 'id');
-                $productsFromDB = Product::findMany($productIds)->keyBy('id');
-
+            } else {
                 foreach ($guestCart as $gi) {
-                    if (isset($productsFromDB[$gi['id']])) {
-                        $p = $productsFromDB[$gi['id']];
-                        $itemsToProcess[] = [
-                            'product_id'   => $p->id,
-                            'product_name' => $p->name,
-                            'price'        => $p->price_discount ?: $p->price,
-                            'quantity'     => $gi['quantity'],
-                        ];
-                    }
+                    $pid = $gi['product_id'] ?? $gi['productId'] ?? $gi['id'] ?? null;
+                    if (!$pid) { continue; }
+                    $raw[] = [
+                        'product_id'   => (int) $pid,
+                        'product_variant_id' => isset($gi['product_variant_id']) ? (int)$gi['product_variant_id']
+                      : (isset($gi['variant_id']) ? (int)$gi['variant_id']
+                      : (isset($gi['variantId']) ? (int)$gi['variantId'] : null)),
+
+                        'quantity'     => max(1, (int) ($gi['quantity'] ?? 1)),
+                        'variant_text' => $gi['variantText'] ?? $gi['variant_text'] ?? null,
+                    ];
                 }
             }
 
-            if (empty($itemsToProcess)) {
+            if (empty($raw)) {
                 throw new \Exception('Giỏ hàng của bạn đang trống.');
             }
 
-            $total = $this->syncItems($order, $itemsToProcess);
+            // 4) Nạp Product/Variant một lần
+            $pids = array_values(array_unique(array_map(fn($r) => $r['product_id'], $raw)));
+            $vids = array_values(array_unique(array_filter(array_map(fn($r) => $r['product_variant_id'] ?? null, $raw))));
+
+            $products = Product::whereIn('id', $pids)->get()->keyBy('id');
+            $variants = $vids ? ProductVariant::whereIn('id', $vids)->get()->keyBy('id') : collect();
+
+            // 5) Chuẩn hoá item (tính giá theo DB, không tin giá client)
+            $items = [];
+            foreach ($raw as $r) {
+                $product = $products->get($r['product_id']);
+                if (!$product) { continue; }
+
+                $variant = ($r['product_variant_id'] ?? null) ? $variants->get($r['product_variant_id']) : null;
+                if ($variant && $variant->product_id != $product->id) {
+                    $variant = null; // đề phòng variant không thuộc product
+                }
+
+                $unit = $this->resolveUnitPrice($product, $variant);
+                $items[] = [
+                    'product_id'   => $product->id,
+                    'product_variant_id'   => $variant?->id,
+                    'product_name' => $product->name,
+                    'sku'          => $variant->sku ?? $product->code ?? null,
+                    'unit_price'   => $unit,
+                    'quantity'     => max(1, (int)$r['quantity']),
+                    'variant_text' => $r['variant_text'] ?? null,
+                ];
+            }
+
+            if (empty($items)) {
+                throw new \Exception('Không thể xác định sản phẩm từ giỏ hàng.');
+            }
+
+            // 6) Ghi order_items và tính tổng
+            $total = $this->syncItems($order, $items);
             $order->update(['total_price' => $total]);
+
+            // 7) Dọn giỏ của user
+            if (Auth::check()) {
+                try { Auth::user()->cartItems()->delete(); } catch (\Throwable $e) {}
+            }
 
             return $order;
         });
     }
 
     /**
-     * Đồng bộ items: xóa toàn bộ cũ, tạo lại theo $items, trả về tổng tiền.
-     * $items: mảng phần tử gồm product_id, product_name, price, quantity
+     * Đồng bộ items: xoá cũ và tạo lại, trả về tổng tiền.
+     * $items: mỗi phần tử gồm:
+     *  - product_id, variant_id (nullable), product_name, sku (nullable),
+     *  - unit_price, quantity, variant_text (nullable)
      */
     private function syncItems(Order $order, array $items): float
     {
+        // tuỳ DB của anh: orderItems() là hasMany tới bảng order_items
         $order->orderItems()->delete();
 
-        $total = 0;
-        foreach ($items as $it) {
-            $price    = (float) $it['price'];
-            $qty      = (int)   $it['quantity'];
-            $subtotal = $price * $qty;
-            $total   += $subtotal;
+        $total = 0.0;
 
-            $order->orderItems()->create([
-                'product_id'           => $it['product_id'],
-                'product_name'         => $it['product_name'],
-                'product_price'        => $price,
-                'quantity'             => $qty,
-                'subtotal'             => $subtotal,
-                'warranty_months'      => $it['warranty_months'] ?? 0,
-                'warranty_expires_at'  => $it['warranty_expires_at'] ?? null,
-            ]);
+        foreach ($items as $it) {
+            $qty   = max(1, (int)$it['quantity']);
+            $price = (float)$it['unit_price'];
+            $line  = $price * $qty;
+            $total += $line;
+
+            // payload tối thiểu khớp với schema hiện tại của anh
+            $payload = [
+              'product_id'          => $it['product_id'],
+              'product_variant_id'  => $it['product_variant_id'] ?? null,
+              'product_name'        => $it['product_name'],
+              'product_price'       => $price,
+              'quantity'            => $qty,
+              'subtotal'            => $line,
+              'variant_text'        => $it['variant_text'] ?? null,
+              'sku'                 => $it['sku'] ?? null,
+              'image'               => $it['image'] ?? null,
+          ];
+
+
+            $order->orderItems()->create($payload);
         }
 
         return $total;
     }
 
     /**
-     * Chuẩn hóa dữ liệu items từ form admin:
-     * - Nếu thiếu price → lấy từ DB (ưu tiên price_discount nếu có).
-     * - Luôn gán product_name để cố định tên ở thời điểm đặt hàng.
+     * Chuẩn hoá dữ liệu items từ form admin.
+     * Hỗ trợ variant_id, price override (nếu không truyền price thì lấy từ DB).
+     * Trả về mảng items đúng chuẩn cho syncItems().
      */
-    private function normalizeItemsFromAdmin(array $items, ?Order $order = null): array
+    private function normalizeItemsFromAdmin(array $items): array
     {
         $result = [];
 
-        // Lấy tất cả product_id xuất hiện
-        $ids = collect($items)->pluck('product_id')->filter()->unique()->values();
-        $products = Product::whereIn('id', $ids)->get()->keyBy('id');
-        $baseDate = $order ? $this->baseWarrantyDate($order) : Carbon::now();
+        if (empty($items)) { return $result; }
+
+        $productIds = collect($items)->pluck('product_id')->filter()->unique()->values()->all();
+        $variantIds = collect($items)
+    ->map(fn($r) => $r['product_variant_id'] ?? $r['variant_id'] ?? null)
+    ->filter()->unique()->values()->all();
+
+        $products = Product::whereIn('id', $productIds)->get()->keyBy('id');
+        $variants = $variantIds ? ProductVariant::whereIn('id', $variantIds)->get()->keyBy('id') : collect();
+
         foreach ($items as $row) {
-            if (empty($row['product_id']) || empty($row['quantity'])) {
-                continue;
+            $pid = (int)($row['product_id'] ?? 0);
+            $qty = (int)($row['quantity']   ?? 0);
+            if ($pid <= 0 || $qty <= 0) continue;
+
+            $product = $products->get($pid);
+            if (!$product) continue;
+
+            $variant = !empty($row['variant_id']) ? $variants->get((int)$row['variant_id']) : null;
+            if ($variant && $variant->product_id != $product->id) {
+                $variant = null;
             }
 
-            $p = $products[$row['product_id']] ?? null;
-            if (!$p) {
-                continue;
-            }
-
-            $price = isset($row['price']) && $row['price'] !== ''
-                ? (float) $row['price']
-                : (float) ($p->price_discount ?: $p->price);
-
-            $qty = (int) $row['quantity'];
-            if ($qty <= 0) {
-                continue;
-            }
-            $wMonths = isset($row['warranty_months']) && $row['warranty_months'] !== ''
-            ? max(0, (int) $row['warranty_months'])
-            : 0;
-
-            $wExpires = $wMonths > 0
-            ? $baseDate->copy()->addMonthsNoOverflow($wMonths)->toDateString()
-            : null;
+            // price override nếu admin nhập, ngược lại lấy từ DB (ưu tiên variant price)
+            $override = isset($row['price']) && $row['price'] !== '' ? (float)$row['price'] : null;
+            $unit     = $this->resolveUnitPrice($product, $variant, $override);
 
             $result[] = [
-                'product_id'           => $p->id,
-                'product_name'         => $p->name,
-                'price'                => $price,
-                'quantity'             => $qty,
-                'warranty_months'      => $wMonths,
-                'warranty_expires_at'  => $wExpires,
+                'product_id'   => $product->id,
+                'product_variant_id'   => $variant?->id,
+                'product_name' => $product->name,
+                'sku'          => $variant->sku ?? $product->code ?? null,
+                'unit_price'   => $unit,
+                'quantity'     => $qty,
+                'variant_text' => $row['variant_text'] ?? null,
             ];
         }
 
         return $result;
     }
 
-    private function baseWarrantyDate(Order $order): Carbon
+    /**
+     * Lấy đơn giá tin cậy từ DB: ưu tiên variant->price, rồi product->price_discount, rồi product->price.
+     * Có thể truyền $override nếu muốn ép giá (Admin).
+     */
+    private function resolveUnitPrice(Product $product, ?ProductVariant $variant = null, ?float $override = null): float
     {
-    // Nếu bạn có cột delivered_at, ưu tiên nó, không thì dùng created_at
-        $base = $order->delivered_at ?? $order->created_at;
-        return Carbon::parse($base);
+        if ($override !== null && $override >= 0) {
+            return (float)$override;
+        }
+        if ($variant && $variant->price !== null && (float)$variant->price > 0) {
+            return (float)$variant->price;
+        }
+        if ($product->price_discount !== null && (float)$product->price_discount > 0) {
+            return (float)$product->price_discount;
+        }
+        return (float)($product->price ?? 0);
     }
+
 }

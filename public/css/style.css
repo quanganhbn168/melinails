@@ -1,3 +1,98 @@
+/* --- CSS ĐÃ CẬP NHẬT TỶ LỆ 2:1 --- */
+
+.section_group_banner .grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+}
+
+.section_group_banner .grid .col-right .grid-sub {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+}
+
+.section_group_banner .grid .col-right .grid-sub .banner_2 {
+    grid-column: span 2 / span 2;
+}
+
+/* --- THAY ĐỔI CHÍNH Ở ĐÂY --- */
+.section_group_banner .grid .banner-box {
+    position: relative;
+    overflow: hidden;
+    /* SỬA LỖI: Áp dụng tỷ lệ khung hình 2:1 cho TẤT CẢ các box */
+    aspect-ratio: 2 / 1;
+}
+
+.section_group_banner .grid .banner-box a {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+.section_group_banner .grid .banner-box a img {
+    width: 100%;
+    height: 100%;
+    /* 'object-fit: cover' sẽ tự động cắt ảnh (dọc hoặc ngang) để lấp đầy khung 2:1 mà không làm méo ảnh */
+    object-fit: cover;
+    filter: brightness(0.85);
+    transition: all 0.4s ease;
+}
+
+/* Các thuộc tính hiệu ứng và tiêu đề giữ nguyên */
+.section_group_banner .grid .banner-box a:hover img {
+    transform: scale(1.05);
+    filter: brightness(1);
+}
+
+.section_group_banner .grid .banner-box .box-title {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+    max-width: calc(100% - 40px);
+}
+
+.section_group_banner .grid .banner-box .box-title h3 {
+    font-weight: bold;
+    font-family: 'Oswald', sans-serif;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.4);
+    color: #fff;
+    font-size: 2rem;
+    padding-bottom: 8px;
+    position: relative;
+    transition-duration: .3s;
+    margin-bottom: 0px;
+}
+
+.section_group_banner .grid .banner-box .box-title h3:before {
+    content: "";
+    display: block;
+    width: 50px;
+    height: 4px;
+    background: var(--subColor);
+    position: absolute;
+    bottom: 0px;
+    left: 0px;
+    transition-duration: .3s;
+    clip-path: polygon(0% 0%, 100% 0%, 85% 100%, 0% 100%);
+}
+
+.section_group_banner .grid .banner-box a:hover .box-title h3:before {
+    width: calc(100% - 30px);
+    clip-path: polygon(0% 0%, 100% 0%, calc(100% - 4px) 100%, 0% 100%);
+}
+
+/* Responsive cho mobile */
+@media (max-width: 767px) {
+    .section_group_banner .grid {
+        grid-template-columns: repeat(1, minmax(0, 1fr));
+        gap: 14px;
+    }
+    /* Trên mobile, tỷ lệ 2:1 có thể hơi dẹt, anh có thể đổi thành 16/9 nếu muốn */
+    .section_group_banner .grid .banner-box {
+        aspect-ratio: 16 / 9;
+    }
+}
 section {
     padding: 60px 0;
     border-top: 1px solid #f0f0f0;
@@ -70,11 +165,11 @@ section#slider {
 }
 .section_category .cate-item .cate-content h3 {
     font-weight: 600;
-    font-size: 1.6rem;
+    font-size: 1rem;
     margin-bottom: 4px;
     color: var(--textColor, #a14603);
     line-height: 1.4;
-    height: 45px; 
+    height: 45px;
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
@@ -90,7 +185,7 @@ section#slider {
     display: block;
     width: 100%;
     transition: transform 0.3s ease, opacity 0.3s ease;
-    font-size: 1.4rem;
+    font-size: 1rem;
     color: #616161;
     position: absolute;
     top: 0;
@@ -136,7 +231,7 @@ section#slider {
 }
 .section-index .section-title h2 {
     font-weight: 700;
-    font-size: 2.8rem;
+    font-size: 2rem;
     text-transform: uppercase;
     font-family: 'Oswald', sans-serif;
     margin: 0;
@@ -171,7 +266,7 @@ section#slider {
     padding: 8px 20px 6px 16px;
     color: #fff;
     text-decoration: none;
-    font-size: 1.6rem;
+    font-size: 1.2rem;
     font-weight: 600;
     position: relative;
     overflow: hidden;
@@ -314,4 +409,98 @@ a.btn.btn-primary:hover svg {
     background-color: var(--mainColor, #a14603); 
     border-color: var(--mainColor, #a14603); 
     opacity: 1;
+}
+
+.section_feedback .bg-section {
+    background-color: #111;
+    background-image: url(//bizweb.dktcdn.net/100/504/717/themes/933859/assets/section_feedback_bg.jpg?1726547281373);
+    background-repeat: no-repeat;
+    background-size: auto;
+    background-position: center;
+    padding: 30px 0;
+}
+
+.section_feedback .bg-section .section-title h2 {
+    color: #fff;
+}
+
+.section_feedback .bg-section .desc {
+    font-size: 1.1rem;
+    margin: 15px 0;
+    color: #fff;
+}
+
+.section_feedback .swiper-button-prev,
+.section_feedback .swiper-button-next {
+    /* ... các style cho nút next/prev ... */
+}
+
+.section_feedback .swiper_feedback .swiper-slide {
+    height: auto;
+    padding-bottom: 25px;
+}
+
+.section_feedback .feedback-item {
+    display: flex;
+    padding: 20px 15px;
+    background: #fff;
+    height: 100%;
+    position: relative;
+    background-image: url(//bizweb.dktcdn.net/100/504/717/themes/933859/assets/quote-4.svg?1726547281373);
+    background-size: 60px 60px;
+    background-repeat: no-repeat;
+    background-position: calc(100% - 15px) 15px;
+}
+
+.section_feedback .feedback-item:before {
+    top: 100%;
+    right: 30px;
+    border: solid transparent;
+    content: " ";
+    height: 0;
+    width: 0;
+    position: absolute;
+    pointer-events: none;
+    border-top-color: #FFF;
+    border-width: 22px 0px 0px 33px;
+    margin-left: 0px;
+}
+
+.section_feedback .feedback-item .avatar {
+    width: 110px;
+    height: 110px;
+    overflow: hidden;
+    border-radius: 50%;
+    flex: none;
+}
+.section_feedback .feedback-item .avatar img{
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.section_feedback .feedback-item .block-content {
+    padding-left: 20px;
+    flex-grow: 1;
+}
+
+.section_feedback .feedback-item .block-content b {
+    font-size: 1.5rem;
+    display: block;
+    line-height: normal;
+}
+
+.section_feedback .feedback-item .block-content span {
+    display: block;
+    color: #757575;
+}
+
+.section_feedback .feedback-item .block-content .feedback-content {
+    min-height: 100px;
+    margin-top: 8px;
+}
+
+/* Responsive */
+@media (max-width: 767px) {
+    /* ... các style responsive cho mobile ... */
 }

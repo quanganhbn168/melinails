@@ -26,6 +26,12 @@
         </div>
     @endif
 
-    <a href="/" class="btn btn-primary mt-4">Tiếp tục mua sắm</a>
+    <a href="/" class="btn bg-main mt-4">Tiếp tục mua sắm</a>
 </div>
+@if (session('clear_guest_cart'))
+<script>
+  try { localStorage.removeItem('guest_cart'); } catch(e){}
+</script>
+@endif
+
 @endsection

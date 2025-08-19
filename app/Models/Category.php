@@ -11,9 +11,11 @@ class Category extends Model
     use HasFactory;
     protected $fillable = [
         'parent_id',
+        'cate_type',
         'name',
         'slug',
         'image',
+        'icon',
         'banner',
         'status',
         'is_home',
@@ -32,6 +34,9 @@ class Category extends Model
         'parent_id'  => 'integer',
         'position'   => 'integer',
     ];
+    const TYPE_PHYSICS         = 'physics';
+    const TYPE_SERVICE        = 'services';
+
     protected static function booted(): void
     {
         static::creating(function ($model) {
@@ -55,6 +60,10 @@ class Category extends Model
             $descendantIds = array_merge($descendantIds, $child->getAllDescendantIds());
         }
         return $descendantIds;
+    }
+    public function setParentIdAttribute($value)
+    {
+        $this->attributes['parent_id'] = $value ?: 0;
     }
     public function children()
     {

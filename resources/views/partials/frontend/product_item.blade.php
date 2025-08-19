@@ -1,8 +1,8 @@
 {{-- resources/views/partials/frontend/product_item.blade.php --}}
 @php
-    $hasDiscount = $product->price_discount && $product->price > $product->price_discount;
+    $hasDiscount = $product->price && $product->compare_at_price > $product->price;
     if ($hasDiscount) {
-        $discountPercentage = round((($product->price - $product->price_discount) / $product->price) * 100);
+        $discountPercentage = round((($product->compare_at_price - $product->price) / $product->compare_at_price) * 100);
     }
 @endphp
 
@@ -41,10 +41,10 @@
         <div class="product-bottom">
             <div class="product-price-cart">
                 <div class="price-box">
-                    @if($product->price > 0)
+                    @if($product->compare_at_price > 0)
                         @if($hasDiscount)
-                            <span class="price">{{ number_format($product->price_discount) }}₫</span>
-                            <span class="compare-price">{{ number_format($product->price) }}₫</span>
+                            <span class="price">{{ number_format($product->price) }}₫</span>
+                            <span class="compare-price">{{ number_format($product->compare_at_price) }}₫</span>
                         @else
                             <span class="price">{{ number_format($product->price) }}₫</span>
                         @endif
@@ -62,7 +62,7 @@
                         type="button" 
                         data-id="{{ $product->id }}"
                         data-name="{{ $product->name }}"
-                        data-price="{{ $hasDiscount ? $product->price_discount : $product->price }}"
+                        data-price="{{ $hasDiscount ? $product->price : $product->compare_at_price }}"
                         data-image="{{ asset($product->image ?? 'images/setting/no-image.png') }}"
                         data-slug="{{ $product->slug }}"
                         data-quantity="1">

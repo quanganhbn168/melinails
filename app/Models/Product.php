@@ -16,6 +16,7 @@ class Product extends Model
         'type',
         'category_id',
         'brand_id',
+        'product_type',
         'name',
         'code',
         'slug',
@@ -26,6 +27,8 @@ class Product extends Model
         'price_discount',
         'stock',
         'status',
+        'has_variants',
+        'is_on_sale',
         'is_featured',
         'meta_title',
         'meta_description',
@@ -35,22 +38,13 @@ class Product extends Model
 
     protected $casts = [
         'status' => 'boolean',
+        'is_on_sale' => 'boolean',
         'is_featured' => 'boolean',
+        'has_variants' => 'boolean',
     ];
-    
-    // -- Accessors cho Giá --
-    public function getIsOnSaleAttribute(): bool
-    {
-        return $this->price_discount > $this->price;
-    }
+    const TYPE_PHYSICS         = 'physics';
+    const TYPE_SERVICCE        = 'services';
 
-    public function getDiscountPercentAttribute(): int
-    {
-        if ($this->getIsOnSaleAttribute()) {
-            return round((($this->price_discount - $this->price) / $this->price_discount) * 100);
-        }
-        return 0;
-    }
 
     // -- Các mối quan hệ (Relationships) --
     public function category(): BelongsTo
@@ -91,5 +85,25 @@ class Product extends Model
     public function getSlugUrlAttribute()
     {
         return url($this->slug->slug ?? '#');
+    }
+
+    /**
+     * Accessor để tính toán và lấy phần trăm giảm giá.
+     * Tự động tạo ra thuộc tính "ảo" $product->discount_percent
+     *
+     * @return int
+     */
+    public function getDiscountPercentAttribute(): int
+    {
+        // Kiểm tra để tránh lỗi chia cho 0 nếu giá gốc bằng 0
+        if ($this->price <= 0 || $this->price_discount <= 0 || $this->price_discount >= $this->price) {
+            return 0;
+        }
+
+        // Công thức: ((giá gốc - giá giảm) / giá gốc) * 100
+        $discount = (($this->price - $this->price_discount) / $this->price) * 100;
+
+        // Làm tròn số để có một con số nguyên đẹp (ví dụ: 15% thay vì 15.245%)
+        return round($discount);
     }
 }

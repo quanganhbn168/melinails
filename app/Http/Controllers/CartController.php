@@ -16,28 +16,46 @@ class CartController extends Controller
     {
         $request->validate([
             'product_id' => 'required|exists:products,id',
+            'variant_id' => 'nullable|exists:product_variants,id',
             'quantity' => 'required|integer|min:1',
         ]);
+        
+        $productId = $request->input('product_id');
+        $variantId = $request->input('variant_id');
+        $quantity = $request->input('quantity');
         $user = Auth::user();
-        $cartItem = CartItem::where('user_id', $user->id)
-                            ->where('product_id', $request->product_id)
-                            ->first();
+
+        // Xây dựng câu truy vấn để tìm item đã tồn tại
+        $query = CartItem::where('user_id', $user->id)->where('product_id', $productId);
+
+        if ($variantId) {
+            // Nếu có biến thể, phải tìm chính xác biến thể đó
+            $query->where('product_variant_id', $variantId);
+        } else {
+            // Nếu không, đảm bảo chỉ tìm sản phẩm không có biến thể
+            $query->whereNull('product_variant_id');
+        }
+
+        $cartItem = $query->first();
+
         if ($cartItem) {
-            $cartItem->quantity += $request->quantity;
+            // Nếu item đã tồn tại, chỉ cần cộng thêm số lượng
+            $cartItem->quantity += $quantity;
             $cartItem->save();
         } else {
-            $cartItem = CartItem::create([
+            // Nếu chưa, tạo mới cart item
+            CartItem::create([
                 'user_id' => $user->id,
-                'product_id' => $request->product_id,
-                'quantity' => $request->quantity,
+                'product_id' => $productId,
+                'product_variant_id' => $variantId, // Lưu ID của biến thể vào đây
+                'quantity' => $quantity,
             ]);
         }
-        $cartData = $this->getCartDataForAPI();
 
         return response()->json([
             'success' => true,
             'message' => 'Sản phẩm đã được thêm vào giỏ hàng!',
-            'cart'    => $cartData
+            'cart'    => $this->getCartDataForAPI()
         ]);
     }
     public function update(Request $request, $cartItemId)
@@ -55,16 +73,13 @@ class CartController extends Controller
     }
     public function remove($cartItemId)
     {
-    
         CartItem::where('id', $cartItemId)->where('user_id', Auth::id())->firstOrFail()->delete();
-
-    
-    
+        
         return response()->json([
             'success' => true,
             'message' => 'Sản phẩm đã được xóa khỏi giỏ!',
-        'cart' => $this->getCartDataForAPI() 
-    ]);
+            'cart' => $this->getCartDataForAPI()
+        ]);
     }
     private function getCartData()
     {
@@ -89,48 +104,136 @@ class CartController extends Controller
     }
     public function buyNow(Request $request)
     {
-        $request->validate([
-            'product_id' => ['required','integer'],
-            'variant_id' => ['nullable','integer'],
-            'quantity'   => ['required','integer','min:1'],
+        $data = $request->validate([
+            'product_id'    => ['required','integer', /* Rule::exists('products','id') */],
+            'variant_id'    => ['nullable','integer', /* Rule::exists('product_variants','id') */],
+            'quantity'      => ['required','integer','min:1'],
+            'variant_text'  => ['nullable','string','max:255'],
         ]);
-        $productId = (int) ($request->input('variant_id') ?: $request->input('product_id'));
-        $qty       = (int) $request->input('quantity');
+
+        $productId   = (int) $data['product_id'];
+        $variantId   = $data['variant_id'] ? (int) $data['variant_id'] : null;
+        $qty         = (int) $data['quantity'];
+        $variantText = $data['variant_text'] ?? null;
+
+        // (Khuyến nghị) Nếu có Model, kiểm tra biến thể thuộc đúng product:
+        if ($variantId) {
+            $ok = \App\Models\ProductVariant::where('id', $variantId)
+                    ->where('product_id', $productId)
+                    ->exists();
+            if (!$ok) {
+                return back()->withErrors(['variant_id' => 'Biến thể không hợp lệ với sản phẩm này.']);
+            }
+        }
+
         if (Auth::check()) {
+            // --- USER ĐĂNG NHẬP ---
             $user = Auth::user();
-            $user->cartItems()->updateOrCreate(
-                ['product_id' => $productId],
-                ['quantity'   => DB::raw('GREATEST(quantity,0) + '.$qty)]
-            );
+
+            // Upsert theo cặp (product_id, variant_id)
+            $item = $user->cartItems()->firstOrNew([
+                'product_id' => $productId,
+                'variant_id' => $variantId, // nullable OK
+            ]);
+
+            $currentQty = max(0, (int)($item->quantity ?? 0));
+            $item->quantity = $currentQty + $qty;
+
+            // Nếu bảng cart_items có cột variant_text (tuỳ DB của anh)
+            if (schema_has_column('cart_items', 'variant_text') && $variantText !== null) {
+                $item->variant_text = $variantText;
+            }
+
+            $item->save();
+
+            // (Tuỳ chọn) set "đã chọn để checkout" nếu anh muốn checkout chỉ lấy item vừa bấm:
+            // session(['checkout_selection' => [ ['product_id'=>$productId,'variant_id'=>$variantId] ]]);
+
         } else {
+            // --- KHÁCH (GUEST) ---
+            // session('guest_cart') lưu MẢNG item với cặp khóa (product_id, variant_id)
+            // Cấu trúc mỗi item: ['product_id'=>int, 'variant_id'=>int|null, 'quantity'=>int, 'variant_text'=>?]
             $cart = session()->get('guest_cart', []);
-            $found = false;
-            foreach ($cart as &$item) {
-                if ((int)$item['id'] === $productId) {
-                    $item['quantity'] = (int)$item['quantity'] + $qty;
-                    $found = true;
+
+            $foundIndex = null;
+            foreach ($cart as $i => $it) {
+                $pid = (int)($it['product_id'] ?? 0);
+                $vid = array_key_exists('variant_id', $it) ? ($it['variant_id'] === null ? null : (int)$it['variant_id']) : null;
+                if ($pid === $productId && $vid === $variantId) {
+                    $foundIndex = $i;
                     break;
                 }
             }
-            if (!$found) {
-                $cart[] = ['id' => $productId, 'quantity' => $qty];
+
+            if ($foundIndex !== null) {
+                // Cộng dồn đúng dòng biến thể
+                $cart[$foundIndex]['quantity'] = max(0, (int)$cart[$foundIndex]['quantity']) + $qty;
+                if ($variantText !== null) {
+                    $cart[$foundIndex]['variant_text'] = $variantText;
+                }
+            } else {
+                $cart[] = [
+                    'product_id'   => $productId,
+                    'variant_id'   => $variantId,     // có thể null
+                    'quantity'     => $qty,
+                    'variant_text' => $variantText,   // nếu muốn show tại checkout
+                ];
             }
+
             session(['guest_cart' => $cart]);
+
+            // (Tuỳ chọn) nếu muốn checkout chỉ item vừa bấm:
+            // session(['checkout_selection' => [ ['product_id'=>$productId,'variant_id'=>$variantId] ]]);
         }
+
         return redirect()->route('checkout.index');
     }
 
     private function getCartDataForAPI()
     {
         $user = auth()->user();
-        $cartItems = CartItem::where('user_id', $user->id)->with('product')->get();
-        $total_price = $cartItems->sum(function($item) {
-            return $item->quantity * $item->product->price;
+        if (!$user) {
+            return ['items' => [], 'total_price' => 0, 'total_quantity' => 0];
+        }
+
+        // Tải sẵn cả product và variant để tối ưu
+        $cartItems = CartItem::where('user_id', $user->id)->with('product', 'variant.attributeValues.attribute')->get();
+        
+        $total_price = 0;
+        $total_quantity = 0;
+
+        // Xử lý lại dữ liệu để frontend luôn nhận được cấu trúc đồng nhất
+        $items = $cartItems->map(function($item) use (&$total_price, &$total_quantity) {
+            $itemData = $item->variant ?: $item->product; // Ưu tiên lấy dữ liệu từ biến thể
+            
+            $name = $item->product->name;
+            // Nếu là biến thể, thêm tên thuộc tính vào (VD: (Màu: Đỏ, Size: L))
+            if ($item->variant) {
+                $options = $item->variant->attributeValues->map(fn($v) => $v->attribute->name . ': ' . $v->value)->implode(', ');
+                $name .= " ($options)";
+            }
+
+            $price = $item->variant ? $item->variant->price : $item->product->price;
+            $image = $item->variant && $item->variant->image ? $item->variant->image : $item->product->image;
+
+            $total_price += $item->quantity * $price;
+            $total_quantity += $item->quantity;
+
+            // Trả về một cấu trúc chuẩn cho frontend
+            return [
+                'id' => $item->id, // ID của cart_item để xóa
+                'product_id' => $item->product->id,
+                'variant_id' => $item->variant->id ?? null,
+                'name' => $name,
+                'price' => $price,
+                'quantity' => $item->quantity,
+                'image' => asset($image),
+                'slug' => $item->product->slug->slug,
+            ];
         });
-        $total_quantity = $cartItems->sum('quantity');
 
         return [
-            'items'          => $cartItems,
+            'items'          => $items,
             'total_price'    => $total_price,
             'total_quantity' => $total_quantity,
         ];

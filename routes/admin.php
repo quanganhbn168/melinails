@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\ProductController;
+use App\Http\Controllers\Admin\SelectController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\PostCategoryController;
 use App\Http\Controllers\PostController;
@@ -32,8 +33,6 @@ Route::middleware(['auth:admin'])->prefix('admin')->as('admin.')->group(function
     Route::resource('intros', IntroController::class);
 
     Route::resource('categories', CategoryController::class);
-    Route::post('/categories/{category}/toggle-status', [CategoryController::class, 'toggleStatus'])
-      ->name('categories.toggle-status');
     Route::resource('products', ProductController::class);
     Route::resource('services', ServiceController::class);
     Route::resource('post-categories', PostCategoryController::class);
@@ -41,7 +40,8 @@ Route::middleware(['auth:admin'])->prefix('admin')->as('admin.')->group(function
     Route::resource('slides', SlideController::class);
     Route::resource('attributes', AttributeController::class);
     Route::resource('attributes.values', AttributeValueController::class)->shallow()->except(['index', 'show']);
-
+    Route::get('select/attributes', [SelectController::class, 'attributes'])->name('select.attributes');
+    Route::get('select/categories-by-type', [SelectController::class, 'categoriesByType'])->name('select.categories-by-type');
     Route::post('/slides/{slide}/toggle-status', [SlideController::class, 'toggleStatus'])
       ->name('slides.toggle-status');
     Route::resource('projects', ProjectController::class);

@@ -1,72 +1,101 @@
 <?php
-
 namespace App\Http\Controllers\Admin;
-
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Admin\ProductRequest;
+use App\Http\Requests\ProductRequest;
 use App\Models\Attribute;
 use App\Models\Brand;
 use App\Models\Category;
 use App\Models\Product;
 use App\Services\ProductService;
-
+use App\DataTables\ProductDataTable;
 class ProductController extends Controller
 {
     protected $productService;
-
     public function __construct(ProductService $productService)
     {
         $this->productService = $productService;
     }
-
-    public function index()
+    public function index(ProductDataTable $dataTable)
     {
-        // Tốt nhất là dùng Yajra DataTable ở đây
-        $products = Product::with('category')->latest()->paginate(15);
+        $products = Product::with('category')->latest()->paginate(15); 
         return view('admin.products.index', compact('products'));
     }
-
     public function create()
     {
-        // Giai đoạn 1: Form đơn giản
-        $categories = Category::all();
-        $brands = Brand::all();
+        $categories = Category::pluck('name', 'id')->toArray();
+        $brands = Brand::pluck('name', 'id')->toArray();
         return view('admin.products.create', compact('categories', 'brands'));
     }
-
-    public function store(ProductRequest $request)
+    public function store(ProductRequest $request, ProductService $productService)
     {
-        // Giai đoạn 1: Chỉ tạo sản phẩm cha
-        $product = $this->productService->createProduct($request->validated());
-
-        // Chuyển hướng ngay đến trang sửa để hoàn thiện (Giai đoạn 2)
-        return redirect()->route('admin.products.edit', $product)->with('success', 'Tạo sản phẩm thành công! Giờ hãy hoàn thiện các thông tin chi tiết.');
+        $product = $productService->store($request);
+        return redirect()->route('admin.products.edit',$product->id)->with('success', 'Sản phẩm đã được tạo thành công.');
     }
-
     public function edit(Product $product)
     {
-        // Giai đoạn 2: Giao diện Tab hoàn chỉnh
-        $categories = Category::all();
-        $brands = Brand::all();
-        // Lấy thuộc tính LỌC dựa trên danh mục của sản phẩm
-        $specificationAttributes = $product->category->attributes()->where('is_variant_defining', false)->get();
-        // Lấy thuộc tính TẠO BIẾN THỂ
-        $variantAttributes = Attribute::where('is_variant_defining', true)->with('values')->get();
-        
-        $product->load(['specifications', 'variants.attributeValues']);
+        $categories = Category::pluck('name', 'id')->toArray();
+        $brands     = Brand::pluck('name', 'id')->toArray();
+        $product->load([
+            'category',
+            'variants.attributeValues:id,attribute_id', 
+            'specifications',
+        ]);
+        $specificationAttributes   = collect();
+        $variantAttributes         = collect(); 
+        $variantAttributeOptions   = [];        
+        $selectedVariantAttributeIds = [];      
+        if ($product->category) {
+            $allAttrs = $product->category
+                ->attributes()
+                ->with('values:id,attribute_id,value')
+                ->orderBy('name')
+                ->get();
+            $specificationAttributes = $allAttrs->where('is_variant_defining', false)->values();
+            $variantAttributes       = $allAttrs->where('is_variant_defining', true)->values();
+            $variantAttributeOptions = $variantAttributes->pluck('name', 'id')->toArray();
+        }
+        if ($product->relationLoaded('variants') && $product->variants->isNotEmpty()) {
+            $selectedVariantAttributeIds = $product->variants
+                ->flatMap(fn($v) => $v->attributeValues->pluck('attribute_id'))
+                ->filter()
+                ->unique()
+                ->values()
+                ->all();
+        }
+        $selectedVariantValues = [];
+        if ($product->relationLoaded('variants') && $product->variants->isNotEmpty()) {
+            foreach ($product->variants as $variant) {
+                foreach ($variant->attributeValues as $value) {
+                    $attrId = $value->attribute_id;
+                    $valId = $value->id;
 
-        return view('admin.products.edit', compact('product', 'categories', 'brands', 'specificationAttributes', 'variantAttributes'));
+                    if (!isset($selectedVariantValues[$attrId])) {
+                        $selectedVariantValues[$attrId] = [];
+                    }
+                    if (!in_array($valId, $selectedVariantValues[$attrId])) {
+                        $selectedVariantValues[$attrId][] = $valId;
+                    }
+                }
+            }
+        }
+        return view('admin.products.edit', compact(
+            'product',
+            'categories',
+            'brands',
+            'specificationAttributes',
+            'variantAttributes',          
+            'variantAttributeOptions',    
+            'selectedVariantAttributeIds',
+            'selectedVariantValues',
+        ));
     }
-
-    public function update(ProductRequest $request, Product $product)
+    public function update(ProductRequest $request, Product $product, ProductService $productService)
     {
-        $this->productService->updateProduct($product, $request->validated());
-        return redirect()->route('admin.products.index')->with('success', 'Cập nhật sản phẩm thành công!');
+        $productService->update($request, $product);
+        return redirect()->back()->with('success', 'Sản phẩm đã được cập nhật thành công.');
     }
-
     public function destroy(Product $product)
     {
-        // Giả sử bạn sẽ thêm hàm delete vào service
         $product->delete();
         return redirect()->route('admin.products.index')->with('success', 'Xóa sản phẩm thành công!');
     }

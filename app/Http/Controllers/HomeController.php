@@ -20,15 +20,14 @@ class HomeController extends Controller
             ->whereHas('products') 
             ->with(['products' => function ($query) {
                 $query->where('status', 1)->take(8);
-            }])
-            ->get();
+            }])->get();
+        $allCategoriesHome = Category::where('status', 1)->where('is_home',1)->get();
         $featuredCategories = Category::where('status', 1)
-                                      ->take(6) 
-                                      ->get();
+        ->where('is_home',1)->take(4)->get();
         $banners = Slide::where('status',1)->where("type",'4')->get();
         $products = Product::where("status",1)->get();
-        $hotProducts = $products->where('is_featured',1);
-        $saleProducts =  $products->where('is_on_sale',1);
+        $hotProducts = $products->where('is_featured',true);
+        $saleProducts =  $products->where('is_on_sale',true);
         $partnerSlide = Slide::where('type',3)->where("status",1)->get();
         $slides = Slide::where('status',1)->where('type',1)->get();
         $intros = Intro::select("id","image","description","title")->get();
@@ -46,6 +45,7 @@ class HomeController extends Controller
         return view('frontend.index', compact(
             "categoriesWithProducts",
             "featuredCategories",
+            "allCategoriesHome",
             "products",
             "branches",
             "hotProducts",

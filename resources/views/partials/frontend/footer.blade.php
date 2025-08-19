@@ -5,17 +5,17 @@
                 <div class="col-12 col-md-6 col-lg-4">
                     <div class="footer__info">
                         <div class="logo-footer">
-                            <a href="/" title="Bảo hộ lao động Ando">
-                                <img width="300" height="51" src="//bizweb.dktcdn.net/100/504/717/themes/933859/assets/logo_footer.png?1734490427077" alt="baohoando">
+                            <a href="/" title="{{asset($setting->name)}}">
+                                <img width="300" height="51" src="{{asset($setting->logo)}}" alt="{{asset($setting->name)}}">
                             </a>
                         </div>
                         <div class="info-address">
-                            <strong>Hộ kinh doanh Bảo hộ lao động Ando</strong><br>
+                            <strong>{{$setting->name}}</strong><br>
                             Mã số ĐKHKD: 01M8034928<br>
                             Đăng ký lần đầu ngày 04/06/2024<br>
-                            Địa chỉ: Số 30, ngách 175/5 Định Công, Hoàng Mai, Hà Nội<br>
-                            Điện thoại: <a href="tel:0965709833">0965 709 833</a><br>
-                            Email: <a href="mailto:andobhld@gmail.com">andobhld@gmail.com</a>
+                            Địa chỉ: {{$setting->address}}<br>
+                            Điện thoại: <a href="tel:{{$setting->phone}}">{{$setting->phone}}</a><br>
+                            Email: <a href="mailto:{{$setting->mail}}">{{$setting->mail}}</a>
                         </div>
                         <div class="social-list">
                             <a href="https://facebook.com/ando.bhld" target="_blank" aria-label="Facebook"><img src="//bizweb.dktcdn.net/100/504/717/themes/933859/assets/facebook_2.svg?1734490427077" alt="Facebook"></a>
@@ -70,7 +70,7 @@
     </div>
     <div class="copyright">
         <div class="container">
-            <span>© Bản quyền thuộc về <b>Bảo hộ lao động Ando</b> | Cung cấp bởi <a href="https://www.sapo.vn/" rel="nofollow" target="_blank">Sapo</a></span>
+            <span>© Bản quyền thuộc về <b>{{$setting->name}}</b> | Cung cấp bởi <a href="https://www.thtmedia.com/" rel="nofollow" target="_blank">THT Media</a></span>
         </div>
     </div>
 </footer>
