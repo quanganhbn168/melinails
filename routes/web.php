@@ -40,7 +40,7 @@ Route::middleware('throttle:30,1')->group(function () {
     Route::get('/qr/o/{code}.png', [TrackingController::class, 'qrByCode'])->name('warranty.code.qr');
 });
 
-Route::get('/tra-cuu-bao-hanh', [TrackingController::class, 'index'])->name('order.tracking');
+Route::get('/tra-cuu-bao-hanh', \App\Livewire\Public\WarrantySearch::class)->name('warranty.search');
 
 Route::group(['prefix'=>'san-pham'], function(){
     Route::get('/', [ProductController::class, 'index'])->name('products.index');

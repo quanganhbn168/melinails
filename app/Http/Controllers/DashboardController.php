@@ -3,96 +3,76 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
-use App\Models\CareerApplication;
-use App\Models\Product;
-use App\Models\Post;
-use App\Models\User;
-use Illuminate\Http\Request;
+use App\Models\WorkOrder;
+use App\Models\Customer;
+use App\Models\Task;
+use App\Models\Admin;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
+use Carbon\Carbon;
 
 class DashboardController extends Controller
 {
     public function dashboard()
     {
-        return view('admin.dashboard');
-    }
-    public function stats()
-    {
-        // Thống kê tổng quan (Cards)
-        $counts = [
-            'products' => Product::count(),
-            'posts'    => Post::count(),
-            'users'    => User::count(),
-            'applies'  => CareerApplication::count(),
-        ];
+        // 1. Thống kê Card (Số liệu tổng quan)
+        $totalJobs = WorkOrder::count();
+        $processingJobs = WorkOrder::where('status', 'processing')->count();
+        $totalCustomers = Customer::count();
+        
+        // Tính tổng doanh thu (chỉ tính từ các Task đã nộp tiền: is_paid = true)
+        $totalRevenue = Task::where('is_paid', true)->sum('collected_amount');
 
-        // Thống kê ứng tuyển mới nhất (Table)
-        $recentApplies = CareerApplication::with('career:id,name')
+        // 2. Bảng việc mới nhất (Lấy 5 cái mới tạo)
+        $recentOrders = WorkOrder::with(['customer', 'creator'])
             ->latest()
             ->take(5)
-            ->get()
-            ->map(fn($item) => [
-                'name' => $item->name,
-                'position' => $item->career->name ?? 'N/A',
-                'date' => $item->created_at->diffForHumans(),
-                'status' => $item->status
-            ]);
+            ->get();
 
-        // Thống kê biểu đồ (Chart): Số lượng bài viết & Sản phẩm trong 6 tháng gần đây
-        $chartData = $this->getChartData();
+        // 3. Dữ liệu Biểu đồ Doanh thu (6 tháng gần nhất)
+        $revenueData = $this->getMonthlyRevenue();
 
-        return response()->json([
-            'counts' => $counts,
-            'recent_applies' => $recentApplies,
-            'chart' => $chartData
-        ]);
-    }
-
-    private function getChartData()
-    {
-        // Giả lập dữ liệu chart cho nhanh, thực tế anh query group by month
-        return [
-            'labels' => ['T6', 'T7', 'T8', 'T9', 'T10', 'T11'],
-            'posts'  => [12, 19, 3, 5, 2, 3],
-            'products' => [5, 10, 15, 8, 12, 20],
+        // 4. Dữ liệu Biểu đồ Trạng thái Job (Pie Chart)
+        $statusData = [
+            'pending' => WorkOrder::where('status', 'pending')->count(),
+            'processing' => $processingJobs,
+            'completed' => WorkOrder::where('status', 'completed')->count(),
+            'cancelled' => WorkOrder::where('status', 'cancelled')->count(),
         ];
-    }
-    public function toggleField(Request $request)
-    {
-        $request->validate([
-            'model' => 'required|string',
-            'id' => 'required|integer',
-            'field' => 'required|string',
-        ]);
 
-        $modelClass = $this->resolveModelClass($request->model);
-        if (!class_exists($modelClass)) {
-            return response()->json(['error' => 'Model không tồn tại.'], 404);
-        }
-
-        $record = $modelClass::findOrFail($request->id);
-
-        $field = $request->field;
-
-        if (!array_key_exists($field, $record->getAttributes())) {
-            return response()->json(['error' => 'Trường không hợp lệ.'], 422);
-        }
-
-        $record->$field = !$record->$field;
-        $record->save();
-
-        return response()->json([
-            'success' => true,
-            'value' => $record->$field,
-            'message' => "Đã cập nhật $field thành " . ($record->$field ? '✓' : '✗')
-        ]);
+        return view('admin.dashboard', compact(
+            'totalJobs', 
+            'processingJobs', 
+            'totalCustomers', 
+            'totalRevenue', 
+            'recentOrders',
+            'revenueData',
+            'statusData'
+        ));
     }
 
-// Helper nội bộ: resolve tên model từ string
-    protected function resolveModelClass($model)
+    // Hàm lấy doanh thu 6 tháng gần nhất
+    private function getMonthlyRevenue()
     {
-        $model = Str::studly($model);
-        return "App\\Models\\{$model}";
+        // Khởi tạo mảng 6 tháng
+        $labels = [];
+        $data = [];
+        
+        for ($i = 5; $i >= 0; $i--) {
+            $date = Carbon::now()->subMonths($i);
+            $month = $date->month;
+            $year = $date->year;
+            
+            $labels[] = "T$month/$year";
+
+            // Query tổng tiền theo tháng
+            $amount = Task::where('is_paid', true)
+                ->whereYear('created_at', $year)
+                ->whereMonth('created_at', $month)
+                ->sum('collected_amount');
+            
+            $data[] = $amount;
+        }
+
+        return ['labels' => $labels, 'data' => $data];
     }
 }
