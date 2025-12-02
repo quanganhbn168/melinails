@@ -8,7 +8,6 @@ use Illuminate\Support\Facades\Auth;
 
 class MyWorkOrders extends Component
 {
-    #[Layout('layouts.admin')]
     public function render()
     {
         // Lấy user hiện tại
@@ -23,6 +22,6 @@ class MyWorkOrders extends Component
 
         return view('livewire.work-order.my-work-orders', [
             'orders' => $orders
-        ]);
+        ])->layout(auth('admin')->user()->layout);;
     }
 }

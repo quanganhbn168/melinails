@@ -17,27 +17,68 @@ class AuthController extends Controller
         $isAdmin = $request->is('admin/*');
         $guard = $isAdmin ? 'admin' : 'web';
         $remember = $request->boolean('remember');
+
+        // Lấy giá trị input (đặt tên chung là login_id cho dễ hiểu)
+        $loginInput = $request->input('login_id'); 
+        $password = $request->input('password');
+
+        // --- ADMIN / STAFF LOGIN ---
         if ($isAdmin) {
+            // 1. Validate: Chỉ cần không để trống
+            $request->validate([
+                'login_id' => 'required',
+                'password' => 'required',
+            ], [
+                'login_id.required' => 'Vui lòng nhập Email hoặc Số điện thoại',
+                'password.required' => 'Vui lòng nhập mật khẩu',
+            ]);
+
+            // 2. Tự động nhận diện Email hay Phone
+            // Hàm filter_var kiểm tra xem chuỗi có phải định dạng email không
+            $fieldType = filter_var($loginInput, FILTER_VALIDATE_EMAIL) ? 'email' : 'phone';
+
+            // 3. Tạo mảng chứng thực
+            $credentials = [
+                $fieldType => $loginInput,
+                'password' => $password
+            ];
+        } 
+        // --- CLIENT LOGIN (Giữ nguyên hoặc áp dụng logic tương tự tùy anh) ---
+        else {
             $credentials = $request->validate([
-                'email' => ['required', 'email'],
+                'phone' => ['required', 'string'], // Client anh đang để fix cứng là phone
                 'password' => ['required'],
             ]);
-            $loginField = 'email'; 
-        } else {
-            $credentials = $request->validate([
-                'phone' => ['required', 'string'],
-                'password' => ['required'],
-            ]);
-            $loginField = 'phone'; 
         }
+
+        // 4. Thực hiện Login
         if (Auth::guard($guard)->attempt($credentials, $remember)) {
             $request->session()->regenerate();
-            return redirect()->intended($isAdmin ? route('admin.dashboard') : route('home'));
+            
+            if ($isAdmin) {
+                $user = Auth::guard('admin')->user();
+                
+                // Check Active
+                if (method_exists($user, 'isActive') && !$user->isActive()) {
+                    Auth::guard('admin')->logout();
+                    return back()->withErrors(['login_id' => 'Tài khoản đã bị khóa.']);
+                }
+
+                // Check Role
+                if ($user->hasRole('staff')) {
+                    return redirect()->route('admin.my-work-orders.index');
+                }
+                return redirect()->route('admin.dashboard');
+            }
+
+            return redirect()->route('home');
         }
+
         return back()->withErrors([
-            $loginField => 'Thông tin đăng nhập không chính xác.',
-        ])->withInput($request->only($loginField, 'remember'));
+            'login_id' => 'Thông tin đăng nhập không chính xác.',
+        ])->withInput($request->only('login_id', 'remember'));
     }
+    
     public function showRegisterForm()
     {
         return view('auth.client.register');

@@ -27,7 +27,6 @@ use App\Http\Controllers\BranchController;
 use App\Http\Controllers\Admin\BrandController;
 use App\Http\Controllers\TagController;
 use App\Http\Controllers\Admin\UserController;
-use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\WarrantyController;
 use App\Http\Controllers\Admin\AttributeController;
 use App\Http\Controllers\Admin\AttributeValueController;
@@ -61,7 +60,10 @@ Route::middleware(['auth:admin'])->prefix('admin')->as('admin.')->group(function
     Route::prefix('ajax')->name('ajax.')->group(function () {
         Route::get('slug/check', [SlugAjaxController::class, 'check'])->name('slug.check');
     });
-    Route::resource('roles', RoleController::class);
+     Route::middleware(['role:super_admin'])->group(function () {
+    
+          Route::get('/roles', \App\Livewire\Admin\RoleManager::class)->name('roles.index');
+     });
     Route::resource('categories', CategoryController::class);
     Route::post('categories/bulk-action', [CategoryController::class, 'bulkAction'])
          ->name('categories.bulk_action');
@@ -181,6 +183,10 @@ Route::middleware(['auth:admin'])->prefix('admin')->as('admin.')->group(function
           Route::get('/create', \App\Livewire\Customer\CustomerForm::class)->name('create');
           Route::get('/{id}/edit', \App\Livewire\Customer\CustomerForm::class)->name('edit');
           Route::get('/{id}', \App\Livewire\Customer\CustomerDetail::class)->name('show');
-
+     });
+     Route::prefix('staff')->name('staff.')->group(function () {
+          Route::get('/', \App\Livewire\Admin\StaffList::class)->name('index');
+          Route::get('/create', \App\Livewire\Admin\StaffForm::class)->name('create');
+          Route::get('/{id}/edit', \App\Livewire\Admin\StaffForm::class)->name('edit');
      });
 });

@@ -41,7 +41,7 @@ class WorkOrderList extends Component
 
         return view('livewire.work-order.work-order-list', [
             'orders' => $query->paginate(10)
-        ]);
+        ])->layout(auth('admin')->user()->layout);;
     }
 
     // --- HÀNH ĐỘNG CỦA QUẢN TRÒ ---

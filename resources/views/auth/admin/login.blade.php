@@ -54,15 +54,15 @@
                         <h3 class="text-center mb-4">Đăng nhập</h3>
 
                         <div class="form-group">
-                            <label for="email">Email</label>
-                            <input
-                                type="email"
-                                class="form-control"
-                                id="email"
-                                name="email"
-                                required
-                            >
-                        </div>
+        <label for="login_id" class="font-weight-bold">Email hoặc Số điện thoại</label>
+        <input type="text" 
+               class="form-control form-control-lg" 
+               id="login_id" 
+               name="login_id" 
+               value="{{ old('login_id') }}" 
+               placeholder="Nhập SĐT hoặc Email..."
+               required autofocus>
+    </div>
 
                         <div class="form-group">
                             <label for="password">Mật khẩu</label>
@@ -76,9 +76,9 @@
                         </div>
 
                         <div class="form-group form-check">
-                            <input type="checkbox" class="form-check-input" id="remember">
-                            <label class="form-check-label" for="remember">Ghi nhớ đăng nhập</label>
-                        </div>
+        <input type="checkbox" class="form-check-input" id="remember" name="remember">
+        <label class="form-check-label" for="remember">Ghi nhớ đăng nhập</label>
+    </div>
 
                         <button type="submit" class="btn btn-primary btn-block">Đăng nhập</button>
                     </form>

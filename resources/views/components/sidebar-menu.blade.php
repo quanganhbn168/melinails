@@ -3,10 +3,22 @@
 
     $menu = $menu ?? config('menu', []);
     $user = auth()->user();
-
+    // --- SỬA ĐOẠN NÀY ---
     $canSee = function (array $item) use ($user): bool {
-        return !isset($item['permission']) || ($user && $user->can($item['permission']));
+        // 1. Nếu menu không yêu cầu permission -> Cho hiện
+        if (!isset($item['permission'])) return true;
+
+        // 2. Nếu user chưa đăng nhập -> Ẩn
+        if (!$user) return false;
+
+        // 3. Nếu là 'Super Admin' -> Cho hiện tất cả (Bỏ qua check permission)
+        // Lưu ý: Chuỗi 'Super Admin' phải khớp chính xác trong DB roles của anh
+        if ($user->hasRole('super_admin')) return true;
+
+        // 4. Nếu là user thường -> Check quyền bình thường
+        return $user->can($item['permission']);
     };
+    // --------------------
 
     $makeUrl = function (?string $routeName, array $params = []) {
         if (!$routeName || !RouteFacade::has($routeName)) return '#';
@@ -50,8 +62,8 @@
         $open   = $isMenuOpen($item);
         $active = $isItemActive($item);
         $url    = $hasSub ? '#' : $makeUrl($item['route'] ?? null, $item['params'] ?? []);
-        $icon   = $item['icon'] ?? 'far fa-circle'; // icon của item cấp 1
-        $badge  = $item['badge'] ?? null; // ['text'=>'2','class'=>'badge-info']
+        $icon   = $item['icon'] ?? 'far fa-circle';
+        $badge  = $item['badge'] ?? null;
     @endphp
 
     <li class="nav-item {{ $open ? 'menu-is-opening menu-open' : '' }}">
@@ -71,7 +83,7 @@
         @if ($hasSub)
             <ul class="nav nav-treeview">
                 @foreach ($item['submenu'] as $sub)
-                    @continue(!$canSee($sub))
+                    @continue(!$canSee($sub)) {{-- Check quyền cho cả menu con --}}
                     @php
                         $subUrl    = $makeUrl($sub['route'] ?? null, $sub['params'] ?? []);
                         $subActive = $matchActive($sub['active_pattern'] ?? ($sub['route'] ?? null));
@@ -79,7 +91,6 @@
                     @endphp
                     <li class="nav-item">
                         <a href="{{ $subUrl }}" class="nav-link {{ $subActive ? 'active' : '' }}">
-                            {{-- icon mặc định hình tròn của AdminLTE --}}
                             <i class="far fa-circle nav-icon"></i>
                             <p>
                                 {{ $sub['title'] ?? 'Sub Item' }}

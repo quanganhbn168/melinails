@@ -24,7 +24,7 @@ class AppServiceProvider extends ServiceProvider
     {
         Gate::before(function ($user, $ability) {
             // Hàm hasRole này có sẵn nhờ trait HasRoles anh đã thêm vào Model
-            if (method_exists($user, 'hasRole') && $user->hasRole('Super Admin')) {
+            if (method_exists($user, 'hasRole') && $user->hasRole('super_admin')) {
                 return true;
             }
         });

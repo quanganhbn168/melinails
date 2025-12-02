@@ -103,9 +103,9 @@ class WorkOrderDetail extends Component
         session()->flash('success', 'Đã báo cáo công việc thành công!');
     }
 
-    #[Layout('layouts.admin')]
+    
     public function render()
     {
-        return view('livewire.work-order.work-order-detail');
+        return view('livewire.work-order.work-order-detail')->layout(auth('admin')->user()->layout);;
     }
 }
