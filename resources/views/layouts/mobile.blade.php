@@ -107,28 +107,7 @@
     </div>
 
     {{-- BOTTOM MENU --}}
-    <div class="bottom-nav">
-        <a href="{{ route('admin.my-work-orders.index') }}" class="nav-item-mobile {{ request()->routeIs('admin.my-work-orders.*') ? 'active' : '' }}">
-            <i class="fas fa-clipboard-list"></i>
-            Công việc
-        </a>
-        
-        {{-- Ví dụ thêm nút quét QR nhanh --}}
-        <a href="#" class="nav-item-mobile">
-            <i class="fas fa-qrcode"></i>
-            Quét mã
-        </a>
-
-        <a href="#" class="nav-item-mobile">
-            <i class="fas fa-bell"></i>
-            Thông báo
-        </a>
-
-        <a href="#" class="nav-item-mobile">
-            <i class="fas fa-user"></i>
-            Tài khoản
-        </a>
-    </div>
+    @livewire('admin.mobile-bottom-nav')
 
     {{-- POPUP MỜI CÀI ĐẶT APP --}}
     <div id="install-prompt">

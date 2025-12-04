@@ -20,7 +20,7 @@ class WorkOrderList extends Component
     public function render()
     {
         $query = WorkOrder::query()
-            ->with(['customer', 'assignees', 'tasks']) // Eager load cho nhẹ
+            ->with(['customer', 'assignees', 'tasks', 'warrantyService'])
             ->orderBy('created_at', 'desc');
 
         // Lọc theo từ khóa (Mã job, Tên job, Tên khách)
@@ -51,7 +51,11 @@ class WorkOrderList extends Component
     {
         $order = WorkOrder::find($id);
         if ($order) {
-            $order->update(['status' => 'completed']);
+            $order->update([
+                'status' => \App\Enums\WorkOrderStatus::COMPLETED,
+                'approved_at' => now(),
+                'approved_by' => auth('admin')->id(),
+            ]);
             session()->flash('success', "Đã đóng Job {$order->code} thành công!");
         }
     }
@@ -61,7 +65,7 @@ class WorkOrderList extends Component
     {
         $order = WorkOrder::find($id);
         if ($order) {
-            $order->update(['status' => 'cancelled']);
+            $order->update(['status' => \App\Enums\WorkOrderStatus::CANCELLED]);
             session()->flash('success', "Đã hủy Job {$order->code}.");
         }
     }
@@ -71,7 +75,7 @@ class WorkOrderList extends Component
     {
         $order = WorkOrder::find($id);
         if ($order) {
-            $order->update(['status' => 'processing']);
+            $order->update(['status' => \App\Enums\WorkOrderStatus::PROCESSING]);
             session()->flash('success', "Đã mở lại Job {$order->code}.");
         }
     }

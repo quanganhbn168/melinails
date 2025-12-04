@@ -36,7 +36,10 @@ use App\Http\Controllers\Admin\FieldController as AdminFieldController;
 use App\Http\Controllers\Admin\CareerController;
 use App\Http\Controllers\Admin\SlugAjaxController;
 use App\Livewire\WorkOrder\CreateWorkOrder;
-
+use App\Livewire\WorkOrder\TaskDetail;
+use App\Livewire\Warranty\CreateWarranty;
+use App\Livewire\Material\MaterialList;
+use App\Livewire\Warranty\WarrantyList;
 
 Route::middleware(['auth:admin'])->prefix('admin')->as('admin.')->group(function () {
 
@@ -46,8 +49,7 @@ Route::middleware(['auth:admin'])->prefix('admin')->as('admin.')->group(function
      Route::post('global/bulk-action', [GlobalBulkActionController::class, 'handle'])
          ->name('global.bulk_action');
      // Duyệt nhật ký & Tiền nong
-     Route::get('/task-audit', \App\Livewire\Admin\TaskAudit::class)->name('task-audit.index');
-     Route::get('/work-orders', \App\Livewire\WorkOrder\WorkOrderList::class)->name('work-orders.index');
+     
      Route::prefix('menus')->name('menus.')->controller(MenuController::class)->group(function () {
         Route::get('/', 'index')->name('index');              // Trang chính
         Route::post('/store', 'store')->name('store');        // Ajax thêm mới
@@ -157,8 +159,6 @@ Route::middleware(['auth:admin'])->prefix('admin')->as('admin.')->group(function
      Route::get('/ajax/products/check-code', [ProductController::class, 'checkCodeUniqueness'])->name('ajax.products.check_code');
      Route::resource('branches', BranchController::class);
 
-     Route::get('/warranty', [WarrantyController::class, 'index'])->name('warranty.index');
-     Route::post('/warranty/search', [WarrantyController::class, 'search'])->name('warranty.search');
      Route::post('/duplicate', [DuplicateController::class, 'duplicate'])->name('duplicate');
 
      Route::get('media', [App\Http\Controllers\Admin\MediaController::class, 'index'])->name('media.index');
@@ -172,11 +172,17 @@ Route::middleware(['auth:admin'])->prefix('admin')->as('admin.')->group(function
     // 4. Career Applications (Hồ sơ ứng tuyển - Thường chỉ cần xem và xóa)
      Route::resource('career-applications', \App\Http\Controllers\Admin\CareerApplicationController::class)
          ->except(['create', 'store', 'edit']);
+         
 
+     Route::get('/work-orders', \App\Livewire\WorkOrder\WorkOrderList::class)->name('work-orders.index');
      Route::get('/work-orders/create', CreateWorkOrder::class)->name('work-orders.create');
+     Route::get('/work-orders/{id}/edit', \App\Livewire\WorkOrder\EditWorkOrder::class)->name('work-orders.edit');
+     
      Route::get('/my-work-orders', \App\Livewire\WorkOrder\MyWorkOrders::class)->name('my-work-orders.index');
      Route::get('/work-orders/{id}', \App\Livewire\WorkOrder\WorkOrderDetail::class)->name('work-orders.show');
      Route::get('/work-orders/{id}/print', [\App\Http\Controllers\PrintController::class, 'printWorkOrder'])->name('work-orders.print');
+
+     Route::get('/tasks/{id}', TaskDetail::class)->name('tasks.detail');
 
      Route::prefix('customers')->name('customers.')->group(function () {
           Route::get('/', \App\Livewire\Customer\CustomerList::class)->name('index');
@@ -189,4 +195,15 @@ Route::middleware(['auth:admin'])->prefix('admin')->as('admin.')->group(function
           Route::get('/create', \App\Livewire\Admin\StaffForm::class)->name('create');
           Route::get('/{id}/edit', \App\Livewire\Admin\StaffForm::class)->name('edit');
      });
+     Route::get('/materials', MaterialList::class)->name('materials.index');
+
+     Route::get('/warranties', WarrantyList::class)->name('warranty.index');
+     Route::get('/warranty/create/{work_order_id}', CreateWarranty::class)->name('warranty.create');
+     Route::get('/warranty/check', \App\Livewire\Warranty\WarrantyCheck::class)->name('warranty.check');
+
+     Route::get('/finance', \App\Livewire\Finance\FinanceDashboard::class)->name('finance.index');
+     Route::get('/finance/work-order/{id}', \App\Livewire\Finance\WorkOrderFinanceDetail::class)->name('finance.work-order');
+
+     Route::get('/profile', \App\Livewire\Admin\UserProfile::class)->name('profile');
+     Route::get('/notifications', \App\Livewire\Admin\NotificationList::class)->name('notifications.index');
 });

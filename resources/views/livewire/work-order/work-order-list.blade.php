@@ -22,22 +22,23 @@
 
             <div class="card">
                 <div class="card-header">
-                    <div class="d-flex justify-content-between align-items-center">
-                        {{-- Bộ lọc trạng thái --}}
+                    <div class="d-flex justify-content-between align-items-center flex-wrap">
+                        
+                        {{-- BỘ LỌC --}}
                         <div class="d-flex" style="gap: 10px;">
                             <select wire:model.live="status" class="form-control form-control-sm" style="width: 150px;">
-                                <option value="all">-- Tất cả --</option>
+                                <option value="all">-- Trạng thái --</option>
                                 <option value="pending">Chờ xử lý</option>
                                 <option value="processing">Đang làm</option>
-                                <option value="completed">Đã xong (Đóng)</option>
+                                <option value="completed">Đã xong</option>
                                 <option value="cancelled">Đã hủy</option>
                             </select>
                         </div>
 
-                        {{-- Tìm kiếm --}}
-                        <div class="card-tools">
+                        {{-- TÌM KIẾM --}}
+                        <div class="card-tools mt-2 mt-md-0">
                             <div class="input-group input-group-sm" style="width: 250px;">
-                                <input type="text" wire:model.live.debounce.300ms="search" class="form-control float-right" placeholder="Tìm tên khách, mã job...">
+                                <input type="text" wire:model.live.debounce.300ms="search" class="form-control float-right" placeholder="Tìm tên, mã, sđt...">
                                 <div class="input-group-append">
                                     <button type="submit" class="btn btn-default"><i class="fas fa-search"></i></button>
                                 </div>
@@ -51,9 +52,10 @@
                         <thead>
                             <tr class="bg-light">
                                 <th>Mã Job</th>
+                                <th>Độ ưu tiên</th>
                                 <th>Khách hàng</th>
-                                <th>Yêu cầu (Title)</th>
-                                <th>Nhân viên phụ trách</th>
+                                <th>Yêu cầu</th>
+                                <th>Nhân viên</th>
                                 <th>Tiến độ</th>
                                 <th class="text-center">Trạng thái</th>
                                 <th class="text-right">Thao tác</th>
@@ -67,13 +69,23 @@
                                             <strong>{{ $order->code }}</strong>
                                         </a>
                                         <br>
-                                        <small class="text-muted">{{ $order->created_at->format('d/m/Y') }}</small>
+                                        <small class="text-muted">{{ $order->created_at->format('d/m/Y H:i') }}</small>
                                     </td>
+                                    
                                     <td>
-                                        {{ $order->customer->name }}
-                                        <br>
+                                        @switch($order->priority)
+                                            @case('urgent') <span class="badge badge-danger"><i class="fas fa-fire"></i> GẤP</span> @break
+                                            @case('high') <span class="badge badge-warning text-white">Cao</span> @break
+                                            @case('low') <span class="badge badge-secondary">Thấp</span> @break
+                                            @default <span class="badge badge-info">Trung bình</span>
+                                        @endswitch
+                                    </td>
+
+                                    <td>
+                                        {{ $order->customer->name }} <br>
                                         <small class="text-muted">
-                                            {{ $order->customer->contacts->where('type','phone')->first()->value ?? '' }}
+                                            <i class="fas fa-phone-alt text-xs"></i> 
+                                            {{ $order->customer->contacts->where('type','phone')->first()->value ?? '---' }}
                                         </small>
                                     </td>
                                     <td>
@@ -83,65 +95,111 @@
                                     </td>
                                     <td>
                                         <div class="d-flex flex-column">
-                                            @foreach($order->assignees as $staff)
-                                                <small><i class="fas fa-user-tag text-xs"></i> {{ $staff->name }}</small>
-                                            @endforeach
-                                            @if($order->assignees->isEmpty()) <small class="text-danger">Chưa gán</small> @endif
+                                            @forelse($order->assignees as $staff)
+                                                <small><i class="fas fa-user text-xs text-muted"></i> {{ $staff->name }}</small>
+                                            @empty
+                                                <small class="text-danger font-italic">Chưa gán</small>
+                                            @endforelse
                                         </div>
                                     </td>
                                     <td>
-                                        {{-- Đếm số task đã báo cáo --}}
-                                        <span class="badge badge-light border">
-                                            {{ $order->tasks->count() }} báo cáo
-                                        </span>
+                                        @php
+                                            $totalTasks = $order->tasks->count();
+                                            $completedTasks = $order->tasks->where('status', \App\Enums\TaskStatus::COMPLETED)->count();
+                                            $percent = $totalTasks > 0 ? round(($completedTasks / $totalTasks) * 100) : 0;
+                                            $color = $percent == 100 ? 'bg-success' : ($percent > 50 ? 'bg-primary' : 'bg-warning');
+                                        @endphp
+                                        <div class="progress progress-xs">
+                                            <div class="progress-bar {{ $color }}" style="width: {{ $percent }}%"></div>
+                                        </div>
+                                        <small class="text-muted">{{ $completedTasks }}/{{ $totalTasks }} việc ({{ $percent }}%)</small>
                                     </td>
                                     <td class="text-center">
-                                        @if($order->status == 'pending')
-                                            <span class="badge badge-warning">Chờ xử lý</span>
-                                        @elseif($order->status == 'processing')
-                                            <span class="badge badge-primary">Đang thực hiện</span>
-                                        @elseif($order->status == 'completed')
-                                            <span class="badge badge-success">Hoàn thành</span>
-                                        @else
-                                            <span class="badge badge-secondary">Đã hủy</span>
+                                        @if($order->status === \App\Enums\WorkOrderStatus::PENDING) <span class="badge badge-warning">Chờ xử lý</span>
+                                        @elseif($order->status === \App\Enums\WorkOrderStatus::PROCESSING) <span class="badge badge-primary">Đang làm</span>
+                                        @elseif($order->status === \App\Enums\WorkOrderStatus::COMPLETED) <span class="badge badge-success">Hoàn thành</span>
+                                        @elseif($order->status === \App\Enums\WorkOrderStatus::PENDING_APPROVAL) <span class="badge badge-info">Chờ duyệt</span>
+                                        @else <span class="badge badge-secondary">Đã hủy</span>
                                         @endif
                                     </td>
                                     <td class="text-right">
                                         <div class="btn-group">
-                                            {{-- Xem chi tiết --}}
-                                            <a href="{{ route('admin.work-orders.show', $order->id) }}" class="btn btn-sm btn-info" title="Xem chi tiết">
-                                                <i class="fas fa-eye"></i>
-                                            </a>
                                             
-                                            {{-- Nút Đóng Job / Mở lại --}}
-                                            @if($order->status != 'completed' && $order->status != 'cancelled')
-                                                <button wire:confirm="Bạn có chắc chắn muốn ĐÓNG Job này? (Xác nhận đã hoàn thành)" 
-                                                        wire:click="markAsCompleted({{ $order->id }})" 
-                                                        class="btn btn-sm btn-success" title="Hoàn thành & Đóng">
-                                                    <i class="fas fa-check"></i>
-                                                </button>
+                                            {{-- TRƯỜNG HỢP 1: ĐÃ DUYỆT HOÀN THÀNH --}}
+                                            @if($order->status === \App\Enums\WorkOrderStatus::COMPLETED)
                                                 
-                                                <button wire:confirm="Hủy Job này?" 
-                                                        wire:click="markAsCancelled({{ $order->id }})" 
-                                                        class="btn btn-sm btn-danger" title="Hủy bỏ">
-                                                    <i class="fas fa-ban"></i>
-                                                </button>
-                                            @else
-                                                {{-- Nếu đã đóng/hủy thì cho phép mở lại --}}
-                                                <button wire:confirm="Mở lại Job này để làm tiếp?" 
+                                                {{-- Xem --}}
+                                                <a href="{{ route('admin.work-orders.show', $order->id) }}" class="btn btn-sm btn-default border" title="Xem chi tiết">
+                                                    <i class="fas fa-eye text-info"></i>
+                                                </a>
+
+                                                {{-- Bảo Hành --}}
+                                                @if($order->warrantyService)
+                                                    <a href="{{ route('admin.warranty.index', ['search' => $order->code]) }}" class="btn btn-sm border" title="Đã có BH">
+                                                        <i class="fas fa-shield-alt text-success"></i>
+                                                    </a>
+                                                @else
+                                                    <a href="{{ route('admin.warranty.create', ['work_order_id' => $order->id]) }}" class="btn btn-sm border" title="Tạo Bảo hành">
+                                                        <i class="fas fa-shield-alt text-success"></i>
+                                                    </a>
+                                                @endif
+
+                                                {{-- Tài Chính --}}
+                                                <a href="{{ route('admin.finance.work-order', $order->id) }}" class="btn btn-sm btn-default border" title="Duyệt tài chính">
+                                                    <i class="fas fa-file-invoice-dollar text-warning"></i>
+                                                </a>
+
+                                                {{-- Mở Lại (Admin only) --}}
+                                                <button wire:confirm="CẢNH BÁO: Mở lại phiếu này sẽ cho phép chỉnh sửa task con. Tiếp tục?" 
                                                         wire:click="markAsProcessing({{ $order->id }})" 
-                                                        class="btn btn-sm btn-default" title="Mở lại">
-                                                    <i class="fas fa-redo"></i>
+                                                        class="btn btn-sm btn-outline-danger border ml-1" title="Mở lại phiếu">
+                                                    <i class="fas fa-undo"></i>
                                                 </button>
+
+                                            {{-- TRƯỜNG HỢP 2: CHƯA HOÀN THÀNH --}}
+                                            @elseif($order->status !== \App\Enums\WorkOrderStatus::CANCELLED)
+                                                
+                                                {{-- Sửa --}}
+                                                <a href="{{ route('admin.work-orders.edit', $order->id) }}" class="btn btn-sm btn-warning border" title="Sửa thông tin">
+                                                    <i class="fas fa-edit text-white"></i>
+                                                </a>
+
+                                                {{-- Xem --}}
+                                                <a href="{{ route('admin.work-orders.show', $order->id) }}" class="btn btn-sm btn-default border" title="Xem tiến độ">
+                                                    <i class="fas fa-eye text-info"></i>
+                                                </a>
+
+                                                {{-- Nút Duyệt --}}
+                                                @if($incompleteTasks = $order->tasks->where('status', '!=', \App\Enums\TaskStatus::COMPLETED)->count() === 0 && $order->tasks->count() > 0)
+                                                    <button wire:confirm="Xác nhận: Tất cả công việc đã xong. DUYỆT & ĐÓNG phiếu này?" 
+                                                            wire:click="markAsCompleted({{ $order->id }})" 
+                                                            class="btn btn-sm btn-success" title="Duyệt hoàn thành">
+                                                        <i class="fas fa-check"></i>
+                                                    </button>
+                                                @else
+                                                    <button type="button" class="btn btn-sm btn-light border" disabled 
+                                                            title="Chưa xong hết việc">
+                                                        <i class="fas fa-clock text-muted"></i>
+                                                    </button>
+                                                @endif
+                                                
+                                                {{-- Hủy --}}
+                                                <button wire:confirm="Hủy bỏ Job này?" wire:click="markAsCancelled({{ $order->id }})" class="btn btn-sm btn-default text-danger border ml-1">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+
+                                            @else 
+                                                <span class="badge badge-secondary">Đã hủy</span>
+                                                <button wire:click="markAsProcessing({{ $order->id }})" class="btn btn-xs btn-link">Khôi phục</button>
                                             @endif
                                         </div>
                                     </td>
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="7" class="text-center text-muted py-5">
-                                        <i class="fas fa-inbox fa-2x mb-2"></i><br>
-                                        Không tìm thấy phiếu việc nào.
+                                    <td colspan="8" class="text-center text-muted py-5">
+                                        <i class="fas fa-inbox fa-3x mb-3 text-gray-300"></i><br>
+                                        Không tìm thấy dữ liệu.
                                     </td>
                                 </tr>
                             @endforelse

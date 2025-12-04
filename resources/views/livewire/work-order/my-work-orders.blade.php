@@ -1,7 +1,13 @@
 <div>
     <section class="content-header">
         <div class="container-fluid">
-            <h1>Danh sách công việc của tôi</h1>
+            <h1>
+                @if($filter == 'all')
+                    Tất cả công việc
+                @else
+                    Việc hiện tại (Chưa xong)
+                @endif
+            </h1>
         </div>
     </section>
 
@@ -10,24 +16,36 @@
             <div class="row">
                 @forelse($orders as $order)
                     <div class="col-md-6 col-lg-4">
-                        <div class="card card-outline {{ $order->status == 'completed' ? 'card-success' : 'card-primary' }}">
-                            <div class="card-header">
-                                <h3 class="card-title font-weight-bold">
-                                    <i class="fas fa-hashtag"></i> {{ $order->code }}
-                                </h3>
-                                <div class="card-tools">
-                                    {{-- Badge trạng thái --}}
-                                    @if($order->status == 'pending')
-                                        <span class="badge badge-warning">Chờ xử lý</span>
-                                    @elseif($order->status == 'processing')
-                                        <span class="badge badge-primary">Đang làm</span>
-                                    @elseif($order->status == 'completed')
-                                        <span class="badge badge-success">Hoàn thành</span>
-                                    @else
-                                        <span class="badge badge-secondary">Đã hủy</span>
-                                    @endif
+                            <div class="card card-outline {{ $order->status === \App\Enums\WorkOrderStatus::COMPLETED ? 'card-success' : 'card-primary' }}">
+                                <div class="card-header">
+                                    <h3 class="card-title font-weight-bold">
+                                        <i class="fas fa-hashtag"></i> {{ $order->code }}
+                                    </h3>
+                                    <div class="card-tools">
+                                        {{-- Priority Badge --}}
+                                        {{-- Priority Badge --}}
+                                        @if($order->priority === 'urgent')
+                                            <span class="badge badge-danger mr-1"><i class="fas fa-exclamation-circle"></i> Khẩn cấp</span>
+                                        @elseif($order->priority === 'high')
+                                            <span class="badge badge-warning mr-1" style="color: #fff; background-color: #fd7e14;"><i class="fas fa-arrow-up"></i> Cao</span>
+                                        @elseif($order->priority === 'medium')
+                                            <span class="badge badge-info mr-1">TB</span>
+                                        @else
+                                            <span class="badge badge-secondary mr-1">Thấp</span>
+                                        @endif
+
+                                        {{-- Badge trạng thái --}}
+                                        @if($order->status === \App\Enums\WorkOrderStatus::PENDING)
+                                            <span class="badge badge-warning">Chờ xử lý</span>
+                                        @elseif($order->status === \App\Enums\WorkOrderStatus::PROCESSING)
+                                            <span class="badge badge-primary">Đang làm</span>
+                                        @elseif($order->status === \App\Enums\WorkOrderStatus::COMPLETED)
+                                            <span class="badge badge-success">Hoàn thành</span>
+                                        @else
+                                            <span class="badge badge-secondary">Đã hủy</span>
+                                        @endif
+                                    </div>
                                 </div>
-                            </div>
                             <div class="card-body">
                                 <h5 class="text-primary">{{ $order->title }}</h5>
                                 <p class="text-muted small mb-2"><i class="far fa-clock"></i> {{ $order->created_at->format('d/m/Y H:i') }}</p>

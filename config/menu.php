@@ -45,11 +45,22 @@ return [
         ],
     ],
     [
-        'title' => 'Duyệt & Doanh thu',
-        'icon' => 'bi bi-cash-stack', 
-        'route' => 'admin.task-audit.index',
-        'active_pattern' => 'admin.task-audit.*',
-        // 'permission' => 'audit-tasks',
+        'title' => 'Kho Vật tư',
+        'icon' => 'bi bi-box-seam', 
+        'route' => 'admin.materials.index',
+        'active_pattern' => 'admin.materials.*',
+    ],
+    [
+        'title' => 'Bảo hành',
+        'icon' => 'bi bi-shield-check', 
+        'route' => 'admin.warranty.index',
+        'active_pattern' => 'admin.warranty.*',
+    ],
+    [
+        'title' => 'Tài chính',
+        'icon' => 'bi bi-currency-dollar', 
+        'route' => 'admin.finance.index',
+        'active_pattern' => 'admin.finance.*',
     ],
 
     // ================================================================

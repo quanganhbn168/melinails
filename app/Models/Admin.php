@@ -13,7 +13,7 @@ class Admin extends Authenticatable
 
     protected $guard_name = 'admin';
     protected $fillable = [
-        'name', 'email', 'password', 'phone', 'status'
+        'name', 'email', 'password', 'phone', 'status', 'avatar'
     ];
 
     protected $hidden = ['password', 'remember_token'];
@@ -49,5 +49,13 @@ class Admin extends Authenticatable
 
         // 2. Mặc định cho các role khác (Super Admin, Kế toán...)
         return 'layouts.admin';
+    }
+
+    public function getAvatarUrlAttribute()
+    {
+        if ($this->avatar) {
+            return asset('storage/' . $this->avatar);
+        }
+        return asset('vendor/adminlte/dist/img/user2-160x160.jpg');
     }
 }

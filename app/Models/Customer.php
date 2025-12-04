@@ -8,7 +8,14 @@ use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 
 class Customer extends Model
 {
-    protected $fillable = ['name', 'notes'];
+    protected $fillable = [
+        'name', 
+        'notes', 
+        'email', 
+        'tax_code', 
+        'representative_name', 
+        'type'
+    ];
 
     // Lấy tất cả liên hệ
     public function contacts(): HasMany

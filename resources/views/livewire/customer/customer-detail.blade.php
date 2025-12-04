@@ -1,211 +1,257 @@
 <div>
+    {{-- HEADER & STATS --}}
     <section class="content-header">
         <div class="container-fluid">
-            <div class="d-flex justify-content-between">
-                <h1>Hồ sơ khách hàng</h1>
-                <a href="{{ route('admin.customers.index') }}" class="btn btn-secondary btn-sm">
-                    <i class="fas fa-arrow-left"></i> Quay lại danh sách
-                </a>
+            <div class="row mb-3">
+                <div class="col-sm-6">
+                    <h1>Hồ sơ: <b>{{ $customer->name }}</b></h1>
+                </div>
+                <div class="col-sm-6 text-right">
+                    <a href="{{ route('admin.customers.index') }}" class="btn btn-default">Quay lại</a>
+                    <a href="{{ route('admin.customers.edit', $customer->id) }}" class="btn btn-warning"><i class="fas fa-edit"></i> Sửa</a>
+                </div>
+            </div>
+
+            {{-- Thống kê --}}
+            <div class="row">
+                <div class="col-md-3 col-6">
+                    <div class="small-box bg-info">
+                        <div class="inner">
+                            <h3>{{ number_format($stats['total_spent']) }}<sup style="font-size: 20px">đ</sup></h3>
+                            <p>Tổng chi tiêu</p>
+                        </div>
+                        <div class="icon"><i class="fas fa-money-bill-wave"></i></div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6">
+                    <div class="small-box bg-success">
+                        <div class="inner">
+                            <h3>{{ $stats['total_orders'] }}</h3>
+                            <p>Phiếu việc</p>
+                        </div>
+                        <div class="icon"><i class="fas fa-clipboard-list"></i></div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6">
+                    <div class="small-box bg-warning">
+                        <div class="inner">
+                            <h3>{{ $stats['active_warranties'] }}</h3>
+                            <p>Thiết bị còn BH</p>
+                        </div>
+                        <div class="icon"><i class="fas fa-shield-alt"></i></div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6">
+                    <div class="small-box bg-secondary">
+                        <div class="inner">
+                            <h3>{{ $stats['last_date'] }}</h3>
+                            <p>Giao dịch cuối</p>
+                        </div>
+                        <div class="icon"><i class="fas fa-clock"></i></div>
+                    </div>
+                </div>
             </div>
         </div>
     </section>
 
+    {{-- MAIN CONTENT --}}
     <section class="content">
         <div class="container-fluid">
-            <div class="row">
-                {{-- CỘT TRÁI: PROFILE CARD --}}
-                <div class="col-md-3">
-                    {{-- Card Profile --}}
-                    <div class="card card-primary card-outline">
-                        <div class="card-body box-profile">
-                            <div class="text-center">
-                                <div class="profile-user-img img-fluid img-circle bg-gray d-flex justify-content-center align-items-center" 
-                                     style="height: 100px; width: 100px; margin: 0 auto; font-size: 40px; color: white;">
-                                    {{ substr($customer->name, 0, 1) }}
-                                </div>
-                            </div>
-
-                            <h3 class="profile-username text-center mt-3">{{ $customer->name }}</h3>
-                            <p class="text-muted text-center">Mã KH: #{{ $customer->id }}</p>
-
-                            <ul class="list-group list-group-unbordered mb-3">
-                                <li class="list-group-item">
-                                    <b>Tổng Job</b> <a class="float-right">{{ $stats['total_jobs'] }}</a>
-                                </li>
-                                <li class="list-group-item">
-                                    <b>Tổng chi tiêu</b> <a class="float-right text-success font-weight-bold">{{ number_format($stats['total_spent']) }} đ</a>
-                                </li>
-                                <li class="list-group-item">
-                                    <b>Gần nhất</b> <a class="float-right">{{ $stats['last_date'] }}</a>
-                                </li>
-                            </ul>
-
-                            <a href="{{ route('admin.customers.edit', $customer->id) }}" class="btn btn-primary btn-block">
-                                <i class="fas fa-pen"></i> Sửa thông tin
-                            </a>
-                        </div>
-                    </div>
-
-                    {{-- Card Liên hệ --}}
-                    <div class="card card-primary">
-                        <div class="card-header">
-                            <h3 class="card-title">Thông tin liên hệ</h3>
-                        </div>
-                        <div class="card-body">
-                            @foreach($customer->contacts as $contact)
-                                @if($contact->type == 'phone')
-                                    <strong><i class="fas fa-phone-alt mr-1"></i> Điện thoại ({{ $contact->label }})</strong>
-                                    <p class="text-muted"><a href="tel:{{ $contact->value }}">{{ $contact->value }}</a></p>
-                                @else
-                                    <strong><i class="fas fa-map-marker-alt mr-1"></i> Địa chỉ ({{ $contact->label }})</strong>
-                                    <p class="text-muted">{{ $contact->value }}</p>
-                                @endif
-                                @if(!$loop->last) <hr> @endif
-                            @endforeach
-                        </div>
-                    </div>
-                    
-                    {{-- Card Ghi chú --}}
-                    <div class="card card-secondary">
-                        <div class="card-header">
-                            <h3 class="card-title">Ghi chú</h3>
-                        </div>
-                        <div class="card-body text-muted small">
-                            {{ $customer->notes ?? 'Chưa có ghi chú nào.' }}
-                        </div>
-                    </div>
+            <div class="card card-primary card-outline card-outline-tabs">
+                <div class="card-header p-0 border-bottom-0">
+                    <ul class="nav nav-tabs">
+                        <li class="nav-item">
+                            <a class="nav-link {{ $activeTab == 'work_orders' ? 'active' : '' }}" 
+                               href="javascript:void(0)" wire:click="switchTab('work_orders')">Lịch sử Phiếu Việc</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{ $activeTab == 'warranties' ? 'active' : '' }}" 
+                               href="javascript:void(0)" wire:click="switchTab('warranties')">Bảo hành & Thiết bị</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{ $activeTab == 'info' ? 'active' : '' }}" 
+                               href="javascript:void(0)" wire:click="switchTab('info')">Thông tin liên hệ</a>
+                        </li>
+                    </ul>
                 </div>
+                
+                <div class="card-body">
+                    
+                    {{-- TAB 1: DANH SÁCH PHIẾU VIỆC --}}
+                    @if($activeTab == 'work_orders')
+                        <table class="table table-hover text-nowrap">
+                            <thead>
+                                <tr>
+                                    <th>Mã Phiếu</th>
+                                    <th>Ngày tạo</th>
+                                    <th>Tiêu đề / Yêu cầu</th>
+                                    <th>Trạng thái</th>
+                                    <th class="text-right">Hành động</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @forelse($workOrders as $order)
+                                    <tr>
+                                        <td><a href="{{ route('admin.work-orders.show', $order->id) }}"><b>{{ $order->code }}</b></a></td>
+                                        <td>{{ $order->created_at->format('d/m/Y H:i') }}</td>
+                                        <td>{{ Str::limit($order->title, 50) }}</td>
+                                        <td>
+                                            @if($order->status == 'completed') <span class="badge badge-success">Hoàn thành</span>
+                                            @elseif($order->status == 'processing') <span class="badge badge-primary">Đang làm</span>
+                                            @elseif($order->status == 'pending') <span class="badge badge-warning">Chờ xử lý</span>
+                                            @else <span class="badge badge-secondary">Đã hủy</span> @endif
+                                        </td>
+                                        <td class="text-right">
+                                            <a href="{{ route('admin.work-orders.show', $order->id) }}" class="btn btn-sm btn-info"><i class="fas fa-eye"></i></a>
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr><td colspan="5" class="text-center text-muted">Khách chưa có phiếu việc nào.</td></tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    @endif
 
-                {{-- CỘT PHẢI: LỊCH SỬ GIAO DỊCH --}}
-                <div class="col-md-9">
-                    <div class="card">
-                        <div class="card-header p-2">
-                            <ul class="nav nav-pills">
-                                <li class="nav-item"><a class="nav-link active" href="#timeline" data-toggle="tab">Lịch sử hoạt động</a></li>
-                                <li class="nav-item"><a class="nav-link" href="#equipment" data-toggle="tab">Thiết bị đang sử dụng</a></li>
-                            </ul>
-                        </div>
-                        <div class="card-body">
-                            <div class="tab-content">
-                                
-                                {{-- TAB 1: TIMELINE (Lịch sử làm việc) --}}
-                                <div class="active tab-pane" id="timeline">
-                                    @if($customer->workOrders->isEmpty())
-                                        <div class="alert alert-info">Khách hàng này chưa có giao dịch nào.</div>
-                                    @else
-                                        <div class="timeline timeline-inverse">
-                                            @foreach($customer->workOrders as $job)
-                                                <div class="time-label">
-                                                    <span class="bg-{{ $job->status == 'completed' ? 'success' : ($job->status == 'cancelled' ? 'secondary' : 'warning') }}">
-                                                        {{ $job->created_at->format('d/m/Y') }} ({{ $job->code }})
-                                                    </span>
-                                                </div>
-                                                
-                                                {{-- Nội dung Job --}}
-                                                <div>
-                                                    <i class="fas fa-tools bg-primary"></i>
-                                                    <div class="timeline-item">
-                                                        <span class="time"><i class="far fa-clock"></i> {{ $job->created_at->format('H:i') }}</span>
-                                                        <h3 class="timeline-header">
-                                                            <a href="{{ route('admin.work-orders.show', $job->id) }}">Yêu cầu: {{ $job->title }}</a>
-                                                        </h3>
-                                                        <div class="timeline-body">
-                                                            {{ $job->description }}
-                                                            
-                                                            {{-- Liệt kê các Task con trong Job này --}}
-                                                            @if($job->tasks->isNotEmpty())
-                                                                <div class="mt-2 p-2 bg-light rounded border">
-                                                                    <small class="text-uppercase text-muted font-weight-bold">Chi tiết thực hiện:</small>
-                                                                    <ul class="list-unstyled mb-0 mt-1">
-                                                                        @foreach($job->tasks as $task)
-                                                                            <li class="mb-2 border-bottom pb-2">
-                                                                                <i class="fas fa-check-circle text-success text-xs"></i> 
-                                                                                <b>{{ $task->performer->name ?? 'NV' }}:</b> {{ $task->report_content }}
-                                                                                
-                                                                                {{-- Vật tư dùng trong task --}}
-                                                                                @if($task->items->isNotEmpty())
-                                                                                    <br>
-                                                                                    <span class="ml-3 text-muted text-xs">
-                                                                                        <i class="fas fa-box"></i> 
-                                                                                        @foreach($task->items as $item)
-                                                                                            {{ $item->item_name }} (SL:{{ $item->quantity }}){{ !$loop->last ? ',' : '' }}
-                                                                                        @endforeach
-                                                                                    </span>
-                                                                                @endif
-
-                                                                                {{-- Tiền thu --}}
-                                                                                @if($task->collected_amount > 0)
-                                                                                    <br>
-                                                                                    <span class="ml-3 text-success font-weight-bold text-xs">
-                                                                                        <i class="fas fa-money-bill"></i> Thu: {{ number_format($task->collected_amount) }}đ
-                                                                                    </span>
-                                                                                @endif
-                                                                            </li>
-                                                                        @endforeach
-                                                                    </ul>
-                                                                </div>
-                                                            @endif
-                                                        </div>
-                                                        <div class="timeline-footer">
-                                                            <a href="{{ route('admin.work-orders.show', $job->id) }}" class="btn btn-primary btn-sm">Xem chi tiết Phiếu</a>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            @endforeach
-                                            <div>
-                                                <i class="far fa-clock bg-gray"></i>
-                                            </div>
-                                        </div>
-                                    @endif
-                                </div>
-
-                                {{-- TAB 2: DANH SÁCH THIẾT BỊ (Để tra cứu bảo hành nhanh) --}}
-                                <div class="tab-pane" id="equipment">
-                                    <table class="table table-bordered table-striped">
-                                        <thead>
-                                            <tr>
-                                                <th>Tên thiết bị</th>
-                                                <th>Serial / IMEI</th>
-                                                <th>Ngày lắp</th>
-                                                <th>Phiếu việc</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            @php $hasItems = false; @endphp
-                                            @foreach($customer->workOrders as $job)
-                                                @foreach($job->tasks as $task)
-                                                    @foreach($task->items as $item)
-                                                        @php $hasItems = true; @endphp
-                                                        <tr>
-                                                            <td>{{ $item->item_name }}</td>
-                                                            <td>
-                                                                @if($item->serial_number)
-                                                                    <span class="badge badge-warning">{{ $item->serial_number }}</span>
-                                                                @else
-                                                                    <span class="text-muted">-</span>
-                                                                @endif
-                                                            </td>
-                                                            <td>{{ $task->created_at->format('d/m/Y') }}</td>
-                                                            <td>
-                                                                <a href="{{ route('admin.work-orders.show', $job->id) }}">{{ $job->code }}</a>
-                                                            </td>
-                                                        </tr>
-                                                    @endforeach
-                                                @endforeach
-                                            @endforeach
+                    {{-- TAB 2: BẢO HÀNH --}}
+                    @if($activeTab == 'warranties')
+                        
+                        {{-- A. Bảo hành Dịch vụ (Gói) --}}
+                        <h6 class="font-weight-bold text-primary mb-2"><i class="fas fa-file-contract mr-1"></i> Các gói Bảo hành Dịch vụ</h6>
+                        <div class="table-responsive mb-4">
+                            <table class="table table-sm table-bordered bg-light">
+                                <thead class="thead-light">
+                                    <tr>
+                                        <th>Mã Job</th>
+                                        <th>Nội dung / Ghi chú</th>
+                                        <th>Ngày kích hoạt</th>
+                                        <th>Thời hạn</th>
+                                        <th>Ngày hết hạn</th>
+                                        <th>Trạng thái</th>
+                                        <th>Thao tác</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @forelse($serviceWarranties as $svc)
+                                        <tr>
+                                            <td class="align-middle"><a href="{{ route('admin.work-orders.show', $svc->work_order_id) }}"><b>{{ $svc->wo_code }}</b></a></td>
+                                            <td class="align-middle">
+                                                {{ $svc->wo_title }} <br>
+                                                <small class="text-muted">{{ $svc->notes }}</small>
+                                            </td>
+                                            <td class="align-middle">{{ \Carbon\Carbon::parse($svc->start_date)->format('d/m/Y') }}</td>
                                             
-                                            @if(!$hasItems)
-                                                <tr>
-                                                    <td colspan="4" class="text-center text-muted">Khách chưa thay thế/lắp đặt thiết bị nào có ghi nhận.</td>
-                                                </tr>
-                                            @endif
-                                        </tbody>
-                                    </table>
-                                </div>
+                                            {{-- Thời hạn --}}
+                                            <td class="align-middle">{{ $svc->warranty_months }} tháng</td>
 
+                                            {{-- Ngày hết hạn (HIỆN RÕ) --}}
+                                            <td class="align-middle">
+                                                <strong class="text-danger" style="font-size: 1.1em;">
+                                                    {{ $svc->expiration_date ? \Carbon\Carbon::parse($svc->expiration_date)->format('d/m/Y') : '---' }}
+                                                </strong>
+                                            </td>
+
+                                            {{-- Trạng thái --}}
+                                            <td class="align-middle text-center">
+                                                @if($svc->expiration_date && \Carbon\Carbon::now()->gt($svc->expiration_date))
+                                                    <span class="badge badge-secondary">Hết hạn</span>
+                                                @else
+                                                    <span class="badge badge-success">Còn hạn</span>
+                                                @endif
+                                            </td>
+
+                                            {{-- Nút sửa --}}
+                                            <td class="align-middle text-center">
+                                                <a href="{{ route('admin.warranty.create', $svc->work_order_id) }}" class="btn btn-xs btn-outline-primary" title="Sửa bảo hành">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    @empty
+                                        <tr><td colspan="7" class="text-center text-muted small">Chưa có gói bảo hành dịch vụ nào.</td></tr>
+                                    @endforelse
+                                </tbody>
+                            </table>
+                        </div>
+
+                        {{-- B. Bảo hành Thiết bị (Lẻ) --}}
+                        <h6 class="font-weight-bold text-success mb-2"><i class="fas fa-microchip mr-1"></i> Thiết bị & Linh kiện (Theo Serial)</h6>
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Tên thiết bị</th>
+                                        <th>Serial Number</th>
+                                        <th>Ngày kích hoạt</th>
+                                        <th>Ngày hết hạn</th>
+                                        <th>Trạng thái</th>
+                                        <th>Nguồn gốc</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @forelse($warranties as $device)
+                                        <tr>
+                                            <td class="font-weight-bold align-middle">{{ $device->device_name }}</td>
+                                            <td class="text-muted font-monospace align-middle">{{ $device->serial_number }}</td>
+                                            
+                                            <td class="align-middle">
+                                                 {{ \Carbon\Carbon::parse($device->start_date)->format('d/m/Y') }}
+                                                 <br><small class="text-muted">({{ $device->warranty_months }} tháng)</small>
+                                            </td>
+
+                                            <td class="align-middle">
+                                                <strong class="text-danger">
+                                                    {{ \Carbon\Carbon::parse($device->expiration_date)->format('d/m/Y') }}
+                                                </strong>
+                                            </td>
+                                            
+                                            <td class="align-middle">
+                                                @if(\Carbon\Carbon::now()->gt($device->expiration_date))
+                                                    <span class="badge badge-secondary">Hết hạn</span>
+                                                @else
+                                                    <span class="badge badge-success">Còn bảo hành</span>
+                                                @endif
+                                            </td>
+                                            <td class="align-middle">
+                                                <a href="{{ route('admin.work-orders.show', $device->work_order_id) }}" class="text-xs">
+                                                    Job #{{ $device->wo_code }}
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    @empty
+                                        <tr><td colspan="6" class="text-center text-muted">Chưa có thiết bị nào được ghi nhận bảo hành.</td></tr>
+                                    @endforelse
+                                </tbody>
+                            </table>
+                        </div>
+                    @endif
+
+                    {{-- TAB 3: THÔNG TIN LIÊN HỆ --}}
+                    @if($activeTab == 'info')
+                        <div class="row">
+                            <div class="col-md-6">
+                                <strong><i class="fas fa-user mr-1"></i> Tên khách hàng</strong>
+                                <p class="text-muted">{{ $customer->name }}</p>
+                                <hr>
+                                <strong><i class="far fa-file-alt mr-1"></i> Ghi chú nội bộ</strong>
+                                <p class="text-muted">{{ $customer->notes ?? 'Không có ghi chú.' }}</p>
+                            </div>
+                            <div class="col-md-6">
+                                <strong><i class="fas fa-address-book mr-1"></i> Danh sách liên hệ</strong>
+                                <ul class="list-group list-group-flush mt-2">
+                                    @foreach($customer->contacts as $contact)
+                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                            <span>
+                                                @if($contact->type == 'phone') <i class="fas fa-phone text-success mr-2"></i>
+                                                @else <i class="fas fa-map-marker-alt text-danger mr-2"></i> @endif
+                                                {{ $contact->value }}
+                                            </span>
+                                            @if($contact->is_primary) <span class="badge badge-info">Chính</span> @endif
+                                        </li>
+                                    @endforeach
+                                </ul>
                             </div>
                         </div>
-                    </div>
+                    @endif
                 </div>
             </div>
         </div>

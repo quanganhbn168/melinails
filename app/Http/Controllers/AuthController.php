@@ -103,11 +103,18 @@ class AuthController extends Controller
     }
     public function logout(Request $request)
     {
-        $isAdmin = $request->is('admin/*');
-        $guard = $isAdmin ? 'admin' : 'web';
-        Auth::guard($guard)->logout();
+        // Check if it's admin logout based on route name or URL
+        if ($request->routeIs('admin.logout') || $request->is('admin/*')) {
+            Auth::guard('admin')->logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+            return redirect()->route('admin.login');
+        }
+
+        // Default to web guard
+        Auth::guard('web')->logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
-        return redirect($isAdmin ? route('admin.login') : route('home'));
+        return redirect()->route('home');
     }
 }

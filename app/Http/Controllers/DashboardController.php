@@ -4,73 +4,102 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Models\WorkOrder;
-use App\Models\Customer;
 use App\Models\Task;
-use App\Models\Admin;
+use App\Models\TaskReport;
+use App\Models\Admin; 
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 
 class DashboardController extends Controller
 {
-    public function dashboard()
+    public function dashboard(\Illuminate\Http\Request $request)
     {
-        // 1. Thống kê Card (Số liệu tổng quan)
-        $totalJobs = WorkOrder::count();
-        $processingJobs = WorkOrder::where('status', 'processing')->count();
-        $totalCustomers = Customer::count();
-        
-        // Tính tổng doanh thu (chỉ tính từ các Task đã nộp tiền: is_paid = true)
-        $totalRevenue = Task::where('is_paid', true)->sum('collected_amount');
+        // 1. THỐNG KÊ TỔNG QUAN (TOP CARDS)
+        $totalProducts = \App\Models\Product::count();
+        $totalPosts = \App\Models\Post::count();
+        $totalApplications = \App\Models\CareerApplication::count();
+        $totalContacts = \App\Models\Contact::count();
 
-        // 2. Bảng việc mới nhất (Lấy 5 cái mới tạo)
-        $recentOrders = WorkOrder::with(['customer', 'creator'])
+        // 2. BIỂU ĐỒ HOẠT ĐỘNG (Số lượng Task hoàn thành)
+        // Xử lý lọc thời gian
+        $range = $request->input('range', '7_days'); // Mặc định 7 ngày
+        $customStart = $request->input('start_date');
+        $customEnd = $request->input('end_date');
+
+        $activityChart = $this->getActivityChartData($range, $customStart, $customEnd);
+
+        // 3. BIỂU ĐỒ TRẠNG THÁI TASK (PIE CHART)
+        $taskStatusData = [
+            'pending' => Task::where('status', \App\Enums\TaskStatus::PENDING)->count(),
+            'processing' => Task::where('status', \App\Enums\TaskStatus::PROCESSING)->count(),
+            'completed' => Task::where('status', \App\Enums\TaskStatus::COMPLETED)->count(),
+        ];
+
+        // 4. DANH SÁCH PHIẾU VIỆC GẦN ĐÂY
+        $recentWorkOrders = WorkOrder::with(['customer'])
             ->latest()
             ->take(5)
             ->get();
 
-        // 3. Dữ liệu Biểu đồ Doanh thu (6 tháng gần nhất)
-        $revenueData = $this->getMonthlyRevenue();
-
-        // 4. Dữ liệu Biểu đồ Trạng thái Job (Pie Chart)
-        $statusData = [
-            'pending' => WorkOrder::where('status', 'pending')->count(),
-            'processing' => $processingJobs,
-            'completed' => WorkOrder::where('status', 'completed')->count(),
-            'cancelled' => WorkOrder::where('status', 'cancelled')->count(),
-        ];
+        // 5. TOP KỸ THUẬT VIÊN (Tháng này)
+        $topTechnicians = Task::select('performer_id', DB::raw('count(*) as total'))
+            ->where('status', \App\Enums\TaskStatus::COMPLETED)
+            ->whereMonth('updated_at', Carbon::now()->month)
+            ->whereNotNull('performer_id')
+            ->groupBy('performer_id')
+            ->orderByDesc('total')
+            ->take(5)
+            ->with('performer')
+            ->get();
 
         return view('admin.dashboard', compact(
-            'totalJobs', 
-            'processingJobs', 
-            'totalCustomers', 
-            'totalRevenue', 
-            'recentOrders',
-            'revenueData',
-            'statusData'
+            'totalProducts',
+            'totalPosts',
+            'totalApplications',
+            'totalContacts',
+            'activityChart',
+            'taskStatusData',
+            'recentWorkOrders',
+            'topTechnicians',
+            'range',
+            'customStart',
+            'customEnd'
         ));
     }
 
-    // Hàm lấy doanh thu 6 tháng gần nhất
-    private function getMonthlyRevenue()
+    private function getActivityChartData($range, $customStart = null, $customEnd = null)
     {
-        // Khởi tạo mảng 6 tháng
         $labels = [];
         $data = [];
         
-        for ($i = 5; $i >= 0; $i--) {
-            $date = Carbon::now()->subMonths($i);
-            $month = $date->month;
-            $year = $date->year;
-            
-            $labels[] = "T$month/$year";
+        // Xác định ngày bắt đầu và kết thúc
+        $endDate = Carbon::today();
+        $startDate = Carbon::today()->subDays(6); // Mặc định 7 ngày
 
-            // Query tổng tiền theo tháng
-            $amount = Task::where('is_paid', true)
-                ->whereYear('created_at', $year)
-                ->whereMonth('created_at', $month)
-                ->sum('collected_amount');
+        if ($range == '28_days') {
+            $startDate = Carbon::today()->subDays(27);
+        } elseif ($range == '3_months') {
+            $startDate = Carbon::today()->subMonths(3);
+        } elseif ($range == 'custom' && $customStart && $customEnd) {
+            $startDate = Carbon::parse($customStart);
+            $endDate = Carbon::parse($customEnd);
+        }
+
+        // Tạo labels và data
+        // Nếu khoảng thời gian quá dài (> 31 ngày), gom nhóm theo tuần hoặc tháng để biểu đồ đỡ rối?
+        // Ở đây giữ nguyên theo ngày cho đơn giản, hoặc user tự chọn range ngắn lại.
+        
+        $current = $startDate->copy();
+        while ($current <= $endDate) {
+            $labels[] = $current->format('d/m');
             
-            $data[] = $amount;
+            $count = Task::where('status', \App\Enums\TaskStatus::COMPLETED)
+                ->whereDate('updated_at', $current)
+                ->count();
+            
+            $data[] = $count;
+            
+            $current->addDay();
         }
 
         return ['labels' => $labels, 'data' => $data];

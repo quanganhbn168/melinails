@@ -17,7 +17,7 @@ class RoleManager extends Component
         'staff'       => 'Nhân sự',
         'customers'   => 'Khách hàng',
         'work_orders' => 'Phiếu việc (Job)',
-        'audit'       => 'Duyệt doanh thu',
+
         'roles'       => 'Phân quyền',
         'settings'    => 'Cấu hình',
     ];

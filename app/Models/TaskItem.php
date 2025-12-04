@@ -2,15 +2,16 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory; // <--- QUAN TRỌNG
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class TaskItem extends Model
 {
-    protected $fillable = ['task_id', 'item_name', 'serial_number', 'quantity', 'price'];
+    use HasFactory;
 
-    public function task(): BelongsTo
-    {
-        return $this->belongsTo(Task::class);
+    protected $fillable = ['task_report_id', 'item_name', 'serial_number', 'quantity', 'price'];
+
+    public function report() {
+        return $this->belongsTo(TaskReport::class, 'task_report_id');
     }
 }

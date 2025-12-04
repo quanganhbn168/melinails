@@ -1,238 +1,329 @@
 <div>
-    {{-- Phần Header & Thông tin Job giữ nguyên như cũ --}}
-    <section class="content-header">
-        <div class="container-fluid">
-            <div class="d-flex justify-content-between">
-    <h1>Phiếu việc: {{ $this->workOrder->code }}</h1>
-    <div>
-        {{-- NÚT IN --}}
-        <a href="{{ route('admin.work-orders.print', $this->workOrder->id) }}" target="_blank" class="btn btn-warning mr-2">
-            <i class="fas fa-print"></i> In Biên Bản
-        </a>
+    <style>
+        body { background-color: #f4f6f9; }
         
-        <a href="{{ route('admin.my-work-orders.index') }}" class="btn btn-secondary">Quay lại</a>
-    </div>
-</div>
-        </div>
-    </section>
+        /* Card Task: Thiết kế phẳng, gọn */
+        .task-card {
+            background: #fff; 
+            border-radius: 8px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+            margin-bottom: 12px; 
+            border: 1px solid #e9ecef;
+            overflow: hidden; /* Bo góc cho con bên trong */
+            transition: transform 0.1s;
+        }
+        .task-card:active { transform: scale(0.99); }
 
-    <section class="content">
+        /* Border màu trạng thái bên trái */
+        .status-border-completed { border-left: 5px solid #28a745; }
+        .status-border-processing { border-left: 5px solid #17a2b8; }
+        .status-border-pending { border-left: 5px solid #ffc107; }
+    </style>
+
+    {{-- HEADER (GIỮ NGUYÊN 100% CODE CỦA ANH) --}}
+    <div class="content-header bg-white shadow-sm pb-2 pt-3 sticky-top">
         <div class="container-fluid">
-            @if (session()->has('success'))
-                <div class="alert alert-success">{{ session('success') }}</div>
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <a href="{{ route('admin.work-orders.index') }}" class="btn btn-sm btn-light text-muted">
+                    <i class="fas fa-arrow-left"></i> Danh sách
+                </a>
+                <div class="text-right">
+                    <span class="badge badge-light border mr-1">#{{ $workOrder->code }}</span>
+                    @if($workOrder->priority == 'urgent') <span class="badge badge-danger">GẤP</span>
+                    @elseif($workOrder->priority == 'high') <span class="badge badge-warning">Cao</span>
+                    @else <span class="badge badge-info">Thường</span> @endif
+                </div>
+            </div>
+            
+            <h5 class="font-weight-bold m-0 text-dark">{{ $workOrder->customer->name }}</h5>
+            <div class="small text-muted mt-1">
+                <i class="fas fa-map-marker-alt text-danger mr-1"></i> {{ $workOrder->site_address ?? 'Chưa có địa chỉ' }}
+            </div>
+            <div class="small text-muted">
+                <i class="fas fa-phone text-success mr-1"></i> {{ $workOrder->contact_phone ?? '---' }} 
+                ({{ $workOrder->contact_person ?? '---' }})
+            </div>
+        </div>
+    </div>
+
+    {{-- NỘI DUNG CHÍNH --}}
+    <section class="content mt-3 pb-5">
+        <div class="container-fluid px-2">
+            
+            <div class="card card-primary card-outline card-outline-tabs border-0 shadow-sm">
+                <div class="card-header p-0 border-bottom-0">
+                    <ul class="nav nav-tabs" id="custom-tabs-four-tab" role="tablist">
+                        <li class="nav-item">
+                            <a class="nav-link font-weight-bold {{ $activeTab == 'progress' ? 'active' : '' }}" 
+                               wire:click="$set('activeTab', 'progress')"
+                               href="javascript:void(0)" role="tab">
+                                <i class="fas fa-tasks mr-1"></i> Tiến độ & Công việc
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link font-weight-bold {{ $activeTab == 'materials' ? 'active' : '' }}" 
+                               wire:click="$set('activeTab', 'materials')"
+                               href="javascript:void(0)" role="tab">
+                                <i class="fas fa-box mr-1"></i> Vật tư
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link font-weight-bold {{ $activeTab == 'finance' ? 'active' : '' }}" 
+                               wire:click="$set('activeTab', 'finance')"
+                               href="javascript:void(0)" role="tab">
+                                <i class="fas fa-money-bill-wave mr-1"></i> Thu tiền
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="card-body p-3">
+                    <div class="tab-content">
+                        
+                        {{-- TAB 1: TIẾN ĐỘ & CÔNG VIỆC --}}
+                        <div class="tab-pane fade {{ $activeTab == 'progress' ? 'show active' : '' }}" id="tab-progress" role="tabpanel">
+                            {{-- THỐNG KÊ TIẾN ĐỘ --}}
+                            @php 
+                                $total = $tasks->count();
+                                $done = $tasks->where('status', \App\Enums\TaskStatus::COMPLETED)->count();
+                                $percent = $total > 0 ? round(($done/$total)*100) : 0;
+                            @endphp
+                            <div class="card shadow-none border mb-3 bg-light">
+                                <div class="card-body p-3">
+                                    <div class="d-flex justify-content-between text-sm mb-1">
+                                        <span class="font-weight-bold text-muted">TIẾN ĐỘ CÔNG VIỆC</span>
+                                        <span class="font-weight-bold {{ $percent == 100 ? 'text-success' : 'text-primary' }}">{{ $done }}/{{ $total }} ({{ $percent }}%)</span>
+                                    </div>
+                                    <div class="progress" style="height: 8px; border-radius: 4px;">
+                                        <div class="progress-bar {{ $percent == 100 ? 'bg-success' : 'bg-primary' }}" style="width: {{ $percent }}%"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {{-- DANH SÁCH ĐẦU VIỆC --}}
+                            <div class="text-xs font-weight-bold text-muted text-uppercase mb-2 pl-1">Danh sách đầu việc</div>
+                            
+                            @foreach($tasks as $task)
+                                <div class="task-card {{ $task->status === \App\Enums\TaskStatus::COMPLETED ? 'status-border-completed' : ($task->status === \App\Enums\TaskStatus::PROCESSING ? 'status-border-processing' : 'status-border-pending') }}">
+                                    
+                                    <a href="{{ route('admin.tasks.detail', $task->id) }}" class="d-block p-3 text-decoration-none text-dark">
+                                        <div class="d-flex justify-content-between align-items-start">
+                                            <div style="flex: 1; padding-right: 10px;">
+                                                <div class="text-xs font-weight-bold text-muted text-uppercase mb-1">
+                                                    NHIỆM VỤ #{{ $task->id }}
+                                                </div>
+                                                <h6 class="mb-1 font-weight-bold" style="font-size: 15px; line-height: 1.4;">
+                                                    {{ $task->report_content }}
+                                                </h6>
+                                                <div class="text-xs text-muted mt-2">
+                                                    <i class="fas fa-user-circle mr-1"></i> {{ $task->performer->name ?? 'Chưa gán' }}
+                                                </div>
+                                            </div>
+
+                                            <div class="text-right" style="min-width: 80px;">
+                                                @if($task->status === \App\Enums\TaskStatus::COMPLETED)
+                                                    <span class="badge badge-success px-2 py-1"><i class="fas fa-check"></i> Xong</span>
+                                                @elseif($task->status === \App\Enums\TaskStatus::PROCESSING)
+                                                    <span class="badge badge-info px-2 py-1">Đang làm</span>
+                                                @else
+                                                    <span class="badge badge-warning px-2 py-1">Chờ làm</span>
+                                                @endif
+                                            </div>
+                                        </div>
+                                    </a>
+
+                                    <div class="px-3 py-2 border-top bg-light d-flex justify-content-between align-items-center">
+                                        <small class="text-muted">
+                                            <i class="fas fa-history text-gray mr-1"></i> {{ $task->reports->count() }} báo cáo
+                                        </small>
+
+                                        <div>
+                                            @if($task->status === \App\Enums\TaskStatus::COMPLETED && $workOrder->status !== \App\Enums\WorkOrderStatus::COMPLETED)
+                                                <div class="btn-reopen-wrapper d-inline-block mr-1">
+                                                    <button wire:confirm="Xác nhận: Mở lại công việc này?" 
+                                                            wire:click="reopenTask({{ $task->id }})" 
+                                                            class="btn btn-xs btn-outline-danger bg-white font-weight-bold shadow-sm" 
+                                                            style="border-style: dashed;"
+                                                            title="Mở lại việc này">
+                                                        <i class="fas fa-undo mr-1"></i> Mở lại
+                                                    </button>
+                                                </div>
+                                            @endif
+
+                                            <a href="{{ route('admin.tasks.detail', $task->id) }}" class="btn btn-xs btn-primary font-weight-bold">
+                                                Chi tiết <i class="fas fa-chevron-right ml-1"></i>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endforeach
+
+                            @if($workOrder->description)
+                                <div class="card mt-3 border-0 shadow-sm">
+                                    <div class="card-body bg-light rounded">
+                                        <label class="text-xs text-muted font-weight-bold">GHI CHÚ CHUNG</label>
+                                        <p class="mb-0 text-sm">{{ $workOrder->description }}</p>
+                                    </div>
+                                </div>
+                            @endif
+                        </div>
+
+                        {{-- TAB 2: VẬT TƯ --}}
+                        <div class="tab-pane fade {{ $activeTab == 'materials' ? 'show active' : '' }}" id="tab-materials" role="tabpanel">
+                            <div class="card shadow-none border mb-4">
+                                <div class="card-header bg-light py-2 d-flex justify-content-between align-items-center">
+                                    <h3 class="card-title text-sm font-weight-bold text-muted text-uppercase">
+                                        <i class="fas fa-box mr-1"></i> Bảng kê chi tiết vật tư
+                                    </h3>
+                                </div>
+                                <div class="card-body p-0 table-responsive">
+                                    <table class="table table-sm table-striped mb-0">
+                                        <thead>
+                                            <tr>
+                                                <th>Tên vật tư</th>
+                                                <th>Serial</th>
+                                                <th class="text-center">SL</th>
+                                                <th>Ngày báo</th>
+                                                <th class="text-right"></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @forelse($allItems as $item)
+                                                <tr>
+                                                    <td>{{ $item['name'] }}</td>
+                                                    <td><small class="text-muted">{{ $item['serial'] ?? '-' }}</small></td>
+                                                    <td class="text-center">{{ $item['quantity'] }}</td>
+                                                    <td><small>{{ $item['report_date']->format('d/m H:i') }}</small></td>
+                                                    <td></td>
+                                                </tr>
+                                            @empty
+                                                <tr>
+                                                    <td colspan="5" class="text-center text-muted py-3">Chưa có vật tư nào được ghi nhận.</td>
+                                                </tr>
+                                            @endforelse
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        {{-- TAB 3: THU TIỀN --}}
+                        <div class="tab-pane fade {{ $activeTab == 'finance' ? 'show active' : '' }}" id="tab-finance" role="tabpanel">
+                            
+                            {{-- SUMMARY CARD --}}
+                            <div class="row mb-3">
+                                <div class="col-12">
+                                    <div class="callout callout-success bg-light shadow-sm">
+                                        <small class="text-muted font-weight-bold text-uppercase">Tổng tiền đã thu (Đã duyệt)</small>
+                                        <h5 class="text-success font-weight-bold mb-0">{{ number_format($totalCollected) }} đ</h5>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {{-- TABLE: LỊCH SỬ THANH TOÁN --}}
+                            <div class="card shadow-none border mb-0">
+                                <div class="card-header bg-light py-2">
+                                    <h3 class="card-title text-sm font-weight-bold text-muted text-uppercase">
+                                        <i class="fas fa-money-bill-wave mr-1"></i> Lịch sử thu tiền
+                                    </h3>
+                                </div>
+                                <div class="card-body p-0 table-responsive">
+                                    <table class="table table-sm table-striped mb-0">
+                                        <thead>
+                                            <tr>
+                                                <th>Ngày thu</th>
+                                                <th>Người thu</th>
+                                                <th>Hình thức</th>
+                                                <th>Trạng thái</th>
+                                                <th class="text-right">Số tiền</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @forelse($allPayments as $payment)
+                                                <tr>
+                                                    <td>{{ $payment['date']->format('d/m/Y H:i') }}</td>
+                                                    <td>{{ $payment['reporter'] }}</td>
+                                                    <td>
+                                                        @if($payment['method'] == 'transfer')
+                                                            <span class="badge badge-info">CK {{ $payment['target'] == 'company' ? '(Cty)' : '(CN)' }}</span>
+                                                        @else
+                                                            <span class="badge badge-secondary">Tiền mặt</span>
+                                                        @endif
+                                                    </td>
+                                                    <td>
+                                                        @if($payment['status'] == 'verified') <span class="badge badge-success">Đã duyệt</span>
+                                                        @elseif($payment['status'] == 'handed_over') <span class="badge badge-info">Đã nộp</span>
+                                                        @else <span class="badge badge-warning">Chờ duyệt</span>
+                                                        @endif
+                                                    </td>
+                                                    <td class="text-right font-weight-bold text-success">+{{ number_format($payment['amount']) }}</td>
+                                                </tr>
+                                            @empty
+                                                <tr>
+                                                    <td colspan="5" class="text-center text-muted py-3">Chưa có khoản thu nào.</td>
+                                                </tr>
+                                            @endforelse
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {{-- MODAL THÊM VẬT TƯ --}}
+            @if($showMaterialModal)
+                <div class="modal fade show d-block" style="background: rgba(0,0,0,0.5);">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Thêm vật tư / Linh kiện</h5>
+                                <button type="button" class="close" wire:click="$set('showMaterialModal', false)">
+                                    <span>&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="form-group">
+                                    <label>Gán vào Task <span class="text-danger">*</span></label>
+                                    <select wire:model="newMaterial.task_id" class="form-control">
+                                        @foreach($tasks as $t)
+                                            <option value="{{ $t->id }}">#{{ $t->id }} - {{ Str::limit($t->report_content, 50) }} ({{ $t->performer->name ?? 'N/A' }})</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Tên vật tư <span class="text-danger">*</span></label>
+                                    <input type="text" wire:model="newMaterial.name" class="form-control" placeholder="VD: Camera Hikvision...">
+                                </div>
+                                <div class="row">
+                                    <div class="col-6">
+                                        <div class="form-group">
+                                            <label>Serial (nếu có)</label>
+                                            <input type="text" wire:model="newMaterial.serial" class="form-control">
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="form-group">
+                                            <label>Số lượng</label>
+                                            <input type="number" wire:model="newMaterial.quantity" class="form-control" min="1">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label>Đơn giá (VNĐ) <span class="text-danger">*</span></label>
+                                    <input type="number" wire:model="newMaterial.price" class="form-control" min="0">
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" wire:click="$set('showMaterialModal', false)">Hủy</button>
+                                <button type="button" class="btn btn-primary" wire:click="saveMaterial">Lưu lại</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             @endif
 
-            <div class="row">
-                {{-- Cột Trái: Thông tin khách (Giữ nguyên) --}}
-                <div class="col-md-4">
-                    <div class="card card-primary card-outline">
-                        <div class="card-body box-profile">
-                            <h3 class="profile-username text-center">{{ $workOrder->customer->name }}</h3>
-                            <ul class="list-group list-group-unbordered mb-3">
-                                @foreach($workOrder->customer->contacts as $contact)
-                                <li class="list-group-item">
-                                    <b>{{ $contact->type == 'phone' ? 'Điện thoại' : 'Địa chỉ' }}</b> 
-                                    <span class="float-right">{{ $contact->value }}</span>
-                                </li>
-                                @endforeach
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-
-                {{-- Cột Phải: Báo cáo --}}
-                <div class="col-md-8">
-                    @if(in_array($workOrder->status, ['completed', 'cancelled']))
-                        {{-- Nếu đã đóng/hủy -> Hiện thông báo chặn --}}
-                        <div class="alert alert-warning text-center">
-                            <h4><i class="icon fas fa-lock"></i> Phiếu việc đã Đóng / Hủy</h4>
-                            <p>Vui lòng liên hệ Admin mở lại phiếu nếu muốn báo cáo thêm.</p>
-                        </div>
-                    @else
-                    <div class="mb-3">
-                        <button wire:click="$toggle('showTaskForm')" class="btn btn-success btn-lg btn-block">
-                            <i class="fas fa-plus-circle"></i> THÊM BÁO CÁO
-                        </button>
-                    </div>
-
-                    @if($showTaskForm)
-                    <div class="card card-success">
-                        <div class="card-header"><h3 class="card-title">Báo cáo mới</h3></div>
-                        <div class="card-body">
-                            <div class="form-group">
-                                <label>Nội dung công việc</label>
-                                <textarea wire:model="report_content" class="form-control" rows="2"></textarea>
-                                @error('report_content') <span class="text-danger">{{ $message }}</span> @enderror
-                            </div>
-
-                            {{-- BẢNG VẬT TƯ --}}
-                            <div class="form-group">
-                                <label>Vật tư / Thiết bị (Quét mã vạch Serial)</label>
-                                <table class="table table-bordered table-sm">
-                                    <thead>
-                                        <tr>
-                                            <th>Tên thiết bị</th>
-                                            <th style="width: 180px">Serial (Barcode/QR)</th>
-                                            <th style="width: 60px">SL</th>
-                                            <th style="width: 40px"></th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @foreach($items as $index => $item)
-                                        <tr>
-                                            <td>
-                                                <input type="text" wire:model="items.{{ $index }}.name" class="form-control form-control-sm" placeholder="Tên...">
-                                            </td>
-                                            <td>
-                                                <div class="input-group input-group-sm">
-                                                    {{-- Ô nhập Serial --}}
-                                                    <input type="text" id="serial-input-{{ $index }}" wire:model="items.{{ $index }}.serial" class="form-control" placeholder="SN...">
-                                                    <div class="input-group-append">
-                                                        {{-- NÚT BẬT CAMERA: Gọi hàm JS startScan với index của dòng này --}}
-                                                        <button class="btn btn-info" type="button" onclick="startScan({{ $index }})">
-                                                            <i class="fas fa-qrcode"></i>
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                            </td>
-                                            <td>
-                                                <input type="number" wire:model="items.{{ $index }}.qty" class="form-control form-control-sm text-center">
-                                            </td>
-                                            <td class="text-center">
-                                                <button wire:click="removeItem({{ $index }})" class="btn btn-xs btn-danger"><i class="fas fa-trash"></i></button>
-                                            </td>
-                                        </tr>
-                                        @endforeach
-                                    </tbody>
-                                </table>
-                                <button type="button" wire:click="addItem" class="btn btn-sm btn-default text-primary"><i class="fas fa-plus"></i> Thêm dòng</button>
-                            </div>
-                            
-                            {{-- Tổng tiền --}}
-                            <div class="form-group">
-                                <label>Thu tiền mặt</label>
-                                <input type="text" wire:model="collected_amount" class="form-control" placeholder="0">
-                            </div>
-                        </div>
-                        <div class="card-footer text-right">
-                            <button wire:click="saveTask" class="btn btn-success">Lưu Báo Cáo</button>
-                        </div>
-                    </div>
-                    @endif
-                    @endif
-                    {{-- Timeline Lịch sử (Giữ nguyên code cũ) --}}
-                    @include('livewire.work-order.partials.timeline') 
-                </div>
-            </div>
         </div>
     </section>
-
-    {{-- === MODAL QUÉT MÃ VẠCH === --}}
-    <div class="modal fade" id="scanModal" tabindex="-1" role="dialog" aria-hidden="true" wire:ignore>
-        <div class="modal-dialog modal-dialog-centered" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Quét Serial Number</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="stopScan()">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body p-0">
-                    {{-- Khung hiển thị Camera --}}
-                    <div id="reader" style="width: 100%;"></div>
-                    <div class="p-3 text-center text-muted">
-                        <small>Đưa Camera hoặc Mã vạch vào khung hình.<br>Hỗ trợ: QR Code, Code 128 (Serial), EAN...</small>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal" onclick="stopScan()">Đóng</button>
-                </div>
-            </div>
-        </div>
-    </div>
 </div>
-
-{{-- === SCRIPTS XỬ LÝ QUÉT MÃ === --}}
-@push('js')
-{{-- Load thư viện html5-qrcode từ CDN --}}
-<script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
-
-<script>
-    let html5QrcodeScanner = null;
-    let currentScanningIndex = null; // Biến lưu xem đang quét cho dòng nào (0, 1, 2...)
-
-    // Hàm khởi động quét
-    function startScan(index) {
-        currentScanningIndex = index;
-        $('#scanModal').modal('show'); // Mở modal Bootstrap
-
-        // Nếu đã bật rồi thì thôi
-        if (html5QrcodeScanner) return;
-
-        // Cấu hình Scanner
-        const config = { 
-            fps: 10, 
-            qrbox: { width: 250, height: 150 }, // Khung quét hình chữ nhật (phù hợp mã vạch dài)
-            aspectRatio: 1.0
-        };
-        
-        // Khởi tạo thư viện
-        html5QrcodeScanner = new Html5Qrcode("reader");
-
-        // Bắt đầu camera (camera sau 'environment')
-        html5QrcodeScanner.start(
-            { facingMode: "environment" }, 
-            config, 
-            onScanSuccess, 
-            onScanFailure
-        ).catch(err => {
-            alert("Lỗi khởi động camera: " + err);
-        });
-    }
-
-    // Khi quét thành công
-    function onScanSuccess(decodedText, decodedResult) {
-        // Phát âm thanh 'bíp' (nếu muốn)
-        // new Audio('/beep.mp3').play();
-
-        console.log(`Code scanned = ${decodedText}`, decodedResult);
-
-        // 1. Điền giá trị vào ô input HTML để người dùng thấy ngay
-        // let inputField = document.getElementById('serial-input-' + currentScanningIndex);
-        // if(inputField) inputField.value = decodedText;
-
-        // 2. Gửi dữ liệu vào Livewire Component
-        // Cú pháp Livewire 3 để set biến: $wire.set('tên_biến', giá_trị)
-        // Ở đây ta set vào mảng items tại vị trí index
-        @this.set('items.' + currentScanningIndex + '.serial', decodedText);
-
-        // 3. Tắt modal và dừng quét
-        stopScan();
-        $('#scanModal').modal('hide');
-        
-        // Thông báo nhỏ
-        toastr.success('Đã quét: ' + decodedText);
-    }
-
-    function onScanFailure(error) {
-        // Không làm gì cả để tránh spam log, vì nó gọi liên tục khi chưa bắt được mã
-    }
-
-    // Hàm dừng quét
-    function stopScan() {
-        if (html5QrcodeScanner) {
-            html5QrcodeScanner.stop().then((ignore) => {
-                html5QrcodeScanner.clear(); // Xóa khung hình
-                html5QrcodeScanner = null;
-            }).catch((err) => {
-                console.log("Stop failed: ", err);
-            });
-        }
-    }
-
-    // Xử lý khi đóng modal bằng nút X hoặc click ra ngoài -> cũng phải tắt camera
-    $('#scanModal').on('hidden.bs.modal', function () {
-        stopScan();
-    });
-</script>
-@endpush

@@ -10,115 +10,117 @@
 @section('content')
 <div class="container-fluid">
 
-    {{-- NÚT TẠO NHANH (Đặt ở trên cùng cho tiện) --}}
-    <div class="row mb-3">
-        <div class="col-12 text-right">
-            <a href="{{ route('admin.work-orders.create') }}" class="btn btn-app bg-success">
-                <i class="fas fa-plus"></i> Tạo Phiếu Việc
-            </a>
-            <a href="{{ route('admin.task-audit.index') }}" class="btn btn-app bg-warning">
-                <span class="badge bg-danger">!</span> {{-- Có thể làm logic đếm số chưa duyệt vào đây --}}
-                <i class="fas fa-file-invoice-dollar"></i> Duyệt Tiền
-            </a>
-        </div>
-    </div>
-    
-    {{-- 1. SMALL BOXES (Đặc sản AdminLTE 3) --}}
+    {{-- 1. TOP STATS CARDS --}}
     <div class="row">
+        {{-- Tổng sản phẩm --}}
         <div class="col-lg-3 col-6">
             <div class="small-box bg-info">
                 <div class="inner">
-                    <h3>{{ number_format($totalJobs) }}</h3>
-                    <p>Tổng Phiếu Việc</p>
+                    <h3>{{ number_format($totalProducts) }}</h3>
+                    <p>Sản phẩm</p>
                 </div>
                 <div class="icon">
-                    <i class="fas fa-clipboard-list"></i>
+                    <i class="fas fa-box"></i>
                 </div>
-                <a href="{{ route('admin.work-orders.index') }}" class="small-box-footer">
+                <a href="{{ route('admin.products.index') }}" class="small-box-footer">
                     Xem chi tiết <i class="fas fa-arrow-circle-right"></i>
                 </a>
             </div>
         </div>
 
+        {{-- Tổng bài viết --}}
         <div class="col-lg-3 col-6">
-            <div class="small-box bg-warning">
+            <div class="small-box bg-success">
                 <div class="inner">
-                    <h3>{{ number_format($processingJobs) }}</h3>
-                    <p>Đang Thực Hiện</p>
+                    <h3>{{ number_format($totalPosts) }}</h3>
+                    <p>Bài viết Blog</p>
                 </div>
                 <div class="icon">
-                    <i class="fas fa-tools"></i>
+                    <i class="fas fa-newspaper"></i>
                 </div>
-                <a href="{{ route('admin.work-orders.index') }}?status=processing" class="small-box-footer">
+                <a href="{{ route('admin.posts.index') }}" class="small-box-footer">
                     Xem danh sách <i class="fas fa-arrow-circle-right"></i>
                 </a>
             </div>
         </div>
 
+        {{-- Hồ sơ ứng tuyển --}}
         <div class="col-lg-3 col-6">
-            <div class="small-box bg-success">
+            <div class="small-box bg-warning">
                 <div class="inner">
-                    <h3>{{ number_format($totalRevenue) }}<sup style="font-size: 20px">đ</sup></h3>
-                    <p>Doanh Thu Thực Tế</p>
+                    <h3>{{ number_format($totalApplications) }}</h3>
+                    <p>Hồ sơ ứng tuyển</p>
                 </div>
                 <div class="icon">
-                    <i class="ion ion-stats-bars"></i> {{-- Hoặc fas fa-dollar-sign --}}
-                    <i class="fas fa-chart-line"></i>
+                    <i class="fas fa-briefcase"></i>
                 </div>
-                <a href="{{ route('admin.task-audit.index') }}" class="small-box-footer">
-                    Kiểm tra dòng tiền <i class="fas fa-arrow-circle-right"></i>
+                <a href="{{ route('admin.career-applications.index') }}" class="small-box-footer">
+                    Xem hồ sơ <i class="fas fa-arrow-circle-right"></i>
                 </a>
             </div>
         </div>
 
+        {{-- Liên hệ --}}
         <div class="col-lg-3 col-6">
             <div class="small-box bg-danger">
                 <div class="inner">
-                    <h3>{{ number_format($totalCustomers) }}</h3>
-                    <p>Khách Hàng</p>
+                    <h3>{{ number_format($totalContacts) }}</h3>
+                    <p>Liên hệ mới</p>
                 </div>
                 <div class="icon">
-                    <i class="fas fa-users"></i>
+                    <i class="fas fa-envelope"></i>
                 </div>
-                <a href="#" class="small-box-footer">
-                    Quản lý khách <i class="fas fa-arrow-circle-right"></i>
+                <a href="{{ route('admin.contacts.index') }}" class="small-box-footer">
+                    Xem liên hệ <i class="fas fa-arrow-circle-right"></i>
                 </a>
             </div>
         </div>
     </div>
 
-    {{-- 2. BIỂU ĐỒ (Sử dụng Card Tools của AdminLTE) --}}
+    {{-- 2. CHARTS ROW --}}
     <div class="row">
-        {{-- Area Chart --}}
+        {{-- Activity Chart --}}
         <div class="col-md-8">
             <div class="card card-primary card-outline">
                 <div class="card-header">
                     <h3 class="card-title">
-                        <i class="far fa-chart-bar mr-1"></i>
-                        Doanh thu 6 tháng gần nhất
+                        <i class="fas fa-chart-bar mr-1"></i>
+                        Hiệu suất công việc
                     </h3>
-                    <div class="card-tools">
+                    <div class="card-tools d-flex align-items-center">
+                        <form action="{{ route('admin.dashboard') }}" method="GET" id="filterForm" class="d-flex align-items-center">
+                            <select name="range" class="form-control form-control-sm mr-2" onchange="toggleCustomDate(this.value)">
+                                <option value="7_days" {{ $range == '7_days' ? 'selected' : '' }}>7 ngày qua</option>
+                                <option value="28_days" {{ $range == '28_days' ? 'selected' : '' }}>28 ngày qua</option>
+                                <option value="3_months" {{ $range == '3_months' ? 'selected' : '' }}>3 tháng qua</option>
+                                <option value="custom" {{ $range == 'custom' ? 'selected' : '' }}>Tùy chọn...</option>
+                            </select>
+                            
+                            <div id="customDateInputs" class="d-flex {{ $range == 'custom' ? '' : 'd-none' }}">
+                                <input type="date" name="start_date" value="{{ $customStart }}" class="form-control form-control-sm mr-1">
+                                <span class="mr-1">-</span>
+                                <input type="date" name="end_date" value="{{ $customEnd }}" class="form-control form-control-sm mr-2">
+                                <button type="submit" class="btn btn-sm btn-primary">Lọc</button>
+                            </div>
+                        </form>
                         <button type="button" class="btn btn-tool" data-card-widget="collapse">
                             <i class="fas fa-minus"></i>
-                        </button>
-                        <button type="button" class="btn btn-tool" data-card-widget="maximize">
-                            <i class="fas fa-expand"></i>
                         </button>
                     </div>
                 </div>
                 <div class="card-body">
                     <div class="chart" style="height: 300px;">
-                        <canvas id="myAreaChart" style="min-height: 300px; height: 300px; max-height: 300px; max-width: 100%;"></canvas>
+                        <canvas id="activityChart" style="min-height: 300px; height: 300px; max-height: 300px; max-width: 100%;"></canvas>
                     </div>
                 </div>
             </div>
         </div>
 
-        {{-- Pie Chart --}}
+        {{-- Task Status Pie --}}
         <div class="col-md-4">
             <div class="card card-warning card-outline">
                 <div class="card-header">
-                    <h3 class="card-title">Tỷ lệ công việc</h3>
+                    <h3 class="card-title">Trạng thái công việc</h3>
                     <div class="card-tools">
                         <button type="button" class="btn btn-tool" data-card-widget="collapse">
                             <i class="fas fa-minus"></i>
@@ -126,83 +128,103 @@
                     </div>
                 </div>
                 <div class="card-body">
-                    <canvas id="myPieChart" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas>
+                    <canvas id="taskStatusPieChart" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas>
                     <div class="mt-4 text-center small">
                         <span class="mr-2"><i class="fas fa-circle text-warning"></i> Chờ</span>
                         <span class="mr-2"><i class="fas fa-circle text-primary"></i> Đang làm</span>
                         <span class="mr-2"><i class="fas fa-circle text-success"></i> Xong</span>
-                        <span class="mr-2"><i class="fas fa-circle text-secondary"></i> Hủy</span>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    {{-- 3. DANH SÁCH VIỆC MỚI (Style Table AdminLTE) --}}
-    <div class="card">
-        <div class="card-header border-transparent">
-            <h3 class="card-title">Phiếu việc mới tiếp nhận</h3>
+    {{-- 3. BOTTOM ROW: RECENT ORDERS & TOP TECHS --}}
+    <div class="row">
+        {{-- Recent Work Orders --}}
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header border-transparent">
+                    <h3 class="card-title">Phiếu việc gần đây</h3>
+                    <div class="card-tools">
+                        <a href="{{ route('admin.work-orders.create') }}" class="btn btn-sm btn-primary">
+                            <i class="fas fa-plus"></i> Tạo mới
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table m-0 table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Mã phiếu</th>
+                                    <th>Khách hàng</th>
+                                    <th>Trạng thái</th>
+                                    <th>Ngày tạo</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @forelse($recentWorkOrders as $order)
+                                <tr>
+                                    <td><a href="{{ route('admin.work-orders.show', $order->id) }}" class="font-weight-bold">{{ $order->code }}</a></td>
+                                    <td>
+                                        {{ $order->customer->name ?? 'Khách lẻ' }}
+                                        <div class="small text-muted">{{ $order->customer->phone ?? '' }}</div>
+                                    </td>
+                                    <td>
+                                        <span class="badge badge-{{ $order->status->color() }}">
+                                            {{ $order->status->label() }}
+                                        </span>
+                                    </td>
+                                    <td>{{ $order->created_at->format('d/m H:i') }}</td>
+                                    <td class="text-right">
+                                        <a href="{{ route('admin.work-orders.show', $order->id) }}" class="btn btn-sm btn-default">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                @empty
+                                <tr><td colspan="5" class="text-center text-muted py-3">Chưa có dữ liệu</td></tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="card-footer clearfix">
+                    <a href="{{ route('admin.work-orders.index') }}" class="btn btn-sm btn-secondary float-right">Xem tất cả</a>
+                </div>
+            </div>
+        </div>
 
-            <div class="card-tools">
-                <button type="button" class="btn btn-tool" data-card-widget="collapse">
-                    <i class="fas fa-minus"></i>
-                </button>
-                <button type="button" class="btn btn-tool" data-card-widget="remove">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-        </div>
-        <div class="card-body p-0">
-            <div class="table-responsive">
-                <table class="table m-0 table-valign-middle">
-                    <thead>
-                        <tr>
-                            <th>Mã Job</th>
-                            <th>Khách hàng</th>
-                            <th>Yêu cầu</th>
-                            <th>Ngày tạo</th>
-                            <th class="text-center">Trạng thái</th>
-                            <th></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @forelse($recentOrders as $order)
-                        <tr>
-                            <td>
-                                <a href="{{ route('admin.work-orders.show', $order->id) }}" class="text-bold text-primary">
-                                    {{ $order->code }}
+        {{-- Top Technicians --}}
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Top Kỹ thuật viên (Tháng này)</h3>
+                </div>
+                <div class="card-body p-0">
+                    <ul class="products-list product-list-in-card pl-2 pr-2">
+                        @forelse($topTechnicians as $tech)
+                        <li class="item">
+                            <div class="product-img">
+                                <img src="{{ $tech->performer->avatar_url ?? asset('vendor/adminlte/dist/img/user2-160x160.jpg') }}" alt="User Image" class="img-size-50">
+                            </div>
+                            <div class="product-info">
+                                <a href="javascript:void(0)" class="product-title">{{ $tech->performer->name ?? 'Unknown' }}
+                                    <span class="badge badge-success float-right">{{ $tech->total }} Tasks</span>
                                 </a>
-                            </td>
-                            <td>{{ $order->customer->name }}</td>
-                            <td>{{ Str::limit($order->title, 40) }}</td>
-                            <td>
-                                <span class="text-muted">
-                                    <i class="far fa-clock"></i> {{ $order->created_at->format('d/m H:i') }}
+                                <span class="product-description">
+                                    {{ $tech->performer->email ?? '' }}
                                 </span>
-                            </td>
-                            <td class="text-center">
-                                @if($order->status == 'pending') <span class="badge badge-warning">Chờ xử lý</span>
-                                @elseif($order->status == 'processing') <span class="badge badge-primary">Đang làm</span>
-                                @elseif($order->status == 'completed') <span class="badge badge-success">Hoàn thành</span>
-                                @else <span class="badge badge-secondary">Hủy</span>
-                                @endif
-                            </td>
-                            <td class="text-right">
-                                <a href="{{ route('admin.work-orders.show', $order->id) }}" class="btn btn-sm btn-tool">
-                                    <i class="fas fa-search"></i>
-                                </a>
-                            </td>
-                        </tr>
+                            </div>
+                        </li>
                         @empty
-                        <tr><td colspan="6" class="text-center py-4 text-muted">Chưa có dữ liệu</td></tr>
+                        <li class="item text-center text-muted py-3">Chưa có dữ liệu thi đua</li>
                         @endforelse
-                    </tbody>
-                </table>
+                    </ul>
+                </div>
             </div>
-        </div>
-        <div class="card-footer clearfix">
-            <a href="{{ route('admin.work-orders.create') }}" class="btn btn-sm btn-info float-left">Tạo mới ngay</a>
-            <a href="{{ route('admin.work-orders.index') }}" class="btn btn-sm btn-secondary float-right">Xem tất cả</a>
         </div>
     </div>
 </div>
@@ -212,83 +234,47 @@
 <script src="{{ asset('vendor/adminlte/plugins/chart.js/Chart.min.js') }}"></script>
 
 <script>
-    
-    
-    // Cấu hình Font chung
-    Chart.defaults.global.defaultFontFamily = 'Source Sans Pro'; // Font chuẩn AdminLTE
+    Chart.defaults.global.defaultFontFamily = 'Source Sans Pro';
     Chart.defaults.global.defaultFontColor = '#858796';
 
-    // 1. AREA CHART - DOANH THU
-    var ctx = document.getElementById("myAreaChart");
-    var myLineChart = new Chart(ctx, {
-        type: 'line',
+    // 1. ACTIVITY CHART (Bar Chart)
+    var ctxAct = document.getElementById("activityChart");
+    var myActChart = new Chart(ctxAct, {
+        type: 'bar',
         data: {
-            labels: @json($revenueData['labels']), 
+            labels: @json($activityChart['labels']), 
             datasets: [{
-                label: "Doanh thu",
-                lineTension: 0, // AdminLTE thường để line thẳng hoặc bo ít
-                backgroundColor: "transparent",
+                label: "Task hoàn thành",
+                backgroundColor: "#007bff",
                 borderColor: "#007bff",
-                pointBorderColor: "#007bff",
-                pointBackgroundColor: "#fff",
-                pointHoverBackgroundColor: "#007bff",
-                pointHoverBorderColor: "#007bff",
-                data: @json($revenueData['data']), 
+                data: @json($activityChart['data']), 
             }],
         },
         options: {
             maintainAspectRatio: false,
-            tooltips: {
-                mode: 'index',
-                intersect: true,
-                callbacks: {
-                    label: function(tooltipItem, chart) {
-                        return 'Doanh thu: ' + new Intl.NumberFormat().format(tooltipItem.yLabel) + ' đ';
-                    }
-                }
-            },
-            hover: {
-                mode: 'index',
-                intersect: true
-            },
-            legend: { display: false },
             scales: {
                 yAxes: [{
-                    // display: false,
-                    gridLines: {
-                        display: true,
-                        lineWidth: '4px',
-                        color: 'rgba(0, 0, 0, .2)',
-                        zeroLineColor: 'transparent'
-                    },
-                    ticks: {
-                        beginAtZero: true,
-                        callback: function(value) { return new Intl.NumberFormat().format(value); }
-                    }
+                    ticks: { beginAtZero: true, stepSize: 1 }
                 }],
-                xAxes: [{
-                    display: true,
-                    gridLines: { display: false },
-                    ticks: { fontColor: '#495057' }
-                }]
-            }
+                xAxes: [{ gridLines: { display: false } }]
+            },
+            legend: { display: false }
         }
     });
 
-    // 2. PIE CHART
-    var ctxPie = document.getElementById("myPieChart");
+    // 2. PIE CHART - TASK STATUS
+    var ctxPie = document.getElementById("taskStatusPieChart");
     var myPieChart = new Chart(ctxPie, {
         type: 'doughnut',
         data: {
-            labels: ["Chờ", "Đang làm", "Xong", "Hủy"],
+            labels: ["Chờ", "Đang làm", "Xong"],
             datasets: [{
                 data: [
-                    {{ $statusData['pending'] }}, 
-                    {{ $statusData['processing'] }}, 
-                    {{ $statusData['completed'] }}, 
-                    {{ $statusData['cancelled'] }}
+                    {{ $taskStatusData['pending'] }}, 
+                    {{ $taskStatusData['processing'] }}, 
+                    {{ $taskStatusData['completed'] }}
                 ],
-                backgroundColor: ['#ffc107', '#007bff', '#28a745', '#6c757d'],
+                backgroundColor: ['#ffc107', '#007bff', '#28a745'],
             }],
         },
         options: {
