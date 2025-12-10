@@ -181,6 +181,35 @@
                                     </select>
                                 </div>
 
+                                {{-- Tags --}}
+                                <div class="form-group">
+                                    <label><i class="fas fa-tags text-info mr-1"></i> Loại công việc</label>
+                                    <div class="d-flex flex-wrap" style="gap: 8px;">
+                                        @foreach($availableTags as $tag)
+                                            @php
+                                                $isSelected = in_array($tag->id, $selectedTags);
+                                            @endphp
+                                            <span wire:click="toggleTag({{ $tag->id }})" 
+                                                  wire:key="tag-{{ $tag->id }}"
+                                                  class="badge p-2"
+                                                  style="
+                                                      background-color: {{ $isSelected ? $tag->color : '#e9ecef' }}; 
+                                                      color: {{ $isSelected ? $tag->text_color : '#495057' }};
+                                                      cursor: pointer;
+                                                      font-size: 0.9rem;
+                                                      border: 2px solid {{ $isSelected ? $tag->color : '#ced4da' }};
+                                                      user-select: none;
+                                                  ">
+                                                @if($isSelected)
+                                                    <i class="fas fa-check mr-1"></i>
+                                                @endif
+                                                {{ $tag->name }}
+                                            </span>
+                                        @endforeach
+                                    </div>
+                                    <small class="text-muted">Chọn một hoặc nhiều loại</small>
+                                </div>
+
                                 {{-- Danh sách nhiệm vụ --}}
                                 <div class="form-group">
                                     <label>Danh sách nhiệm vụ <span class="text-danger">*</span></label>

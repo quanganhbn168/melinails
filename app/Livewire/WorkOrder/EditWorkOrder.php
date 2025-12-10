@@ -5,6 +5,7 @@ namespace App\Livewire\WorkOrder;
 use Livewire\Component;
 use App\Models\WorkOrder;
 use App\Models\Admin; // Model nhân viên
+use App\Models\Tag;
 use Livewire\Attributes\Layout;
 
 class EditWorkOrder extends Component
@@ -32,6 +33,7 @@ class EditWorkOrder extends Component
     public $contact_phone;
     public $assignee_ids = [];
     public $tasks = [];
+    public $selectedTags = []; // Tags đã chọn
 
     public function mount($id)
     {
@@ -68,6 +70,9 @@ class EditWorkOrder extends Component
         // Lấy danh sách ID nhân viên đã gán
         $this->assignee_ids = $order->assignees->pluck('id')->map(fn($id) => (string)$id)->toArray();
 
+        // Lấy tags đã gán
+        $this->selectedTags = $order->tags->pluck('id')->toArray();
+
         // Lấy danh sách Task
         foreach ($order->tasks as $task) {
             $this->tasks[] = [
@@ -96,6 +101,18 @@ class EditWorkOrder extends Component
             $this->tasks = array_values($this->tasks);
         } else {
             $this->tasks[$index]['is_deleted'] = true;
+        }
+    }
+
+    /**
+     * Toggle tag selection
+     */
+    public function toggleTag($tagId)
+    {
+        if (in_array($tagId, $this->selectedTags)) {
+            $this->selectedTags = array_values(array_diff($this->selectedTags, [$tagId]));
+        } else {
+            $this->selectedTags[] = $tagId;
         }
     }
 
@@ -177,6 +194,9 @@ class EditWorkOrder extends Component
         // Cập nhật danh sách nhân viên
         $order->assignees()->sync($this->assignee_ids);
 
+        // Cập nhật tags
+        $order->tags()->sync($this->selectedTags);
+
         // Xử lý Tasks
         // Lấy ID người thực hiện mặc định (Leader)
         $mainPerformer = $this->assignee_ids[0] ?? auth('admin')->id();
@@ -216,10 +236,15 @@ class EditWorkOrder extends Component
     public function render()
     {
         // Lấy list nhân viên để đổ vào Select2
-        $staffs = Admin::all(); 
+        $staffs = Admin::all();
+        
+        // Lấy danh sách tags cho Work Order
+        $availableTags = Tag::forWorkOrders()->ordered()->get();
+        
         return view('livewire.work-order.edit-work-order', [
             'staffs' => $staffs,
-            'assignee_ids' => $this->assignee_ids
+            'assignee_ids' => $this->assignee_ids,
+            'availableTags' => $availableTags,
         ]);
     }
 }
