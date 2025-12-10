@@ -35,9 +35,11 @@
                         </span>
                     @endif
 
+                    @unless(auth('admin')->user()->hasRole('staff'))
                      <a href="{{ route('admin.work-orders.edit', $workOrder->id) }}" class="btn btn-sm btn-outline-primary shadow-sm bg-white ml-2 rounded-circle border-0" title="Chỉnh sửa">
                         <i class="fas fa-edit"></i>
                     </a>
+                    @endunless
                 </div>
             </div>
         </div>
@@ -75,11 +77,40 @@
                                 <i class="fas fa-map-marker-alt text-danger mr-1"></i> {{ $workOrder->site_address ?? 'Chưa có địa chỉ' }}
                             </a>
                         </div>
-                        <div class="small text-muted">
+                        <div class="small text-muted mb-1">
                             <a href="tel:{{ $workOrder->contact_phone }}" class="text-dark">
                                 <i class="fas fa-phone text-success mr-1"></i> {{ $workOrder->contact_phone ?? '---' }} 
                             </a>
                             ({{ $workOrder->contact_person ?? '---' }})
+                        </div>
+                        
+                        {{-- THỜI GIAN BẮT ĐẦU & DEADLINE --}}
+                        <div class="small mt-2 d-flex flex-wrap" style="gap: 15px;">
+                            @if($workOrder->started_at)
+                                <div>
+                                    <i class="fas fa-play-circle text-success mr-1"></i>
+                                    <span>Bắt đầu: {{ $workOrder->started_at->format('H:i - d/m/Y') }}</span>
+                                </div>
+                            @endif
+                            
+                            @if($workOrder->deadline)
+                                <div>
+                                    <i class="far fa-calendar-alt text-info mr-1"></i>
+                                    <span>Hạn: {{ $workOrder->deadline->format('H:i - d/m/Y') }}</span>
+                                </div>
+                                
+                                {{-- Countdown sử dụng accessor từ Model --}}
+                                @if($workOrder->deadline_status)
+                                    <span class="badge badge-{{ $workOrder->deadline_status['color'] }} font-weight-bold">
+                                        @if($workOrder->deadline_status['is_overdue'])
+                                            <i class="fas fa-exclamation-triangle mr-1"></i>
+                                        @else
+                                            <i class="fas fa-clock mr-1"></i>
+                                        @endif
+                                        {{ $workOrder->deadline_status['label'] }}
+                                    </span>
+                                @endif
+                            @endif
                         </div>
                     </div>
                 </div>
@@ -101,10 +132,13 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link font-weight-bold {{ $activeTab == 'history' ? 'active' : '' }}" 
-                               wire:click="$set('activeTab', 'history')"
+                            <a class="nav-link font-weight-bold {{ $activeTab == 'discussion' ? 'active' : '' }}" 
+                               wire:click="$set('activeTab', 'discussion')"
                                href="javascript:void(0)" role="tab">
-                                <i class="fas fa-history mr-1"></i> Lịch sử
+                                <i class="fas fa-comments mr-1"></i> Trao đổi
+                                @if($workOrder->comments()->count() > 0)
+                                    <span class="badge badge-primary badge-pill ml-1">{{ $workOrder->comments()->count() }}</span>
+                                @endif
                             </a>
                         </li>
                         <li class="nav-item">
@@ -121,6 +155,7 @@
                                 <i class="fas fa-money-bill-wave mr-1"></i> Thu tiền
                             </a>
                         </li>
+
                     </ul>
                 </div>
                 <div class="card-body p-3">
@@ -198,87 +233,75 @@
 
                         {{-- TAB 2: VẬT TƯ --}}
                         <div class="tab-pane fade {{ $activeTab == 'materials' ? 'show active' : '' }}" id="tab-materials" role="tabpanel">
-                             <div class="d-flex justify-content-end mb-2">
-                                <button wire:click="openMaterialModal" class="btn btn-sm btn-primary shadow-sm"><i class="fas fa-plus"></i> Thêm vật tư</button>
+                            {{-- VẬT TƯ ĐÃ SỬ DỤNG --}}
+                            <div class="mb-3">
+                                <h6 class="text-muted font-weight-bold mb-2"><i class="fas fa-box mr-1"></i> Vật tư đã sử dụng</h6>
+                                <table class="table table-sm table-striped mb-0 text-sm">
+                                    <thead>
+                                        <tr>
+                                            <th>Vật tư</th>
+                                            <th class="text-center">SL</th>
+                                            <th class="text-right">Ngày</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @forelse($allItems as $item)
+                                            <tr>
+                                                <td>
+                                                    {{ $item['name'] }}
+                                                    @if($item['serial'])
+                                                        <div class="text-muted text-xs">{{ $item['serial'] }}</div>
+                                                    @endif
+                                                </td>
+                                                <td class="text-center">{{ $item['quantity'] }}</td>
+                                                <td class="text-right text-muted text-xs">{{ $item['report_date']->format('d/m') }}</td>
+                                            </tr>
+                                        @empty
+                                            <tr>
+                                                <td colspan="3" class="text-center text-muted py-3">Chưa có vật tư.</td>
+                                            </tr>
+                                        @endforelse
+                                    </tbody>
+                                </table>
                             </div>
 
-                            <table class="table table-sm table-striped mb-0 text-sm">
-                                <thead>
-                                    <tr>
-                                        <th>Vật tư</th>
-                                        <th class="text-center">SL</th>
-                                        <th class="text-right">Hủy</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @forelse($allItems as $item)
-                                        <tr>
-                                            <td>
-                                                {{ $item['name'] }}
-                                                <div class="text-muted text-xs">{{ $item['serial'] ?? '' }}</div>
-                                            </td>
-                                            <td class="text-center">{{ $item['quantity'] }}</td>
-                                            <td class="text-right">
-                                                <button wire:confirm="Xóa vật tư này?" wire:click="deleteMaterial({{ $item['id'] }})" class="btn btn-xs text-danger"><i class="fas fa-trash"></i></button>
-                                            </td>
-                                        </tr>
-                                    @empty
-                                        <tr>
-                                            <td colspan="3" class="text-center text-muted py-3">Chưa có vật tư.</td>
-                                        </tr>
-                                    @endforelse
-                                </tbody>
-                            </table>
-                        </div>
-
-                        {{-- TAB 3: LỊCH SỬ --}}
-                        <div class="tab-pane fade {{ $activeTab == 'history' ? 'show active' : '' }}" id="tab-history" role="tabpanel">
-                             @if(count($allReports) == 0)
-                                <div class="text-center py-5 mt-3 opacity-50">
-                                    <i class="fas fa-history fa-3x text-gray mb-3"></i>
-                                    <p class="text-muted small">Chưa có lịch sử báo cáo nào.</p>
-                                </div>
-                            @else
-                                <div class="px-1">
-                                    @foreach($allReports as $rpt)
-                                        <div class="card mb-2 shadow-sm border-0">
-                                            <a href="{{ route('admin.tasks.detail', $rpt->task_id) }}" class="text-decoration-none">
-                                                <div class="card-body p-2">
-                                                     <div class="d-flex justify-content-between mb-2 pb-2 border-bottom">
-                                                        <div>
-                                                            <div class="font-weight-bold text-dark text-sm">
-                                                                <i class="fas fa-user-circle text-primary mr-1"></i> {{ $rpt->reporter->name ?? 'NV' }}
-                                                            </div>
-                                                            <div class="text-muted text-xs">{{ $rpt->created_at->format('H:i - d/m/Y') }}</div>
-                                                        </div>
-                                                        <div>
-                                                             @if($rpt->is_completed) 
-                                                                <span class="badge badge-success text-xs"><i class="fas fa-check"></i> Xong</span> 
-                                                             @elseif(str_contains($rpt->content, 'Mở lại:'))
-                                                                <span class="badge badge-danger text-xs"><i class="fas fa-undo"></i> Mở lại</span>
-                                                             @endif
-                                                        </div>
-                                                    </div>
-
-                                                    <div class="mb-2 text-dark text-sm" style="line-height: 1.4;">{{ $rpt->content }}</div>
-                                                    
-                                                    {{-- Ảnh --}}
-                                                    @if($rpt->images->count() > 0)
-                                                        <div class="d-flex flex-wrap mt-2">
-                                                            @foreach($rpt->images as $img)
-                                                                <div class="mr-2 mb-2">
-                                                                    <img src="{{ Storage::url($img->image_path) }}" style="width: 60px; height: 60px; object-fit: cover; border-radius: 4px;">
-                                                                </div>
-                                                            @endforeach
-                                                        </div>
-                                                    @endif
-                                                </div>
-                                            </a>
-                                        </div>
-                                    @endforeach
+                            {{-- VẬT TƯ NHẬN LẠI --}}
+                            @if(count($allReturnedItems) > 0)
+                                <div class="border-top pt-3">
+                                    <h6 class="text-muted font-weight-bold mb-2"><i class="fas fa-undo mr-1"></i> Vật tư nhận lại</h6>
+                                    <table class="table table-sm table-striped mb-0 text-sm">
+                                        <thead>
+                                            <tr>
+                                                <th>Vật tư</th>
+                                                <th>Lý do</th>
+                                                <th class="text-right">Ngày</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach($allReturnedItems as $item)
+                                                <tr>
+                                                    <td>
+                                                        {{ $item['name'] }}
+                                                        @if($item['serial'])
+                                                            <div class="text-muted text-xs">{{ $item['serial'] }}</div>
+                                                        @endif
+                                                    </td>
+                                                    <td>
+                                                        <span class="badge badge-warning">{{ $item['reason'] }}</span>
+                                                        @if($item['condition'])
+                                                            <div class="text-xs text-muted mt-1">{{ $item['condition'] }}</div>
+                                                        @endif
+                                                    </td>
+                                                    <td class="text-right text-muted text-xs">{{ $item['report_date']->format('d/m') }}</td>
+                                                </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
                                 </div>
                             @endif
                         </div>
+
+
 
                         {{-- TAB 4: TÀI CHÍNH (THU TIỀN) --}}
                         <div class="tab-pane fade {{ $activeTab == 'finance' ? 'show active' : '' }}" id="tab-finance" role="tabpanel">
@@ -344,61 +367,14 @@
                             </div>
                         </div>
 
+                        {{-- TAB 5: TRAO ĐỔI (DISCUSSION) --}}
+                        <div class="tab-pane fade {{ $activeTab == 'discussion' ? 'show active' : '' }}" id="tab-discussion" role="tabpanel">
+                            @livewire('work-order.work-order-discussion', ['workOrder' => $workOrder], key('discussion-'.$workOrder->id))
+                        </div>
+
                     </div>
                 </div>
             </div>
-
-            {{-- MODAL THÊM VẬT TƯ --}}
-            @if($showMaterialModal)
-                <div class="modal fade show d-block" style="background: rgba(0,0,0,0.5);">
-                    <div class="modal-dialog">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title">Thêm vật tư / Linh kiện</h5>
-                                <button type="button" class="close" wire:click="$set('showMaterialModal', false)">
-                                    <span>&times;</span>
-                                </button>
-                            </div>
-                            <div class="modal-body">
-                                <div class="form-group">
-                                    <label>Gán vào Task <span class="text-danger">*</span></label>
-                                    <select wire:model="newMaterial.task_id" class="form-control">
-                                        @foreach($tasks as $t)
-                                            <option value="{{ $t->id }}">#{{ $t->id }} - {{ Str::limit($t->report_content, 50) }} ({{ $t->performer->name ?? 'N/A' }})</option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                                <div class="form-group">
-                                    <label>Tên vật tư <span class="text-danger">*</span></label>
-                                    <input type="text" wire:model="newMaterial.name" class="form-control" placeholder="VD: Camera Hikvision...">
-                                </div>
-                                <div class="row">
-                                    <div class="col-6">
-                                        <div class="form-group">
-                                            <label>Serial (nếu có)</label>
-                                            <input type="text" wire:model="newMaterial.serial" class="form-control">
-                                        </div>
-                                    </div>
-                                    <div class="col-6">
-                                        <div class="form-group">
-                                            <label>Số lượng</label>
-                                            <input type="number" wire:model="newMaterial.quantity" class="form-control" min="1">
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="form-group">
-                                    <label>Đơn giá (VNĐ) <span class="text-danger">*</span></label>
-                                    <input type="number" wire:model="newMaterial.price" class="form-control" min="0">
-                                </div>
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" wire:click="$set('showMaterialModal', false)">Hủy</button>
-                                <button type="button" class="btn btn-primary" wire:click="saveMaterial">Lưu lại</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            @endif
 
         </div>
     </section>

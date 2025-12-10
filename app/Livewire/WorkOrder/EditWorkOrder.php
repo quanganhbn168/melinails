@@ -11,17 +11,27 @@ class EditWorkOrder extends Component
 {
     public $workOrderId;
     public $code;
-    public $customer_name; // Chỉ hiển thị, không sửa khách hàng ở đây (tránh lộn xộn)
+    public $customer_name;
+
+    // Customer normalization (Admin only)
+    public $customer;
+    public $customer_id;
+    public $customer_type; // individual, company
+    public $customer_representative; // Tên người đại diện (nếu công ty)
+    public $customer_email;
+    public $customer_tax_code; // Mã số thuế (nếu công ty)
 
     // Các trường cho phép sửa
     public $title;
     public $description;
     public $priority;
+    public $started_at;
+    public $deadline;
     public $site_address;
     public $contact_person;
     public $contact_phone;
-    public $assignee_ids = []; // Mảng ID nhân viên
-    public $tasks = []; // Danh sách nhiệm vụ
+    public $assignee_ids = [];
+    public $tasks = [];
 
     public function mount($id)
     {
@@ -36,11 +46,21 @@ class EditWorkOrder extends Component
         // 2. Đổ dữ liệu cũ vào form
         $this->workOrderId = $order->id;
         $this->code = $order->code;
+        
+        // Customer info
+        $this->customer = $order->customer;
+        $this->customer_id = $order->customer_id;
         $this->customer_name = $order->customer->name;
+        $this->customer_type = $order->customer->type ?? 'individual';
+        $this->customer_representative = $order->customer->representative_name;
+        $this->customer_email = $order->customer->email;
+        $this->customer_tax_code = $order->customer->tax_code;
 
         $this->title = $order->title;
         $this->description = $order->description;
         $this->priority = $order->priority->value ?? $order->priority;
+        $this->started_at = $order->started_at ? $order->started_at->format('Y-m-d\TH:i') : null;
+        $this->deadline = $order->deadline ? $order->deadline->format('Y-m-d\TH:i') : null;
         $this->site_address = $order->site_address;
         $this->contact_person = $order->contact_person;
         $this->contact_phone = $order->contact_phone;
@@ -71,14 +91,61 @@ class EditWorkOrder extends Component
 
     public function removeTask($index)
     {
-        // Nếu task mới (chưa có ID) -> Xóa khỏi mảng luôn
         if (empty($this->tasks[$index]['id'])) {
             unset($this->tasks[$index]);
             $this->tasks = array_values($this->tasks);
         } else {
-            // Nếu task cũ -> Đánh dấu xóa để xử lý trong DB sau
             $this->tasks[$index]['is_deleted'] = true;
         }
+    }
+
+    /**
+     * CHUẨN HÓA THÔNG TIN KHÁCH HÀNG (Admin Only)
+     */
+    public function normalizeCustomer()
+    {
+        // Block staff from editing customer info
+        if (auth('admin')->user()->hasRole('staff')) {
+            session()->flash('error', 'Bạn không có quyền chỉnh sửa thông tin khách hàng.');
+            return;
+        }
+
+        $this->validate([
+            'customer_name' => 'required|min:2',
+            'customer_type' => 'required|in:individual,company',
+        ], [
+            'customer_name.required' => 'Vui lòng nhập tên khách hàng.',
+        ]);
+
+        // Update customer
+        $this->customer->update([
+            'name' => $this->customer_name,
+            'type' => $this->customer_type,
+            'representative_name' => $this->customer_representative,
+            'email' => $this->customer_email,
+            'tax_code' => $this->customer_tax_code,
+        ]);
+
+        // Sync contact_phone & site_address vào CustomerContact nếu chưa có
+        $existingPhone = $this->customer->contacts()->where('type', 'phone')->where('value', $this->contact_phone)->first();
+        if (!$existingPhone && $this->contact_phone) {
+            $this->customer->contacts()->create([
+                'type' => 'phone',
+                'value' => $this->contact_phone,
+                'label' => 'Liên hệ từ phiếu việc',
+            ]);
+        }
+
+        $existingAddress = $this->customer->contacts()->where('type', 'address')->where('value', $this->site_address)->first();
+        if (!$existingAddress && $this->site_address) {
+            $this->customer->contacts()->create([
+                'type' => 'address',
+                'value' => $this->site_address,
+                'label' => 'Địa điểm từ phiếu việc',
+            ]);
+        }
+
+        session()->flash('customer_success', 'Cập nhật thông tin khách hàng thành công!');
     }
 
     public function update()
@@ -100,6 +167,8 @@ class EditWorkOrder extends Component
             'title' => $this->title,
             'description' => $this->description,
             'priority' => $this->priority,
+            'started_at' => $this->started_at,
+            'deadline' => $this->deadline,
             'site_address' => $this->site_address,
             'contact_person' => $this->contact_person,
             'contact_phone' => $this->contact_phone,

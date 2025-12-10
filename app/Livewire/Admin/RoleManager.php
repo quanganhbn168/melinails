@@ -11,22 +11,46 @@ use Livewire\Attributes\Layout;
 
 class RoleManager extends Component
 {
-    // Cấu hình hiển thị Matrix
+    // Cấu hình hiển thị Matrix - ĐẦY ĐỦ CÁC MODULE
     public $modules = [
-        'dashboard'   => 'Bảng điều khiển',
-        'staff'       => 'Nhân sự',
-        'customers'   => 'Khách hàng',
-        'work_orders' => 'Phiếu việc (Job)',
-
-        'roles'       => 'Phân quyền',
-        'settings'    => 'Cấu hình',
+        // CORE
+        'dashboard'    => 'Bảng điều khiển',
+        
+        // CÔNG VIỆC & CRM
+        'customers'    => 'Khách hàng (CRM)',
+        'work_orders'  => 'Phiếu việc (Job)',
+        'tasks'        => 'Task/Công việc',
+        'materials'    => 'Vật tư / Kho',
+        'warranty'     => 'Bảo hành',
+        'finance'      => 'Tài chính / Thu tiền',
+        
+        // SẢN PHẨM & NỘI DUNG
+        'products'     => 'Sản phẩm',
+        'categories'   => 'Danh mục SP',
+        'posts'        => 'Bài viết',
+        'media'        => 'Thư viện Media',
+        'slides'       => 'Slide & Banner',
+        'pages'        => 'Trang tĩnh',
+        
+        // MỞ RỘNG
+        'projects'     => 'Dự án',
+        'agents'       => 'Đại lý',
+        'careers'      => 'Tuyển dụng',
+        
+        // HỆ THỐNG
+        'staff'        => 'Nhân viên',
+        'roles'        => 'Phân quyền',
+        'settings'     => 'Cấu hình hệ thống',
+        'tags'         => 'Quản lý Tags',
     ];
 
     public $actions = [
-        'view'   => 'Xem / Truy cập',
-        'create' => 'Thêm mới',
-        'update' => 'Chỉnh sửa',
-        'delete' => 'Xóa bỏ'
+        'view'    => 'Xem / Truy cập',
+        'create'  => 'Thêm mới',
+        'update'  => 'Chỉnh sửa',
+        'delete'  => 'Xóa bỏ',
+        'approve' => 'Duyệt / Phê duyệt',
+        'export'  => 'Xuất báo cáo',
     ];
 
     // Form Variables

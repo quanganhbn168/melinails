@@ -3,48 +3,64 @@
 namespace App\Livewire\WorkOrder;
 
 use Livewire\Component;
+use Livewire\WithFileUploads;
 use App\Models\Customer;
 use App\Models\WorkOrder;
-use App\Models\CustomerContact;
 use App\Models\Admin;
-use App\Models\Task; // Gọi Model Task
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
+use App\Models\Tag;
+use App\Services\WorkOrderService;
 use Livewire\Attributes\Layout;
+use Carbon\Carbon;
 
 class CreateWorkOrder extends Component
 {
+    use WithFileUploads;
+
     // --- Biến cho Job (Work Order) ---
     public $title;
     public $description;
     public $assignee_ids = []; 
     public $priority = 'medium';
-    // --- MỚI: Biến cho Thông tin thi công (Site Info) ---
+    
+    // --- Thông tin thi công (Site Info) ---
     public $site_address;
     public $contact_person;
     public $contact_phone;
 
-    // --- MỚI: Biến cho Danh sách nhiệm vụ con ---
+    // --- Thời gian ---
+    public $started_at; // Thời điểm bắt đầu
+    public $deadline_option = 'custom'; // '1', '2', '3', 'custom'
+    public $deadline; // Deadline cụ thể (khi chọn custom)
+    public $days_count = 0; // Số ngày tính được
+
+    // --- Danh sách nhiệm vụ con ---
     public $task_list = [
-        ['content' => '', 'note' => ''] // Mặc định có 1 dòng trắng
+        ['content' => '', 'note' => '']
     ];
 
-    // --- Biến cho Khách hàng ---
-    public $is_new_customer = true; // Mặc định là khách lẻ
+    // --- Khách hàng ---
     public $search_customer = '';
     public $selected_customer_id = null;
     public $selected_customer_name = ''; 
-    
-    // Nhập khách mới
-    public $new_customer_name;
-    public $new_customer_phone;
-    public $new_customer_address;
+    public $suggestedSites = [];
+
+    // --- File đính kèm ---
+    public $attachments = []; // File upload (nhiều file)
+
+    // --- Tags ---
+    public $selected_tags = []; // Mảng ID tags được chọn
+
+    public function mount()
+    {
+        // Mặc định started_at = thời điểm hiện tại
+        $this->started_at = now()->format('Y-m-d\TH:i');
+    }
 
     #[Layout('layouts.admin')] 
     public function render()
     {
         $customers = [];
-        if (!$this->is_new_customer && strlen($this->search_customer) > 1) {
+        if (strlen($this->search_customer) > 1) {
             $customers = Customer::query()
                 ->with('contacts')
                 ->where('name', 'like', '%' . $this->search_customer . '%')
@@ -57,8 +73,60 @@ class CreateWorkOrder extends Component
 
         return view('livewire.work-order.create-work-order', [
             'customers' => $customers,
-            'staffs' => $staffs
+            'staffs' => $staffs,
+            'minDateTime' => now()->format('Y-m-d\TH:i'),
+            'availableTags' => Tag::forWorkOrders()->ordered()->get(),
         ]);
+    }
+
+    // --- Khi thay đổi deadline option ---
+    public function updatedDeadlineOption($value)
+    {
+        $this->calculateDeadline();
+    }
+
+    // --- Khi thay đổi deadline tùy chọn ---
+    public function updatedDeadline($value)
+    {
+        $this->calculateDaysCount();
+    }
+
+    // --- Khi thay đổi thời điểm bắt đầu ---
+    public function updatedStartedAt($value)
+    {
+        $this->calculateDeadline();
+    }
+
+    // Tính deadline dựa trên option
+    protected function calculateDeadline()
+    {
+        if (!$this->started_at) return;
+
+        $start = Carbon::parse($this->started_at);
+
+        if ($this->deadline_option === 'custom') {
+            // Giữ nguyên deadline đã chọn
+            $this->calculateDaysCount();
+        } else {
+            // Tính deadline từ số ngày
+            $days = (int) $this->deadline_option;
+            $deadlineDate = $start->copy()->addDays($days);
+            $this->deadline = $deadlineDate->format('Y-m-d\TH:i');
+            $this->days_count = $days;
+        }
+    }
+
+    // Tính số ngày từ deadline
+    protected function calculateDaysCount()
+    {
+        if (!$this->started_at || !$this->deadline) {
+            $this->days_count = 0;
+            return;
+        }
+
+        $start = Carbon::parse($this->started_at);
+        $end = Carbon::parse($this->deadline);
+        $this->days_count = max(0, $start->diffInDays($end, false));
     }
 
     // --- Logic thêm/xóa dòng nhiệm vụ ---
@@ -70,19 +138,34 @@ class CreateWorkOrder extends Component
     public function removeTaskRow($index)
     {
         unset($this->task_list[$index]);
-        $this->task_list = array_values($this->task_list); // Đánh lại index
+        $this->task_list = array_values($this->task_list);
     }
 
-    public $suggestedSites = []; // Danh sách địa điểm cũ để gợi ý
+    // --- Xóa file đính kèm (preview) ---
+    public function removeAttachment($index)
+    {
+        unset($this->attachments[$index]);
+        $this->attachments = array_values($this->attachments);
+    }
 
+    // --- Toggle tag selection ---
+    public function toggleTag($tagId)
+    {
+        $tagId = (int) $tagId;
+        if (in_array($tagId, $this->selected_tags)) {
+            $this->selected_tags = array_values(array_diff($this->selected_tags, [$tagId]));
+        } else {
+            $this->selected_tags[] = $tagId;
+        }
+    }
+
+    // --- Chọn khách hàng ---
     public function selectCustomer($id, $name)
     {
         $this->selected_customer_id = $id;
         $this->selected_customer_name = $name;
         $this->search_customer = '';
 
-        // --- MỚI: Tự động điền thông tin thi công lấy từ khách ---
-        // 1. Lấy thông tin chính trước
         $customer = Customer::with('contacts')->find($id);
         if ($customer) {
             $this->contact_person = $customer->name; 
@@ -94,24 +177,18 @@ class CreateWorkOrder extends Component
             $this->site_address = $address ? $address->value : '';
         }
 
-        // 2. Load các địa điểm thi công cũ (History)
-        // 2. Load các địa điểm thi công cũ (History)
-        // Fix lỗi SQL 3065: Fetch latest -> Unique in PHP
+        // Load lịch sử địa điểm thi công
         $this->suggestedSites = WorkOrder::where('customer_id', $id)
             ->latest()
-            ->take(30) // Lấy 30 đơn gần nhất để lọc
+            ->take(30)
             ->get()
-            ->unique(function ($item) {
-                return $item->site_address . '|' . $item->contact_person . '|' . $item->contact_phone;
-            })
+            ->unique(fn($item) => $item->site_address . '|' . $item->contact_person . '|' . $item->contact_phone)
             ->take(5)
-            ->map(function ($item) {
-                return [
-                    'site_address' => $item->site_address,
-                    'contact_person' => $item->contact_person,
-                    'contact_phone' => $item->contact_phone
-                ];
-            })
+            ->map(fn($item) => [
+                'site_address' => $item->site_address,
+                'contact_person' => $item->contact_person,
+                'contact_phone' => $item->contact_phone
+            ])
             ->values()
             ->toArray();
     }
@@ -130,166 +207,111 @@ class CreateWorkOrder extends Component
     {
         $this->selected_customer_id = null;
         $this->selected_customer_name = '';
-        $this->suggestedSites = []; // Clear suggestions
-        // Clear cả thông tin thi công để nhập lại
+        $this->suggestedSites = [];
         $this->reset(['site_address', 'contact_person', 'contact_phone']);
     }
 
-    public function toggleNewCustomer()
+    // --- Lưu Work Order ---
+    public function save(WorkOrderService $service)
     {
-        $this->is_new_customer = !$this->is_new_customer;
-        $this->reset(['selected_customer_id', 'selected_customer_name', 'search_customer', 
-                      'new_customer_name', 'new_customer_phone', 'new_customer_address',
-                      'site_address', 'contact_person', 'contact_phone', 'suggestedSites']); 
-    }
-
-    // Khi gõ thông tin khách mới, tự động fill xuống thông tin thi công cho tiện
-    public function updatedNewCustomerName($value) { $this->contact_person = $value; }
-    
-    public function updatedNewCustomerPhone($value) 
-    { 
-        $this->contact_phone = $value; 
-        
-        // KIỂM TRA TRÙNG SỐ ĐIỆN THOẠI (Prevent Duplicate)
-        // Nếu nhập SĐT mà trùng với khách đã có -> Tự động chuyển sang chế độ Chọn Khách Cũ
-        if ($this->is_new_customer && strlen($value) > 3) {
-            $existingContact = CustomerContact::where('type', 'phone')
-                                ->where('value', $value) // Có thể like %...% nếu muốn mềm hơn
-                                ->first();
-            
-            if ($existingContact) {
-                $customer = Customer::find($existingContact->customer_id);
-                if ($customer) {
-                    // Switch mode
-                    $this->is_new_customer = false;
-                    $this->selectCustomer($customer->id, $customer->name);
-                    
-                    // Thông báo cho user biết (Dùng JS alert hoặc Toast)
-                    $this->dispatch('alert', ['type' => 'info', 'message' => 'Số điện thoại này đã tồn tại! Hệ thống đã chọn khách hàng cũ tương ứng: ' . $customer->name]);
-                }
-            }
-        }
-    }
-    public function updatedNewCustomerAddress($value) { $this->site_address = $value; }
-
-    public function save()
-    {
-        $rules = [
+        $this->validate([
             'title' => 'required|min:5',
             'assignee_ids' => 'required|array|min:1',
             'priority' => 'required|in:low,medium,high,urgent',
-            // Validate thông tin thi công
+            'started_at' => 'required|date',
             'site_address' => 'required',
             'contact_person' => 'required',
             'contact_phone' => 'required',
-            // Validate danh sách nhiệm vụ
             'task_list.*.content' => 'required|min:3',
-
-        ];
-
-        if ($this->is_new_customer) {
-            $rules['new_customer_name'] = 'required';
-            $rules['new_customer_phone'] = 'required';
-        } else {
-            $rules['selected_customer_id'] = 'required';
-        }
-
-        $this->validate($rules, [
+            'attachments.*' => 'nullable|file|max:10240', // Max 10MB per file
+        ], [
             'assignee_ids.required' => 'Phải gán ít nhất 1 nhân viên.',
+            'started_at.required' => 'Vui lòng chọn thời gian bắt đầu.',
             'site_address.required' => 'Địa chỉ thi công không được để trống.',
+            'contact_person.required' => 'Người liên hệ không được để trống.',
+            'contact_phone.required' => 'Số điện thoại không được để trống.',
             'task_list.*.content.required' => 'Nội dung nhiệm vụ không được để trống.',
         ]);
 
-        DB::beginTransaction();
         try {
+            // Nếu chưa chọn khách có sẵn -> Tạo khách lẻ mới từ thông tin liên hệ thi công
             $customerId = $this->selected_customer_id;
-
-            // 1. Tạo Khách mới (nếu có)
-            if ($this->is_new_customer) {
-                // Tự động sync lại lần nữa để chắc chắn
-                // Nếu khách lẻ, lấy địa chỉ thi công làm địa chỉ khách
-                $finalAddress = $this->site_address; 
-                
-                // XỬ LÝ TÊN "KHÁCH LẺ" CHUNG CHUNG
-                // Nếu tên quá chung chung, tự động nối thêm SĐT để dễ phân biệt
-                $nameToCheck = \Illuminate\Support\Str::lower(trim($this->new_customer_name));
-                $genericNames = ['khách lẻ', 'khach le', 'khách hàng', 'khach hang', 'khách', 'khach', 'guest', 'unknown', 'người lạ'];
-                
-                $finalName = $this->new_customer_name;
-                if (in_array($nameToCheck, $genericNames)) {
-                    $finalName .= ' - ' . $this->new_customer_phone;
-                }
-
-                $customer = Customer::create(['name' => $finalName]);
-                CustomerContact::create([
-                    'customer_id' => $customer->id, 
-                    'type' => 'phone', 
-                    'value' => $this->new_customer_phone, 
-                    'is_primary' => true,
-                    'label' => 'Di động'
+            if (!$customerId) {
+                $customer = Customer::create([
+                    'name' => $this->contact_person,
+                    'type' => 'individual', // Khách lẻ
+                    'notes' => 'Tự động tạo từ phiếu việc',
                 ]);
-                
-                if ($finalAddress) {
-                    CustomerContact::create([
-                        'customer_id' => $customer->id, 
-                        'type' => 'address', 
-                        'value' => $finalAddress, 
+                // Thêm SĐT
+                $customer->contacts()->create([
+                    'type' => 'phone',
+                    'value' => $this->contact_phone,
+                    'is_primary' => true,
+                ]);
+                // Thêm địa chỉ
+                if ($this->site_address) {
+                    $customer->contacts()->create([
+                        'type' => 'address',
+                        'value' => $this->site_address,
                         'is_primary' => true,
-                        'label' => 'Địa chỉ chính'
                     ]);
                 }
                 $customerId = $customer->id;
             }
 
-            // 2. Tạo Work Order (Kèm thông tin thi công)
-            $workOrder = WorkOrder::create([
+            // Chuẩn bị dữ liệu cho Service
+            $data = [
                 'customer_id' => $customerId,
-                'created_by' => auth('admin')->id(), // Hoặc auth()->id() tùy guard
-                'code' => 'WO-' . strtoupper(Str::random(6)),
                 'title' => $this->title,
                 'description' => $this->description,
-                'status' => 'pending',
                 'priority' => $this->priority,
-                // Lưu thông tin thi công
+                'started_at' => $this->started_at,
+                'deadline' => $this->deadline,
                 'site_address' => $this->site_address,
                 'contact_person' => $this->contact_person,
                 'contact_phone' => $this->contact_phone,
-            ]);
+                'assignee_ids' => $this->assignee_ids,
+                'tasks' => array_column($this->task_list, 'content'),
+            ];
 
-            // 3. Gán nhân viên vào Work Order
-            $workOrder->assignees()->attach($this->assignee_ids);
+            // Tạo Work Order qua Service
+            $workOrder = $service->create($data);
 
-            // 4. Tạo các Task con (Nhiệm vụ cụ thể)
-            // Logic: Tạo các task status 'pending'
-            // Performer: Tạm thời gán cho người đầu tiên trong danh sách thợ được chọn (Leader)
-            // Sau này thợ có thể tự chia lại hoặc Admin chia lại
-            $mainPerformer = $this->assignee_ids[0]; 
+            // Upload attachments nếu có
+            if (!empty($this->attachments)) {
+                $images = [];
+                $documents = [];
+                
+                foreach ($this->attachments as $file) {
+                    $ext = strtolower($file->getClientOriginalExtension());
+                    if (in_array($ext, ['jpg', 'jpeg', 'png', 'gif', 'webp'])) {
+                        $images[] = $file;
+                    } else {
+                        $documents[] = $file;
+                    }
+                }
 
-            foreach ($this->task_list as $taskItem) {
-                if(!empty($taskItem['content'])) {
-                    Task::create([
-                        'work_order_id' => $workOrder->id,
-                        'performer_id' => $mainPerformer, // Gán tạm cho người đầu tiên
-                        'report_content' => $taskItem['content'], // Tận dụng trường này làm tên task
-                        // Có thể thêm cột 'title' vào bảng tasks nếu muốn tách biệt report và title
-                        'collected_amount' => 0,
-                        'is_paid' => false
-                    ]);
+                if (!empty($images)) {
+                    $service->storeAttachments($workOrder, $images, 'image');
+                }
+                if (!empty($documents)) {
+                    $service->storeAttachments($workOrder, $documents, 'document');
                 }
             }
 
-            // 5. Gửi thông báo cho nhân viên được gán
-            $assignees = Admin::whereIn('id', $this->assignee_ids)->get();
-            \Illuminate\Support\Facades\Notification::send($assignees, new \App\Notifications\WorkOrderAssignedNotification($workOrder));
+            // Gán tags nếu có
+            if (!empty($this->selected_tags)) {
+                $workOrder->tags()->attach($this->selected_tags);
+            }
 
-            DB::commit();
-
+            // Reset form
             $this->reset();
-            $this->task_list = [['content' => '', 'note' => '']]; // Reset task list
-            $this->dispatch('clear-select2'); 
-            $this->reset(['priority']);
+            $this->task_list = [['content' => '', 'note' => '']];
+            $this->started_at = now()->format('Y-m-d\TH:i');
+            $this->deadline_option = 'custom';
+            $this->selected_tags = [];
+            $this->dispatch('clear-select2');
             
-            // SweetAlert2 Toast
             $this->dispatch('swal', [
                 'title' => 'Thành công!',
                 'text' => 'Đã tạo phiếu việc thành công!',
@@ -300,7 +322,6 @@ class CreateWorkOrder extends Component
             session()->flash('success', 'Đã tạo phiếu việc thành công!');
 
         } catch (\Exception $e) {
-            DB::rollBack();
             session()->flash('error', 'Lỗi: ' . $e->getMessage());
         }
     }

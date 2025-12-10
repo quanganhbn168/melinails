@@ -22,6 +22,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Register Observers
+        \App\Models\WorkOrder::observe(\App\Observers\WorkOrderObserver::class);
+        \App\Models\Task::observe(\App\Observers\TaskObserver::class);
+
         Gate::before(function ($user, $ability) {
             // Hàm hasRole này có sẵn nhờ trait HasRoles anh đã thêm vào Model
             if (method_exists($user, 'hasRole') && $user->hasRole('super_admin')) {

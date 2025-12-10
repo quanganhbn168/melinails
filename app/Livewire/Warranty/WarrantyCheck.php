@@ -138,6 +138,6 @@ class WarrantyCheck extends Component
     public function render()
     {
         return view('livewire.warranty.warranty-check')
-            ->layout('layouts.mobile', ['title' => 'Tra cứu bảo hành']);
+            ->layout('layouts.admin', ['title' => 'Tra cứu bảo hành']);
     }
 }

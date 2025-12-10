@@ -2,11 +2,29 @@
     @if (session()->has('success'))
         <div class="alert alert-success mx-1 mb-3 shadow-sm border-0">{{ session('success') }}</div>
     @endif
+    @if (session()->has('error'))
+        <div class="alert alert-danger mx-1 mb-3 shadow-sm border-0">{{ session('error') }}</div>
+    @endif
 
-    {{-- ================================================= --}}
-    {{-- TRƯỜNG HỢP 1: TASK ĐÃ HOÀN THÀNH => CHẶN BÁO CÁO --}}
-    {{-- ================================================= --}}
-    @if($task->status == \App\Enums\TaskStatus::COMPLETED)
+    {{-- CASE 0: WORK ORDER ĐÃ KHÓA --}}
+    @if($task->workOrder->isLocked())
+        <div class="text-center py-5 mt-3">
+            <div class="mb-3">
+                <i class="fas fa-lock text-secondary fa-5x"></i>
+            </div>
+            <h5 class="font-weight-bold text-dark">PHIẾU VIỆC ĐÃ ĐÓNG</h5>
+            <p class="text-muted px-4 small">Phiếu việc này đã được Admin đóng hoàn thành.</p>
+            <div class="alert alert-info mx-4 mt-3">
+                <i class="fas fa-info-circle mr-1"></i>
+                Nếu cần bổ sung hoặc chỉnh sửa, vui lòng liên hệ Admin.
+            </div>
+            <a href="{{ route('admin.work-orders.show', $task->work_order_id) }}" class="btn btn-outline-primary mt-2">
+                <i class="fas fa-arrow-left mr-1"></i> Về phiếu việc
+            </a>
+        </div>
+
+    {{-- CASE 1: TASK ĐÃ HOÀN THÀNH --}}
+    @elseif($task->status == \App\Enums\TaskStatus::COMPLETED)
         <div class="text-center py-5 mt-3">
             <div class="mb-3">
                 <i class="fas fa-check-circle text-success fa-5x"></i>
@@ -21,37 +39,24 @@
             </button>
         </div>
 
+    {{-- CASE 2: ĐANG LÀM => HIỆN FORM BÁO CÁO --}}
     @else
-    {{-- ================================================= --}}
-    {{-- TRƯỜNG HỢP 2: ĐANG LÀM => HIỆN FORM BÁO CÁO FULL --}}
-    {{-- ================================================= --}}
-
-        {{-- 1. TRẠNG THÁI HOÀN THÀNH --}}
+        {{-- 1. NỘI DUNG & ẢNH (BẮT BUỘC) --}}
         <div class="app-card">
-            <div class="app-card-body py-3 d-flex align-items-center justify-content-between">
-                <div>
-                    <h6 class="mb-0 font-weight-bold text-success">ĐÃ XONG VIỆC?</h6>
-                    <small class="text-muted">Gạt nút nếu đã hoàn thành 100%</small>
-                </div>
-                <div class="custom-control custom-switch custom-switch-lg">
-                    <input type="checkbox" class="custom-control-input" id="sw_completed" wire:model="is_task_completed">
-                    <label class="custom-control-label" for="sw_completed"></label>
-                </div>
+            <div class="app-card-header">
+                <span><i class="fas fa-edit mr-1"></i> Nội dung báo cáo <span class="text-danger">*</span></span>
             </div>
-        </div>
-
-        {{-- 2. NỘI DUNG & ẢNH --}}
-        <div class="app-card">
-            <div class="app-card-header"><span><i class="fas fa-edit mr-1"></i> Nội dung báo cáo</span></div>
             <div class="app-card-body">
                 <div class="form-group mb-3">
-                    <textarea wire:model="report_content" class="form-control" rows="3" placeholder="Mô tả chi tiết công việc..."></textarea>
+                    <textarea wire:model="report_content" class="form-control" rows="3" placeholder="Mô tả chi tiết công việc đã làm... (bắt buộc)"></textarea>
                     @error('report_content') <span class="text-danger text-xs mt-1 d-block">{{ $message }}</span> @enderror
                 </div>
 
-                {{-- Upload Ảnh --}}
+                {{-- Upload Ảnh (BẮT BUỘC) --}}
                 <div>
-                    <label class="text-xs text-muted text-uppercase font-weight-bold mb-2">Ảnh hiện trường</label>
+                    <label class="text-xs text-muted text-uppercase font-weight-bold mb-2">
+                        Ảnh nghiệm thu <span class="text-danger">* (bắt buộc ít nhất 1 ảnh)</span>
+                    </label>
                     <div class="d-flex flex-wrap align-items-center">
                         <label class="mb-0 mr-2 mb-2" style="cursor: pointer;">
                             <div class="d-flex align-items-center justify-content-center border rounded bg-light" style="width: 70px; height: 70px; border-style: dashed !important;">
@@ -71,6 +76,7 @@
                             @endforeach
                         @endif
                     </div>
+                    @error('proof_images') <span class="text-danger text-xs mt-1 d-block">{{ $message }}</span> @enderror
                     <div wire:loading wire:target="proof_images" class="text-primary text-xs mt-1">
                         <i class="fas fa-spinner fa-spin"></i> Đang tải ảnh...
                     </div>
@@ -78,60 +84,38 @@
             </div>
         </div>
 
-        {{-- 3. TIỀN NONG (LOGIC MỚI: TOGGLE) --}}
+        {{-- 3. TIỀN NONG (ĐƠN GIẢN HÓA) --}}
         <div class="app-card border-warning">
+            <div class="app-card-header bg-warning text-dark">
+                <span><i class="fas fa-money-bill-wave mr-1"></i> Thu tiền</span>
+            </div>
             <div class="app-card-body py-3">
-                
-                {{-- Toggle Thu tiền --}}
-                <div class="d-flex align-items-center justify-content-between">
-                    <h6 class="mb-0 font-weight-bold text-dark">
-                        <i class="fas fa-money-bill-wave text-warning mr-1"></i> CÓ THU TIỀN KHÔNG?
-                    </h6>
-                    <div class="custom-control custom-switch custom-switch-lg">
-                        <input type="checkbox" class="custom-control-input" id="sw_payment" wire:model.live="has_payment">
-                        <label class="custom-control-label" for="sw_payment"></label>
-                    </div>
+                <div class="form-group mb-2">
+                    <label class="text-sm font-weight-bold">Số tiền thu (nếu có)</label>
+                    <input type="number" wire:model.live="collected_amount" 
+                           class="form-control form-control-lg font-weight-bold text-success" 
+                           min="0" placeholder="0">
+                    <small class="text-muted">Nhập 0 nếu không thu tiền</small>
                 </div>
 
-                {{-- Form Nhập tiền (Chỉ hiện khi bật toggle) --}}
-                @if($has_payment)
+                {{-- Chỉ hiện khi có tiền --}}
+                @if((int)$collected_amount > 0)
                     <div class="mt-3 pt-3 border-top">
-                        <div class="form-group mb-2">
-                            <label class="text-xs text-muted font-weight-bold">Số tiền thu</label>
-                            <input type="text" wire:model.live="collected_amount" class="form-control font-weight-bold text-success form-control-lg" placeholder="Nhập số tiền...">
-                        </div>
-
-                        {{-- Chỉ hiện option loại tiền khi số tiền > 0 --}}
-                        @if((int)$collected_amount > 0)
-                            <div class="mt-3 bg-light p-3 rounded border">
-                                <label class="text-xs text-muted font-weight-bold mb-2 text-uppercase">Hình thức thanh toán</label>
-                                <div class="d-flex mb-3">
-                                    <div class="custom-control custom-radio mr-4">
-                                        <input class="custom-control-input" type="radio" id="pay_cash" value="cash" wire:model.live="payment_method">
-                                        <label class="custom-control-label" for="pay_cash">Tiền mặt</label>
-                                    </div>
-                                    <div class="custom-control custom-radio">
-                                        <input class="custom-control-input" type="radio" id="pay_transfer" value="transfer" wire:model.live="payment_method">
-                                        <label class="custom-control-label" for="pay_transfer">Chuyển khoản</label>
-                                    </div>
-                                </div>
-
-                                @if($payment_method == 'transfer')
-                                    <hr class="my-2">
-                                    <label class="text-xs text-muted font-weight-bold mb-2 text-uppercase">Chuyển khoản vào đâu?</label>
-                                    <div class="d-flex">
-                                        <div class="custom-control custom-radio mr-4">
-                                            <input class="custom-control-input" type="radio" id="acc_company" value="company" wire:model="transfer_target">
-                                            <label class="custom-control-label" for="acc_company">TK Công ty</label>
-                                        </div>
-                                        <div class="custom-control custom-radio">
-                                            <input class="custom-control-input" type="radio" id="acc_personal" value="personal" wire:model="transfer_target">
-                                            <label class="custom-control-label" for="acc_personal">TK Cá nhân</label>
-                                        </div>
-                                    </div>
-                                @endif
+                        <label class="text-xs text-muted font-weight-bold text-uppercase mb-2">Hình thức thanh toán</label>
+                        <div class="d-flex">
+                            <div class="custom-control custom-radio mr-4">
+                                <input class="custom-control-input" type="radio" id="pay_cash" value="cash" wire:model="payment_method">
+                                <label class="custom-control-label" for="pay_cash">
+                                    <i class="fas fa-money-bill-alt text-success mr-1"></i> Tiền mặt
+                                </label>
                             </div>
-                        @endif
+                            <div class="custom-control custom-radio">
+                                <input class="custom-control-input" type="radio" id="pay_transfer" value="transfer" wire:model="payment_method">
+                                <label class="custom-control-label" for="pay_transfer">
+                                    <i class="fas fa-university text-info mr-1"></i> Chuyển khoản
+                                </label>
+                            </div>
+                        </div>
                     </div>
                 @endif
             </div>
@@ -143,7 +127,6 @@
                 <span><i class="fas fa-box mr-1"></i> Vật tư tiêu hao</span>
             </div>
             <div class="app-card-body p-2">
-                
                 {{-- Header Cột --}}
                 <div class="row no-gutters mb-1 px-1">
                     <div class="col-7"><small class="text-muted font-weight-bold text-uppercase" style="font-size: 10px;">Tên vật tư / Serial</small></div>
@@ -153,18 +136,15 @@
 
                 @foreach($items as $index => $item)
                     <div class="form-row mb-2 align-items-start no-gutters border-bottom pb-2">
-                        
-                        {{-- Cột 1: Tên (Có Search) & Serial --}}
+                        {{-- Cột 1: Tên & Serial --}}
                         <div class="col-7 pr-1 position-relative"> 
-                            
-                            {{-- Ô nhập tên (Có autocomplete) --}}
                             <input type="text" 
                                    wire:model.live.debounce.300ms="items.{{ $index }}.name" 
                                    wire:blur="closeSuggestions({{ $index }})"
                                    class="form-control form-control-sm mb-1 font-weight-bold" 
                                    placeholder="Gõ tên hoặc mã tắt..." autocomplete="off">
 
-                            {{-- DANH SÁCH GỢI Ý (Dropdown) --}}
+                            {{-- Dropdown gợi ý --}}
                             @if(isset($showSuggestions[$index]) && $showSuggestions[$index] && !empty($materialSuggestions[$index]))
                                 <div class="list-group position-absolute w-100 shadow-lg" style="z-index: 1000; top: 32px; max-height: 200px; overflow-y: auto;">
                                     @foreach($materialSuggestions[$index] as $suggestion)
@@ -181,7 +161,7 @@
                                 </div>
                             @endif
 
-                            {{-- Ô nhập Serial (Chỉ hiện khi SL <= 1) --}}
+                            {{-- Serial --}}
                             @if(empty($items[$index]['qty']) || $items[$index]['qty'] <= 1)
                                 <div class="input-group input-group-sm">
                                     <input type="text" 
@@ -203,14 +183,7 @@
                                    wire:model.live="items.{{ $index }}.qty" 
                                    class="form-control form-control-sm text-center font-weight-bold mt-1" 
                                    placeholder="1"
-                                   @if(!empty($items[$index]['serial'])) 
-                                       readonly 
-                                       style="background-color: #e9ecef; cursor: not-allowed;" 
-                                   @endif
-                            >
-                            @if(isset($items[$index]['unit'])) 
-                                <div class="text-center text-xs text-muted mt-1">{{ $items[$index]['unit'] }}</div>
-                            @endif
+                                   @if(!empty($items[$index]['serial'])) readonly style="background-color: #e9ecef;" @endif>
                         </div>
 
                         {{-- Cột 3: Xóa --}}
@@ -222,7 +195,6 @@
                     </div>
                 @endforeach
                 
-                {{-- Nút thêm --}}
                 <div class="text-center mt-2">
                     <button wire:click="addItem" class="btn btn-sm btn-link text-primary text-decoration-none">
                         <i class="fas fa-plus-circle"></i> Thêm vật tư khác
@@ -231,7 +203,59 @@
             </div>
         </div>
 
-        {{-- 5. CHỮ KÝ --}}
+        {{-- 5. THIẾT BỊ THU HỒI --}}
+        <div class="app-card border-danger">
+            <div class="app-card-header bg-danger text-white">
+                <span><i class="fas fa-undo-alt mr-1"></i> Thiết bị thu hồi (nếu có)</span>
+            </div>
+            <div class="app-card-body p-2">
+                <small class="text-muted d-block mb-2">Ghi nhận thiết bị khách mang về để bảo hành/đổi trả</small>
+                
+                <div class="row no-gutters mb-1 px-1">
+                    <div class="col-5"><small class="text-muted font-weight-bold text-uppercase" style="font-size: 10px;">Tên thiết bị</small></div>
+                    <div class="col-4"><small class="text-muted font-weight-bold text-uppercase" style="font-size: 10px;">Serial</small></div>
+                    <div class="col-2"><small class="text-muted font-weight-bold text-uppercase" style="font-size: 10px;">Lý do</small></div>
+                    <div class="col-1"></div>
+                </div>
+
+                @foreach($returnedItems as $index => $item)
+                    <div class="form-row mb-2 align-items-center no-gutters border-bottom pb-2">
+                        <div class="col-5 pr-1">
+                            <input type="text" wire:model="returnedItems.{{ $index }}.name" 
+                                   class="form-control form-control-sm" placeholder="VD: Camera Hikvision...">
+                        </div>
+                        <div class="col-4 px-1">
+                            <input type="text" wire:model="returnedItems.{{ $index }}.serial" 
+                                   class="form-control form-control-sm" placeholder="Serial number">
+                        </div>
+                        <div class="col-2 px-1">
+                            <select wire:model="returnedItems.{{ $index }}.reason" class="form-control form-control-sm">
+                                <option value="">--</option>
+                                <option value="warranty">Bảo hành</option>
+                                <option value="replace">Đổi model</option>
+                                <option value="defective">Lỗi NSX</option>
+                                <option value="upgrade">Nâng cấp</option>
+                            </select>
+                        </div>
+                        <div class="col-1 text-right">
+                            @if(count($returnedItems) > 1)
+                            <button wire:click="removeReturnedItem({{ $index }})" class="btn btn-sm btn-link text-danger p-0">
+                                <i class="fas fa-times"></i>
+                            </button>
+                            @endif
+                        </div>
+                    </div>
+                @endforeach
+                
+                <div class="text-center mt-2">
+                    <button wire:click="addReturnedItem" class="btn btn-sm btn-link text-danger text-decoration-none">
+                        <i class="fas fa-plus-circle"></i> Thêm thiết bị thu hồi
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        {{-- 6. CHỮ KÝ --}}
         <div class="app-card">
             <div class="app-card-header">
                 <span><i class="fas fa-pen-nib mr-1"></i> Khách ký xác nhận</span>

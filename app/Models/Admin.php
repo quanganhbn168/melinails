@@ -35,19 +35,11 @@ class Admin extends Authenticatable
     }
 
     /**
-     * Xác định layout phù hợp cho user này.
-     * Logic: 
-     * - Nếu là Staff -> Ưu tiên Mobile (hoặc check device nếu muốn xịn hơn)
-     * - Nếu là Super Admin -> Admin Panel
+     * Tất cả dùng layouts.admin
+     * Mobile detection ở blade để hiện nav-bottom
      */
     public function getLayoutAttribute()
     {
-        // 1. Kiểm tra Role
-        if ($this->hasRole('staff')) { // Hoặc check permission 'view-mobile-layout'
-            return 'layouts.mobile';
-        }
-
-        // 2. Mặc định cho các role khác (Super Admin, Kế toán...)
         return 'layouts.admin';
     }
 
@@ -57,5 +49,42 @@ class Admin extends Authenticatable
             return asset('storage/' . $this->avatar);
         }
         return asset('vendor/adminlte/dist/img/user2-160x160.jpg');
+    }
+
+    // --- MENTION NOTIFICATIONS ---
+
+    /**
+     * Lấy tất cả mentions chưa đọc của user này
+     */
+    public function unreadMentions()
+    {
+        return $this->hasMany(CommentMention::class, 'admin_id')
+            ->where('is_read', false);
+    }
+
+    /**
+     * Đếm số mentions chưa đọc (dùng cho badge)
+     */
+    public function getUnreadMentionsCountAttribute(): int
+    {
+        return $this->unreadMentions()->count();
+    }
+
+    /**
+     * Lấy danh sách user có thể mention trong 1 WorkOrder
+     * (Assignees + Admins/Mods)
+     */
+    public static function getMentionableForWorkOrder(WorkOrder $workOrder)
+    {
+        // Lấy assignees của phiếu
+        $assigneeIds = $workOrder->assignees->pluck('id')->toArray();
+        
+        // Lấy tất cả admin có role admin hoặc super-admin
+        $adminIds = self::role(['super-admin', 'admin'])->pluck('id')->toArray();
+        
+        // Merge và unique
+        $ids = array_unique(array_merge($assigneeIds, $adminIds));
+        
+        return self::whereIn('id', $ids)->where('status', 1)->get();
     }
 }

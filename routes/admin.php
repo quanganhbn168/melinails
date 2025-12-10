@@ -151,6 +151,7 @@ Route::middleware(['auth:admin'])->prefix('admin')->as('admin.')->group(function
 
      Route::resource('tags', TagController::class)->except('show');
      Route::get('ajax/tags', [TagController::class, 'ajax'])->name('ajax.tags');
+     Route::get('tag-manager', \App\Livewire\Tag\TagManager::class)->name('tag-manager.index');
 
      Route::match(['get', 'post'], 'ajax/attributes', [AttributeController::class, 'ajax'])->name('ajax.attributes');
      Route::match(['get', 'post'], 'ajax/attribute-values', [AttributeValueController::class, 'ajax'])->name('ajax.attribute-values');
@@ -178,7 +179,8 @@ Route::middleware(['auth:admin'])->prefix('admin')->as('admin.')->group(function
      Route::get('/work-orders/create', CreateWorkOrder::class)->name('work-orders.create');
      Route::get('/work-orders/{id}/edit', \App\Livewire\WorkOrder\EditWorkOrder::class)->name('work-orders.edit');
      
-     Route::get('/my-work-orders', \App\Livewire\WorkOrder\MyWorkOrders::class)->name('my-work-orders.index');
+     // Redirect cũ my-work-orders -> work-orders (gộp chung)
+     Route::get('/my-work-orders', fn() => redirect()->route('admin.work-orders.index'))->name('my-work-orders.index');
      Route::get('/work-orders/{id}', \App\Livewire\WorkOrder\WorkOrderDetail::class)->name('work-orders.show');
      Route::get('/work-orders/{id}/print', [\App\Http\Controllers\PrintController::class, 'printWorkOrder'])->name('work-orders.print');
 

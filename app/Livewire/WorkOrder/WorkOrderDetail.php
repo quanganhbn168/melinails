@@ -23,7 +23,8 @@ class WorkOrderDetail extends Component
     public $totalCollected = 0;
     public $allItems = [];
     public $allPayments = [];
-    public $allReports = []; // Added missing property
+    public $allReports = [];
+    public $allReturnedItems = [];
 
     // Material Management
     public $showMaterialModal = false;
@@ -37,19 +38,37 @@ class WorkOrderDetail extends Component
 
     public function mount($id)
     {
-        $this->workOrder = WorkOrder::with(['customer.contacts', 'tasks.reports.items', 'tasks.reports', 'creator'])
+        $this->workOrder = WorkOrder::with(['customer.contacts', 'tasks.reports.items', 'tasks.reports.returnedItems', 'tasks.reports', 'creator', 'activityLogs.user'])
             ->findOrFail($id);
         $this->refreshTasks(); 
     }
 
     public function refreshTasks()
     {
-        $this->tasks = $this->workOrder->tasks()->with(['reports.items', 'performer'])->orderBy('id', 'asc')->get();
+        $this->tasks = $this->workOrder->tasks()->with(['reports.items', 'reports.returnedItems', 'performer'])->orderBy('id', 'asc')->get();
         
         // Aggregate all reports for History tab
         $this->allReports = $this->workOrder->tasks
             ->flatMap(function($task) { return $task->reports; })
             ->sortByDesc('created_at');
+
+        // Aggregate returned items
+        $this->allReturnedItems = [];
+        foreach ($this->tasks as $task) {
+            foreach ($task->reports as $report) {
+                foreach ($report->returnedItems as $item) {
+                    $this->allReturnedItems[] = [
+                        'id' => $item->id,
+                        'name' => $item->item_name,
+                        'serial' => $item->serial_number,
+                        'reason' => $item->reason_label,
+                        'condition' => $item->condition_note,
+                        'report_date' => $report->created_at,
+                        'reporter' => $report->reporter->name ?? 'N/A',
+                    ];
+                }
+            }
+        }
 
         $this->calculateFinancials();
     }

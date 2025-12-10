@@ -11,19 +11,25 @@ class Task extends Model
 {
     use HasFactory;
 
-    // QUAN TRỌNG: Phải thêm 'status' vào đây để code update trạng thái hoạt động
     protected $fillable = [
         'work_order_id', 
+        'parent_task_id',      // Task cha (nếu được spawn từ task khác)
+        'title',              
         'performer_id', 
         'report_content', 
         'collected_amount', 
         'is_paid', 
         'status',
-        'customer_signature' // Nếu có dùng ở bảng task cũ
+        'is_additional',       
+        'created_by_worker_id', 
+        'customer_signature',
+        'scheduled_at',        // Ngày hẹn thực hiện
     ];
 
     protected $casts = [
         'status' => \App\Enums\TaskStatus::class,
+        'is_additional' => 'boolean',
+        'scheduled_at' => 'datetime',
     ];
 
     // --- RELATIONSHIPS ---
@@ -46,10 +52,45 @@ class Task extends Model
         return $this->hasMany(TaskReport::class)->latest(); 
     }
 
-    // --- BỎ HÀM items() cũ vì bảng items đã xóa cột task_id ---
-    // Nếu muốn lấy tất cả vật tư của Task này (thông qua các báo cáo), dùng HasManyThrough:
+    // 4. Task cha (nếu được spawn từ task khác)
+    public function parentTask(): BelongsTo
+    {
+        return $this->belongsTo(Task::class, 'parent_task_id');
+    }
+
+    // 5. Các task con (được spawn từ task này)
+    public function childTasks(): HasMany
+    {
+        return $this->hasMany(Task::class, 'parent_task_id');
+    }
+
+    // 6. Lấy tất cả vật tư của Task này (thông qua các báo cáo)
     public function allItems()
     {
         return $this->hasManyThrough(TaskItem::class, TaskReport::class);
+    }
+
+    // 7. Người tạo task phát sinh
+    public function createdByWorker(): BelongsTo
+    {
+        return $this->belongsTo(Admin::class, 'created_by_worker_id');
+    }
+
+    // 8. Lấy tất cả thiết bị thu hồi của Task này
+    public function allReturnedItems()
+    {
+        return $this->hasManyThrough(ReturnedItem::class, TaskReport::class);
+    }
+
+    // --- HELPER METHODS ---
+
+    public function isAdditional(): bool
+    {
+        return $this->is_additional === true;
+    }
+
+    public function isSpawned(): bool
+    {
+        return $this->parent_task_id !== null;
     }
 }

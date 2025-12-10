@@ -65,6 +65,28 @@
                             </div>
                         @endif
 
+                        {{-- Thiết bị thu hồi --}}
+                        @if($rpt->returnedItems->count() > 0)
+                            <div class="mt-3 bg-danger-light p-2 rounded border border-danger">
+                                <div class="text-xs font-weight-bold text-uppercase text-danger mb-1">
+                                    <i class="fas fa-undo-alt mr-1"></i> Thiết bị thu hồi
+                                </div>
+                                <table style="width:100%; font-size:13px">
+                                    @foreach($rpt->returnedItems as $returned)
+                                        <tr>
+                                            <td style="padding:4px 0; border-bottom:1px dashed #eee">
+                                                <span class="font-weight-bold">{{ $returned->item_name }}</span>
+                                                @if($returned->serial_number) <br><span class="badge badge-secondary text-xs">{{ $returned->serial_number }}</span> @endif
+                                            </td>
+                                            <td class="text-right" style="vertical-align:top">
+                                                <span class="badge badge-danger">{{ $returned->reason_label }}</span>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </table>
+                            </div>
+                        @endif
+
                         {{-- Ảnh --}}
                         @if($rpt->images->count() > 0)
                             <div class="mt-3">

@@ -38,4 +38,8 @@ class TaskReport extends Model
     public function items() {
         return $this->hasMany(TaskItem::class);
     }
+
+    public function returnedItems() {
+        return $this->hasMany(ReturnedItem::class);
+    }
 }

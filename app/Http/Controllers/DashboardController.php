@@ -7,12 +7,34 @@ use App\Models\WorkOrder;
 use App\Models\Task;
 use App\Models\TaskReport;
 use App\Models\Admin; 
+use App\Models\Customer;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 
 class DashboardController extends Controller
 {
     public function dashboard(\Illuminate\Http\Request $request)
+    {
+        $user = auth('admin')->user();
+
+        // Route đến dashboard phù hợp theo role
+        if ($user->hasRole('super_admin') || $user->hasRole('admin')) {
+            return $this->adminDashboard($request);
+        }
+        
+        if ($user->hasRole('staff')) {
+            return $this->staffDashboard($request);
+        }
+
+        // Default cho các role khác
+        return $this->defaultDashboard($request);
+    }
+
+    /**
+     * DASHBOARD CHO SUPER ADMIN / ADMIN
+     * Giữ nguyên logic cũ
+     */
+    protected function adminDashboard(\Illuminate\Http\Request $request)
     {
         // 1. THỐNG KÊ TỔNG QUAN (TOP CARDS)
         $totalProducts = \App\Models\Product::count();
@@ -21,8 +43,7 @@ class DashboardController extends Controller
         $totalContacts = \App\Models\Contact::count();
 
         // 2. BIỂU ĐỒ HOẠT ĐỘNG (Số lượng Task hoàn thành)
-        // Xử lý lọc thời gian
-        $range = $request->input('range', '7_days'); // Mặc định 7 ngày
+        $range = $request->input('range', '7_days');
         $customStart = $request->input('start_date');
         $customEnd = $request->input('end_date');
 
@@ -67,14 +88,100 @@ class DashboardController extends Controller
         ));
     }
 
+    /**
+     * DASHBOARD CHO STAFF (Nhân viên thi công)
+     * Tập trung vào công việc cá nhân
+     */
+    protected function staffDashboard(\Illuminate\Http\Request $request)
+    {
+        $userId = auth('admin')->id();
+        $now = Carbon::now();
+
+        // Stats cards
+        $myPendingTasks = Task::where('performer_id', $userId)
+            ->where('status', \App\Enums\TaskStatus::PENDING)
+            ->count();
+
+        $myProcessingTasks = Task::where('performer_id', $userId)
+            ->where('status', \App\Enums\TaskStatus::PROCESSING)
+            ->count();
+
+        $myCompletedTasks = Task::where('performer_id', $userId)
+            ->where('status', \App\Enums\TaskStatus::COMPLETED)
+            ->whereMonth('updated_at', $now->month)
+            ->count();
+
+        // Tiền đã thu tháng này
+        $myCollectedAmount = TaskReport::whereHas('task', function ($q) use ($userId) {
+                $q->where('performer_id', $userId);
+            })
+            ->whereMonth('created_at', $now->month)
+            ->sum('collected_amount');
+
+        // Công việc hôm nay (task được giao có deadline hôm nay hoặc đang làm dở)
+        $todayTasks = Task::where('performer_id', $userId)
+            ->whereIn('status', [\App\Enums\TaskStatus::PENDING, \App\Enums\TaskStatus::PROCESSING])
+            ->whereHas('workOrder', function ($q) {
+                $q->whereDate('deadline', '>=', Carbon::today()->subDays(1))
+                  ->orWhereNull('deadline');
+            })
+            ->with('workOrder')
+            ->orderByRaw("FIELD(status, 'processing', 'pending')")
+            ->take(10)
+            ->get();
+
+        // Phiếu việc gần đây của tôi
+        $myRecentWorkOrders = WorkOrder::whereHas('tasks', function ($q) use ($userId) {
+                $q->where('performer_id', $userId);
+            })
+            ->with('customer')
+            ->latest()
+            ->take(10)
+            ->get();
+
+        return view('admin.dashboard.staff', compact(
+            'myPendingTasks',
+            'myProcessingTasks',
+            'myCompletedTasks',
+            'myCollectedAmount',
+            'todayTasks',
+            'myRecentWorkOrders'
+        ));
+    }
+
+    /**
+     * DASHBOARD MẶC ĐỊNH (Cho các role khác: sales, warehouse, content, cs...)
+     */
+    protected function defaultDashboard(\Illuminate\Http\Request $request)
+    {
+        $user = auth('admin')->user();
+
+        $data = [];
+
+        // Chỉ load data user có quyền xem
+        if ($user->can('view_work_orders')) {
+            $data['totalWorkOrders'] = WorkOrder::count();
+        }
+
+        if ($user->can('view_customers')) {
+            $data['totalCustomers'] = Customer::count();
+        }
+
+        if ($user->can('view_materials')) {
+            // Nếu có model Material
+            $data['totalMaterials'] = 0; // TODO: Thêm Material::count() khi có model
+        }
+
+        return view('admin.dashboard.default', $data);
+    }
+
     private function getActivityChartData($range, $customStart = null, $customEnd = null)
     {
         $labels = [];
         $data = [];
         
-        // Xác định ngày bắt đầu và kết thúc
         $endDate = Carbon::today();
-        $startDate = Carbon::today()->subDays(6); // Mặc định 7 ngày
+        $startDate = Carbon::today()->subDays(6);
 
         if ($range == '28_days') {
             $startDate = Carbon::today()->subDays(27);
@@ -85,10 +192,6 @@ class DashboardController extends Controller
             $endDate = Carbon::parse($customEnd);
         }
 
-        // Tạo labels và data
-        // Nếu khoảng thời gian quá dài (> 31 ngày), gom nhóm theo tuần hoặc tháng để biểu đồ đỡ rối?
-        // Ở đây giữ nguyên theo ngày cho đơn giản, hoặc user tự chọn range ngắn lại.
-        
         $current = $startDate->copy();
         while ($current <= $endDate) {
             $labels[] = $current->format('d/m');

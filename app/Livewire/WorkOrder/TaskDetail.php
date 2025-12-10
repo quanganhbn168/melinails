@@ -23,15 +23,21 @@ class TaskDetail extends Component
     public $report_content;
     public $is_task_completed = false;
     
-    // TIỀN NONG
-    public $has_payment = false; 
+    // TIỀN NONG (ĐƠN GIẢN HÓA)
     public $collected_amount = 0;
     public $payment_method = 'cash'; 
-    public $transfer_target = 'company'; 
 
     public $items = [['name' => '', 'serial' => '', 'qty' => 1]]; 
     public $proof_images = [];
     public $signature_data;
+
+    // THIẾT BỊ THU HỒI (Bảo hành)
+    public $returnedItems = [['name' => '', 'serial' => '', 'reason' => '']];
+
+    // TASK PHÁT SINH / SPAWN
+    public $newTaskTitle = '';
+    public $newTaskScheduledAt = '';
+    public $newTaskAssigneeId = '';
 
     // BIẾN MỚI CHO SUGGESTION
     public $materialSuggestions = []; // Danh sách gợi ý trả về
@@ -43,11 +49,12 @@ class TaskDetail extends Component
             'workOrder', 
             'reports.images', 
             'reports.items', 
+            'reports.returnedItems',
             'reports.reporter'
         ])->findOrFail($id);
         
-        // Nếu task đã xong -> vào xem lịch sử
-        if($this->task->status === \App\Enums\TaskStatus::COMPLETED) {
+        // Nếu WorkOrder đã hoàn thành HOẶC task đã xong -> vào xem lịch sử
+        if($this->task->workOrder->isLocked() || $this->task->status === \App\Enums\TaskStatus::COMPLETED) {
             $this->activeTab = 'history';
         }
     }
@@ -79,16 +86,28 @@ class TaskDetail extends Component
 
     public function saveReport()
     {
-        // CHẶN BÁO CÁO NẾU TASK ĐÃ XONG (Tránh hack request)
+        // CHẶN BÁO CÁO NẾU WORK ORDER ĐÃ HOÀN THÀNH (ưu tiên cao nhất)
+        if(!$this->task->workOrder->allowsReporting()) {
+            session()->flash('error', 'Phiếu việc này đã được Admin đóng hoàn thành. Nếu cần báo cáo thêm, vui lòng liên hệ Admin.');
+            return;
+        }
+
+        // CHẶN BÁO CÁO NẾU TASK ĐÃ XONG
         if($this->task->status === \App\Enums\TaskStatus::COMPLETED) {
-            $this->dispatch('error', 'Công việc này đã hoàn thành. Vui lòng mở lại nếu cần báo cáo thêm.');
+            session()->flash('error', 'Công việc này đã hoàn thành. Vui lòng mở lại nếu cần báo cáo thêm.');
             return;
         }
 
         $this->validate([
             'report_content' => 'required|min:5',
-            'collected_amount' => 'numeric|min:0',
+            'proof_images' => 'required|array|min:1',
             'proof_images.*' => 'image|max:10240',
+            'collected_amount' => 'numeric|min:0',
+        ], [
+            'report_content.required' => 'Vui lòng nhập nội dung báo cáo.',
+            'report_content.min' => 'Nội dung phải có ít nhất 5 ký tự.',
+            'proof_images.required' => 'Vui lòng chụp ít nhất 1 ảnh nghiệm thu.',
+            'proof_images.min' => 'Vui lòng chụp ít nhất 1 ảnh nghiệm thu.',
         ]);
 
         DB::transaction(function () {
@@ -103,12 +122,8 @@ class TaskDetail extends Component
                 }
             }
 
-            // 2. Xử lý Tiền nong
-            if (!$this->has_payment) {
-                $this->collected_amount = 0;
-                $this->payment_method = null;
-                $this->transfer_target = null;
-            }
+            // 2. Xử lý Tiền nong (ĐƠN GIẢN: nếu amount > 0 thì có thu tiền)
+            $hasPayment = (int) $this->collected_amount > 0;
 
             // 3. Tạo Report
             $report = TaskReport::create([
@@ -117,9 +132,9 @@ class TaskDetail extends Component
                 'content' => $this->report_content,
                 'is_completed' => $this->is_task_completed,
                 
-                'collected_amount' => $this->collected_amount,
-                'payment_method' => $this->has_payment ? $this->payment_method : null,
-                'transfer_target' => ($this->has_payment && $this->payment_method == 'transfer') ? $this->transfer_target : null,
+                'collected_amount' => $hasPayment ? $this->collected_amount : 0,
+                'payment_method' => $hasPayment ? $this->payment_method : null,
+                'transfer_target' => null, // Đã bỏ chi tiết TK
                 
                 'customer_signature' => $signaturePath,
             ]);
@@ -142,7 +157,19 @@ class TaskDetail extends Component
                 }
             }
 
-            // 6. Cập nhật trạng thái Task cha
+            // 6. Thiết bị thu hồi (Bảo hành)
+            foreach ($this->returnedItems as $returned) {
+                if (!empty($returned['name'])) {
+                    \App\Models\ReturnedItem::create([
+                        'task_report_id' => $report->id,
+                        'item_name' => $returned['name'],
+                        'serial_number' => $returned['serial'] ?? null,
+                        'reason' => $returned['reason'] ?? null,
+                    ]);
+                }
+            }
+
+            // 7. Cập nhật trạng thái Task cha
             if ($this->is_task_completed) {
                 $this->task->update(['status' => \App\Enums\TaskStatus::COMPLETED]);
             } else {
@@ -251,6 +278,57 @@ class TaskDetail extends Component
 
         $this->dispatch('scan-success', "Đã thêm serial: $serial");
     }
+
+    // --- THIẾT BỊ THU HỒI (Bảo hành) ---
+    public function addReturnedItem()
+    {
+        $this->returnedItems[] = ['name' => '', 'serial' => '', 'reason' => ''];
+    }
+
+    public function removeReturnedItem($index)
+    {
+        unset($this->returnedItems[$index]);
+        $this->returnedItems = array_values($this->returnedItems);
+    }
+
+    // --- TASK PHÁT SINH / SPAWN ---
+    public function createAdditionalTask()
+    {
+        // Chặn nếu WorkOrder đã đóng
+        if (!$this->task->workOrder->allowsAdditionalTasks()) {
+            session()->flash('error', 'Không thể thêm task vì phiếu việc đã hoàn thành hoặc chờ duyệt.');
+            return;
+        }
+
+        $this->validate([
+            'newTaskTitle' => 'required|min:5|max:255',
+            'newTaskScheduledAt' => 'nullable|date|after_or_equal:today',
+            'newTaskAssigneeId' => 'nullable|exists:admins,id',
+        ], [
+            'newTaskTitle.required' => 'Vui lòng nhập nội dung công việc.',
+            'newTaskTitle.min' => 'Nội dung phải có ít nhất 5 ký tự.',
+            'newTaskScheduledAt.after_or_equal' => 'Ngày hẹn phải từ hôm nay trở đi.',
+        ]);
+
+        $newTask = Task::create([
+            'work_order_id' => $this->task->work_order_id,
+            'parent_task_id' => $this->task->id, // Link to current task as parent
+            'title' => $this->newTaskTitle,
+            'performer_id' => $this->newTaskAssigneeId ?: null,
+            'scheduled_at' => $this->newTaskScheduledAt ?: null,
+            'status' => \App\Enums\TaskStatus::PENDING,
+            'is_additional' => true,
+            'created_by_worker_id' => auth('admin')->id(),
+        ]);
+
+        session()->flash('success', 'Đã tạo công việc tiếp theo: ' . $newTask->title);
+        $this->newTaskTitle = '';
+        $this->newTaskScheduledAt = '';
+        $this->newTaskAssigneeId = '';
+        
+        return redirect()->route('admin.tasks.detail', $newTask->id);
+    }
+
     public function render()
     {
         return view('livewire.work-order.task-detail.main')

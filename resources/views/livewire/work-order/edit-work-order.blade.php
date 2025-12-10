@@ -20,14 +20,83 @@
                     <div class="col-md-5">
                         <div class="card card-primary card-outline">
                             <div class="card-header">
-                                <h3 class="card-title">1. Thông tin địa điểm</h3>
+                                <h3 class="card-title">1. Thông tin khách hàng</h3>
                             </div>
                             <div class="card-body">
-                                {{-- Khách hàng (Readonly) --}}
-                                <div class="form-group">
-                                    <label>Khách hàng (Không đổi)</label>
-                                    <input type="text" class="form-control" value="{{ $customer_name }}" disabled>
-                                </div>
+                                {{-- Flash message --}}
+                                @if(session()->has('customer_success'))
+                                    <div class="alert alert-success alert-dismissible fade show">
+                                        <button type="button" class="close" data-dismiss="alert">&times;</button>
+                                        {{ session('customer_success') }}
+                                    </div>
+                                @endif
+
+                                @if(auth('admin')->user()->hasRole('staff'))
+                                    {{-- STAFF: Chỉ hiển thị thông tin khách hàng, không cho sửa --}}
+                                    <div class="alert alert-info mb-3">
+                                        <i class="fas fa-info-circle mr-1"></i> Bạn không có quyền chỉnh sửa thông tin khách hàng.
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Tên khách hàng</label>
+                                        <input type="text" class="form-control" value="{{ $customer_name }}" disabled>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Loại khách hàng</label>
+                                        <input type="text" class="form-control" value="{{ $customer_type == 'company' ? 'Công ty' : 'Cá nhân' }}" disabled>
+                                    </div>
+                                @else
+                                    {{-- ADMIN: Cho phép sửa thông tin khách hàng --}}
+                                    {{-- Tên khách hàng --}}
+                                    <div class="form-group">
+                                        <label>Tên khách hàng <span class="text-danger">*</span></label>
+                                        <input type="text" wire:model="customer_name" class="form-control">
+                                        @error('customer_name') <span class="text-danger text-sm">{{ $message }}</span> @enderror
+                                    </div>
+
+                                    {{-- Loại khách --}}
+                                    <div class="form-group">
+                                        <label>Loại khách hàng</label>
+                                        <div class="btn-group btn-group-toggle w-100" data-toggle="buttons">
+                                            <label class="btn btn-outline-info {{ $customer_type == 'individual' ? 'active' : '' }}">
+                                                <input type="radio" wire:model="customer_type" value="individual"> <i class="fas fa-user mr-1"></i> Cá nhân
+                                            </label>
+                                            <label class="btn btn-outline-primary {{ $customer_type == 'company' ? 'active' : '' }}">
+                                                <input type="radio" wire:model="customer_type" value="company"> <i class="fas fa-building mr-1"></i> Công ty
+                                            </label>
+                                        </div>
+                                    </div>
+
+                                    {{-- Thông tin thêm nếu là Công ty --}}
+                                    @if($customer_type == 'company')
+                                    <div class="bg-light p-2 rounded border mb-3">
+                                        <div class="form-group mb-2">
+                                            <label class="text-xs text-muted font-weight-bold">Người đại diện</label>
+                                            <input type="text" wire:model="customer_representative" class="form-control form-control-sm" placeholder="Họ tên người đại diện...">
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-6">
+                                                <div class="form-group mb-0">
+                                                    <label class="text-xs text-muted font-weight-bold">Mã số thuế</label>
+                                                    <input type="text" wire:model="customer_tax_code" class="form-control form-control-sm" placeholder="MST...">
+                                                </div>
+                                            </div>
+                                            <div class="col-6">
+                                                <div class="form-group mb-0">
+                                                    <label class="text-xs text-muted font-weight-bold">Email</label>
+                                                    <input type="email" wire:model="customer_email" class="form-control form-control-sm" placeholder="email@...">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    @endif
+
+                                    <button type="button" wire:click="normalizeCustomer" class="btn btn-sm btn-outline-success w-100 mb-3">
+                                        <i class="fas fa-save mr-1"></i> Lưu thông tin khách hàng
+                                    </button>
+                                @endif
+
+                                <hr>
+                                <h6 class="text-muted text-uppercase text-xs font-weight-bold mb-2">Thông tin liên hệ thi công</h6>
 
                                 <div class="form-group">
                                     <label>Người phụ trách tại chỗ <span class="text-danger">*</span></label>
@@ -74,6 +143,24 @@
                                         <label class="btn btn-outline-danger {{ $priority == 'urgent' ? 'active' : '' }}">
                                             <input type="radio" wire:model="priority" value="urgent"> Gấp
                                         </label>
+                                    </div>
+                                </div>
+
+                                {{-- Thời gian bắt đầu & Hạn hoàn thành --}}
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label><i class="fas fa-play-circle text-success mr-1"></i> Thời gian bắt đầu</label>
+                                            <input type="datetime-local" wire:model="started_at" class="form-control">
+                                            @error('started_at') <span class="text-danger text-sm">{{ $message }}</span> @enderror
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label><i class="far fa-calendar-alt text-info mr-1"></i> Hạn hoàn thành</label>
+                                            <input type="datetime-local" wire:model="deadline" class="form-control">
+                                            @error('deadline') <span class="text-danger text-sm">{{ $message }}</span> @enderror
+                                        </div>
                                     </div>
                                 </div>
 

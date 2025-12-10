@@ -17,6 +17,31 @@
     <link rel="stylesheet" href="{{ asset('plugins/sweetalert2/bootstrap-4.min.css') }}">
     <link rel="stylesheet" href="{{ asset('plugins/toastr/toastr.min.css') }}">
     <link rel="stylesheet" href="{{ asset('css/modal.css') }}">
+    
+    {{-- Mobile Bottom Nav Styles --}}
+    <style>
+        @media (max-width: 767.98px) {
+            .content-wrapper {
+                padding-bottom: 80px !important; /* Chừa chỗ cho bottom nav */
+            }
+            .mobile-bottom-nav {
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                z-index: 1040;
+                background: #fff;
+                border-top: 1px solid #dee2e6;
+                box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+            }
+        }
+        @media (min-width: 768px) {
+            .mobile-bottom-nav {
+                display: none !important;
+            }
+        }
+    </style>
+    
     @stack('css')
     @livewireStyles
 </head>
@@ -64,6 +89,7 @@
 <script src="{{ asset('js/media-picker.js') }}"></script>
 <script src="{{ asset('js/admin/universal-bulk.js') }}"></script>
 @include('ckfinder::setup')
+@livewireScripts
 @stack('js')
 
 <script>
@@ -92,6 +118,5 @@
 @if(session('error'))
 <script>Toast.fire({ icon:'error', title: @json(session('error')) });</script>
 @endif
-@livewireScripts
 </body>
 </html>

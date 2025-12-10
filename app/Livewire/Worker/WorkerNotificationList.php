@@ -32,7 +32,7 @@ class WorkerNotificationList extends Component
         }
     }
 
-    #[Layout('layouts.mobile', ['title' => 'Thông báo'])]
+    #[Layout('layouts.admin', ['title' => 'Thông báo'])]
     public function render()
     {
         $notifications = auth('admin')->user()->notifications()->paginate(15);
