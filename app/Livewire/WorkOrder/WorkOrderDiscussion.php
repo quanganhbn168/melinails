@@ -89,6 +89,7 @@ class WorkOrderDiscussion extends Component
             ->sortByDesc('created_at')
             ->values()
             ->toArray();
+            
     }
 
     // Alias for backward compatibility
