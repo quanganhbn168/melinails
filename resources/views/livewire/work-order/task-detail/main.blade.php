@@ -103,15 +103,15 @@
 
     {{-- 5. CÁC MODAL HỖ TRỢ (Scanner, Image Viewer) --}}
     
-    {{-- Scanner Overlay --}}
-    <div id="scanner-overlay">
+    {{-- Scanner Overlay (wire:ignore để Livewire không reset khi update DOM) --}}
+    <div id="scanner-overlay" wire:ignore.self>
         <div class="text-white mb-2 font-weight-bold text-lg">QUÉT MÃ VẠCH</div>
         <div id="scan-counter" class="badge badge-success mb-3 px-3 py-2" style="display: none; font-size: 1rem;">
             Đã quét: 0 mã
         </div>
         <div id="scanner-box">
             <div id="scanner-line"></div>
-            <div id="reader"></div>
+            <div id="reader" wire:ignore></div>
         </div>
         <button class="btn btn-outline-light mt-4 rounded-pill px-4" onclick="closeScanner()">
             <i class="fas fa-times mr-1"></i> Đóng Camera
