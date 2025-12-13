@@ -87,6 +87,19 @@ class EditWorkOrder extends Component
         }
     }
 
+    // Tính số ngày từ deadline
+    protected function calculateDaysCount()
+    {
+        if (!$this->started_at || !$this->deadline) {
+            $this->days_count = 0;
+            return;
+        }
+
+        $start = \Carbon\Carbon::parse($this->started_at);
+        $end = \Carbon\Carbon::parse($this->deadline);
+        $this->days_count = max(0, $start->diffInDays($end, false));
+    }
+
     public function addTask()
     {
         $this->tasks[] = [
