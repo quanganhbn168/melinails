@@ -62,6 +62,20 @@ return [
         'permission' => 'view_materials',
     ],
     [
+        'title' => 'Vật tư thu hồi',
+        'icon' => 'bi bi-arrow-return-left', 
+        'route' => 'admin.returned-materials.index',
+        'active_pattern' => 'admin.returned-materials.*',
+        'permission' => 'view_materials', // Dùng chung quyền với vật tư
+    ],
+    [
+        'title' => 'Nhà cung cấp',
+        'icon' => 'bi bi-truck', 
+        'route' => 'admin.suppliers.index',
+        'active_pattern' => 'admin.suppliers.*',
+        'permission' => 'view_materials', // Dùng chung quyền với vật tư
+    ],
+    [
         'title' => 'Bảo hành',
         'icon' => 'bi bi-shield-check', 
         'route' => 'admin.warranty.index',
