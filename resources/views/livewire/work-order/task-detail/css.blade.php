@@ -107,4 +107,13 @@
     .fab-button:hover i {
         transform: rotate(90deg);
     }
+
+    /* Blink Animation cho QUAN TÂM badge */
+    .blink-animation {
+        animation: blink 1s ease-in-out infinite;
+    }
+    @keyframes blink {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.5; }
+    }
 </style>

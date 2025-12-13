@@ -208,8 +208,11 @@
 
         {{-- 5. THIẾT BỊ THU HỒI --}}
         <div class="app-card border-danger">
-            <div class="app-card-header bg-danger text-white">
+            <div class="app-card-header bg-danger text-white d-flex justify-content-between align-items-center">
                 <span><i class="fas fa-undo-alt mr-1"></i> Thiết bị thu hồi (nếu có)</span>
+                <button type="button" class="btn btn-sm btn-light" onclick="openContinuousScanner('returned')">
+                    <i class="fas fa-barcode mr-1"></i> Quét liên tục
+                </button>
             </div>
             <div class="app-card-body p-2">
                 <small class="text-muted d-block mb-2">Ghi nhận thiết bị khách mang về để bảo hành/đổi trả</small>
@@ -222,14 +225,37 @@
                 </div>
 
                 @foreach($returnedItems as $index => $item)
-                    <div class="form-row mb-2 align-items-center no-gutters border-bottom pb-2">
-                        <div class="col-5 pr-1">
-                            <input type="text" wire:model="returnedItems.{{ $index }}.name" 
-                                   class="form-control form-control-sm" placeholder="VD: Camera Hikvision...">
+                    <div class="form-row mb-2 align-items-start no-gutters border-bottom pb-2">
+                        <div class="col-5 pr-1 position-relative">
+                            <input type="text" 
+                                   wire:model.live.debounce.300ms="returnedItems.{{ $index }}.name" 
+                                   class="form-control form-control-sm" 
+                                   placeholder="Gõ tên hoặc mã tắt..." autocomplete="off">
+                            
+                            {{-- Dropdown gợi ý vật tư --}}
+                            @if(isset($returnedItemSuggestions[$index]) && !empty($returnedItemSuggestions[$index]))
+                                <div class="list-group position-absolute w-100 shadow-lg" style="z-index: 1000; top: 32px; max-height: 200px; overflow-y: auto;">
+                                    @foreach($returnedItemSuggestions[$index] as $suggestion)
+                                        <button type="button" 
+                                                wire:click="selectReturnedItemMaterial({{ $index }}, {{ $suggestion->id }})"
+                                                class="list-group-item list-group-item-action p-2 text-left">
+                                            <small class="d-block font-weight-bold text-dark">{{ $suggestion->name }}</small>
+                                            <small class="text-muted text-xs">Mã: {{ $suggestion->code ?? '---' }}</small>
+                                        </button>
+                                    @endforeach
+                                </div>
+                            @endif
                         </div>
                         <div class="col-4 px-1">
-                            <input type="text" wire:model="returnedItems.{{ $index }}.serial" 
-                                   class="form-control form-control-sm" placeholder="Serial number">
+                            <div class="input-group input-group-sm">
+                                <input type="text" wire:model="returnedItems.{{ $index }}.serial" 
+                                       class="form-control" placeholder="Serial number">
+                                <div class="input-group-append">
+                                    <button class="btn btn-outline-danger px-2" type="button" onclick="openReturnedScanner({{ $index }})">
+                                        <i class="fas fa-qrcode"></i>
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                         <div class="col-2 px-1">
                             <select wire:model="returnedItems.{{ $index }}.reason" class="form-control form-control-sm">
@@ -303,6 +329,13 @@
                         <small class="text-muted">Để trống nếu không cần tạo việc mới</small>
                     </div>
 
+                    {{-- Mô tả chi tiết --}}
+                    <div class="form-group">
+                        <label class="text-sm font-weight-bold">Mô tả chi tiết</label>
+                        <textarea wire:model="newTaskDescription" class="form-control form-control-sm" rows="2"
+                                  placeholder="Ghi chú thêm về công việc, yêu cầu đặc biệt..."></textarea>
+                    </div>
+
                     <div class="row">
                         <div class="col-6">
                             <div class="form-group">
@@ -312,13 +345,20 @@
                         </div>
                         <div class="col-6">
                             <div class="form-group">
-                                <label class="text-sm font-weight-bold"><i class="fas fa-user mr-1"></i> Gán cho</label>
-                                <select wire:model="newTaskAssigneeId" class="form-control form-control-sm">
-                                    <option value="">-- Chưa gán --</option>
+                                <label class="text-sm font-weight-bold">
+                                    <i class="fas fa-user-plus mr-1"></i> Gán cho 
+                                    <span class="badge badge-warning text-dark ml-1 blink-animation">QUAN TÂM</span>
+                                </label>
+                                <select wire:model="newTaskAssigneeId" class="form-control form-control-sm border-warning">
+                                    <option value="">-- Chưa gán (Admin xem lại) --</option>
                                     @foreach(\App\Models\Admin::all() as $admin)
                                         <option value="{{ $admin->id }}">{{ $admin->name }}</option>
                                     @endforeach
                                 </select>
+                                <small class="text-warning">
+                                    <i class="fas fa-exclamation-triangle mr-1"></i>
+                                    Nếu chưa gán, Admin sẽ được thông báo để điều chuyển.
+                                </small>
                             </div>
                         </div>
                     </div>

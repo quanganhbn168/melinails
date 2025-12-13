@@ -33,11 +33,13 @@ class TaskDetail extends Component
 
     // THIẾT BỊ THU HỒI (Bảo hành)
     public $returnedItems = [['name' => '', 'serial' => '', 'reason' => '']];
+    public $returnedItemSuggestions = []; // Autocomplete cho thiết bị thu hồi
 
     // TASK PHÁT SINH / SPAWN
     public $newTaskTitle = '';
     public $newTaskScheduledAt = '';
     public $newTaskAssigneeId = '';
+    public $newTaskDescription = ''; // Mô tả công việc mới
 
     // BIẾN MỚI CHO SUGGESTION
     public $materialSuggestions = []; // Danh sách gợi ý trả về
@@ -290,6 +292,35 @@ class TaskDetail extends Component
     {
         unset($this->returnedItems[$index]);
         $this->returnedItems = array_values($this->returnedItems);
+        unset($this->returnedItemSuggestions[$index]);
+    }
+
+    // Autocomplete cho thiết bị thu hồi
+    public function updatedReturnedItems($value, $key)
+    {
+        $parts = explode('.', $key);
+        $index = $parts[0];
+        $field = $parts[1] ?? null;
+
+        if ($field === 'name' && strlen($value) >= 2) {
+            $this->returnedItemSuggestions[$index] = \App\Models\Material::query()
+                ->where('name', 'like', '%' . $value . '%')
+                ->orWhere('short_name', 'like', '%' . $value . '%')
+                ->orWhere('code', 'like', '%' . $value . '%')
+                ->take(5)
+                ->get();
+        } else {
+            $this->returnedItemSuggestions[$index] = [];
+        }
+    }
+
+    public function selectReturnedItemMaterial($index, $materialId)
+    {
+        $material = \App\Models\Material::find($materialId);
+        if ($material) {
+            $this->returnedItems[$index]['name'] = $material->name;
+        }
+        $this->returnedItemSuggestions[$index] = [];
     }
 
     // === CONTINUOUS SCAN METHODS ===

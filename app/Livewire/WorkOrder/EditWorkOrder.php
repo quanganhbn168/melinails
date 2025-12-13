@@ -46,7 +46,7 @@ class EditWorkOrder extends Component
 
     public function mount($id)
     {
-        $order = WorkOrder::with(['customer', 'assignees', 'tasks'])->findOrFail($id);
+        $order = WorkOrder::with(['customer', 'assignees', 'tasks', 'attachments'])->findOrFail($id);
 
         // 1. Chặn nếu đã hoàn thành hoặc hủy
         if (in_array($order->status, ['completed', 'cancelled'])) {

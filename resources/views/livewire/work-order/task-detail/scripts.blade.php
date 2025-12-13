@@ -72,6 +72,19 @@
         document.getElementById('scanner-overlay').style.display = 'flex';
         cleanupAndStartScanner();
     }
+
+    // --- SINGLE SCAN for Returned Items ---
+    let isReturnedItemScan = false;
+    function openReturnedScanner(index) {
+        isContinuousScan = false;
+        isReturnedItemScan = true;
+        currentScanningIndex = index;
+        scannedSerials = [];
+        scanCount = 0;
+        updateScanCounter();
+        document.getElementById('scanner-overlay').style.display = 'flex';
+        cleanupAndStartScanner();
+    }
     
     // --- CONTINUOUS SCAN MODE ---
     function openContinuousScanner(type = 'items') {
@@ -152,7 +165,12 @@
                 if (isContinuousScan) {
                     handleContinuousScan(cleanedText);
                 } else {
-                    @this.set('items.' + currentScanningIndex + '.serial', cleanedText);
+                    // Check if scanning for returned items or regular items
+                    if (isReturnedItemScan) {
+                        @this.set('returnedItems.' + currentScanningIndex + '.serial', cleanedText);
+                    } else {
+                        @this.set('items.' + currentScanningIndex + '.serial', cleanedText);
+                    }
                     toastr.success('Đã quét: ' + cleanedText);
                     playBeep();
                     closeScanner();
@@ -194,6 +212,7 @@
         document.getElementById('scanner-overlay').style.display = 'none';
         document.getElementById('scan-counter').style.display = 'none';
         isContinuousScan = false;
+        isReturnedItemScan = false; // Reset flag
         scannedSerials = [];
         scanCount = 0;
         
