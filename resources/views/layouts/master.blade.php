@@ -149,7 +149,7 @@ document.addEventListener('DOMContentLoaded', function() {
         function googleTranslateElementInit() {
             new google.translate.TranslateElement({
                 pageLanguage: 'vi',      
-                includedLanguages: 'vi,en', 
+                includedLanguages: 'vi,en,zh-CN,ko', 
                 autoDisplay: false
             }, 'google_translate_element');
             setActiveFlag();

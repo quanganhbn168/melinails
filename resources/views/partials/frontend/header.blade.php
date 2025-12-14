@@ -54,10 +54,27 @@
 </ul>
                 </div>
                 <div class="header-col-right">
-                    {{-- <div class="d-lg-none">
-                        <a href="">EN</a>
-                        <a href="">VI</a>
-                    </div> --}}
+                    <div class="d-lg-none">
+                        <div class="dropdown">
+                            <button class="btn btn-light rounded-circle shadow-sm dropdown-toggle p-0 d-flex align-items-center justify-content-center" type="button" data-toggle="dropdown" aria-expanded="false" style="width: 40px; height: 40px; border: 1px solid #eee;">
+                                <span class="current-flag" style="font-size: 20px;">🇻🇳</span>
+                            </button>
+                            <div class="dropdown-menu dropdown-menu-right" style="min-width: 120px;">
+                                <a class="dropdown-item d-flex align-items-center" href="#" onclick="changeLanguage('vi'); updateFlag('🇻🇳'); return false;">
+                                    <span class="me-2 mr-2" style="font-size: 18px;">🇻🇳</span> Tiếng Việt
+                                </a>
+                                <a class="dropdown-item d-flex align-items-center" href="#" onclick="changeLanguage('en'); updateFlag('🇺🇸'); return false;">
+                                    <span class="me-2 mr-2" style="font-size: 18px;">🇺🇸</span> English
+                                </a>
+                                <a class="dropdown-item d-flex align-items-center" href="#" onclick="changeLanguage('zh-CN'); updateFlag('🇨🇳'); return false;">
+                                    <span class="me-2 mr-2" style="font-size: 18px;">🇨🇳</span> 中文
+                                </a>
+                                <a class="dropdown-item d-flex align-items-center" href="#" onclick="changeLanguage('ko'); updateFlag('🇰🇷'); return false;">
+                                    <span class="me-2 mr-2" style="font-size: 18px;">🇰🇷</span> 한국어
+                                </a>
+                            </div>
+                        </div>
+                    </div>
                     <div class="d-lg-block">
                         <button class="btn btn-primary rounded-pill">
                             <span class="d-inline-flex align-items-center justify-content-center bg-white rounded-circle me-2" style="width: 32px; height: 32px;">
@@ -234,5 +251,8 @@
     $(document).on('click', function() {
         $('.header-actions .frame-fix').removeClass('active');
     });
+    function updateFlag(flag) {
+        $('.current-flag').text(flag);
+    }
 </script>
 @endpush
