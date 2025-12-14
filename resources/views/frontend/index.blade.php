@@ -202,7 +202,7 @@
             <div class="col-12 col-lg-6">
                 <div class="partner-list">
                     @foreach($brands as $brand)
-                    <a href="{{ $brand->link ?? '#' }}" class="brand-logo-item" target="_blank">
+                    <a href="{{ $brand->link ?? '#' }}" class="partner-logo-item" target="_blank">
                         <img src="{{ optional($brand->mainImage())->url() }}" alt="{{ $brand->name }}">
                     </a>
                     @endforeach

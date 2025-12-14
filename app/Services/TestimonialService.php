@@ -11,10 +11,10 @@ class TestimonialService
 {
     /** Cấu hình xử lý ảnh testimonial 500 */
     private const IMAGE_CONFIG = [
-        'main'     => ['width' => 500, 'height' => 500, 'fit' => true],
+        'main'     => ['width' => 600, 'height' => 600], // Bỏ fit: true để tránh cắt mất hình
         'variants' => [
             // Thumb gọn để hiển thị danh sách
-            'thumbnail' => ['width' => 150, 'height' => 150, 'fit' => true],
+            'thumbnail' => ['width' => 150, 'height' => 150], // Fit true ở đây ok vì thumb thường bé
         ],
         'quality'  => 85,
         'format'   => 'webp',

@@ -17,9 +17,9 @@ class PostService
      * Cấu hình cho ảnh đại diện (main image).
      */
     private const MAIN_IMAGE_CONFIG = [
-        'main' => ['width' => 1024],
+        'main' => ['width' => 1200], // Tăng độ phân giải cho ảnh nét căng
         'variants' => ['thumbnail' => ['width' => 150, 'height' => 150, 'fit' => true]],
-        'quality' => 85,
+        'quality' => 90, // Tăng chất lượng ảnh
         'format' => 'webp'
     ];
     /**

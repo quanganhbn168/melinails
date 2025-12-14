@@ -16,9 +16,9 @@ class BrandService
      * Cấu hình cho ảnh brand (logo).
      */
     private const BRAND_IMAGE_CONFIG = [
-        'main' => ['width' => 250, 'height' => 250, 'fit' => true],
-        'variants' => ['thumbnail' => ['width' => 100, 'height' => 100, 'fit' => true]],
-        'quality' => 85,
+        'main' => ['width' => 300, 'height' => 300], // Bỏ 'fit' => true để scaleDown thay vì crop
+        'variants' => ['thumbnail' => ['width' => 100, 'height' => 100]],
+        'quality' => 90, // Tăng quality lên chút cho logo nét
         'format' => 'webp'
     ];
 
