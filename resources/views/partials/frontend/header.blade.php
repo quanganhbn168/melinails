@@ -75,7 +75,8 @@
             </div>
         </div>
     </div>
-    <div class="mobile-search-container d-lg-none">
+    {{-- HIDDEN: Old Mobile Search --}}
+    <div class="mobile-search-container d-lg-none d-none">
         <div class="search-box">
             <form action="/search" method="get">
                 <input type="text" class="form-control" placeholder="Tìm kiếm sản phẩm...">
@@ -91,6 +92,16 @@
         <a href="#" class="offcanvas-close"><i class="fa fa-times"></i></a>
     </div>
     <div class="offcanvas-menu-content">
+        {{-- ADDED: Mobile Search in Offcanvas --}}
+        <div class="offcanvas-search p-3 border-bottom">
+            <form action="/search" method="get">
+                <div class="input-group">
+                    <input type="text" class="form-control" name="keyword" placeholder="Tìm kiếm...">
+                    <button class="btn btn-outline-secondary" type="submit"><i class="fa fa-search"></i></button>
+                </div>
+            </form>
+        </div>
+        {{-- Menu items will be appended here by JS --}}
         </div>
 </div>
 <div class="cart-offcanvas-wrapper">
