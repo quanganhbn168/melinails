@@ -82,7 +82,32 @@
                         {{-- Hidden GTranslate Widget --}}
                         <div class="gtranslate_wrapper" style="display:none;"></div>
                     </div>
-                    <div class="d-none d-lg-block">
+                    <div class="d-none d-lg-flex align-items-center">
+                        {{-- Desktop Language Switcher --}}
+                        <div class="dropdown mr-3">
+                            <button class="btn btn-light rounded-circle shadow-sm dropdown-toggle p-0 d-flex align-items-center justify-content-center" type="button" data-toggle="dropdown" aria-expanded="false" style="width: 40px; height: 40px; border: 1px solid #eee;">
+                                <img src="{{ asset('images/flags/vn.png') }}" class="current-flag-img rounded-circle" style="width: 24px; height: 24px; object-fit: cover;">
+                            </button>
+                            <div class="dropdown-menu dropdown-menu-right shadow-lg border-0" style="min-width: 180px; border-radius: 16px; padding: 8px; margin-top: 10px;">
+                                <a class="dropdown-item d-flex align-items-center px-3 py-2 rounded mb-1" href="#" onclick="doGTranslate('vi|vi'); updateFlag('{{ asset('images/flags/vn.png') }}'); return false;" style="transition: all 0.2s;">
+                                    <img src="{{ asset('images/flags/vn.png') }}" class="me-3 mr-3 rounded-circle shadow-sm" style="width: 24px; height: 24px; object-fit: cover;"> 
+                                    <span style="font-weight: 600; font-size: 14px; color: #333;">Tiếng Việt</span>
+                                </a>
+                                <a class="dropdown-item d-flex align-items-center px-3 py-2 rounded mb-1" href="#" onclick="doGTranslate('vi|en'); updateFlag('{{ asset('images/flags/us.png') }}'); return false;" style="transition: all 0.2s;">
+                                    <img src="{{ asset('images/flags/us.png') }}" class="me-3 mr-3 rounded-circle shadow-sm" style="width: 24px; height: 24px; object-fit: cover;"> 
+                                    <span style="font-weight: 600; font-size: 14px; color: #333;">English</span>
+                                </a>
+                                <a class="dropdown-item d-flex align-items-center px-3 py-2 rounded mb-1" href="#" onclick="doGTranslate('vi|zh-CN'); updateFlag('{{ asset('images/flags/cn.png') }}'); return false;" style="transition: all 0.2s;">
+                                    <img src="{{ asset('images/flags/cn.png') }}" class="me-3 mr-3 rounded-circle shadow-sm" style="width: 24px; height: 24px; object-fit: cover;"> 
+                                    <span style="font-weight: 600; font-size: 14px; color: #333;">中文 (Chinese)</span>
+                                </a>
+                                <a class="dropdown-item d-flex align-items-center px-3 py-2 rounded" href="#" onclick="doGTranslate('vi|ko'); updateFlag('{{ asset('images/flags/kr.png') }}'); return false;" style="transition: all 0.2s;">
+                                    <img src="{{ asset('images/flags/kr.png') }}" class="me-3 mr-3 rounded-circle shadow-sm" style="width: 24px; height: 24px; object-fit: cover;"> 
+                                    <span style="font-weight: 600; font-size: 14px; color: #333;">한국어 (Korean)</span>
+                                </a>
+                            </div>
+                        </div>
+
                         <button class="btn btn-primary rounded-pill">
                             <span class="d-inline-flex align-items-center justify-content-center bg-white rounded-circle me-2" style="width: 32px; height: 32px;">
         
