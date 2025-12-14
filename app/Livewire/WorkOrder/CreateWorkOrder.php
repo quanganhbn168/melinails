@@ -35,7 +35,7 @@ class CreateWorkOrder extends Component
 
     // --- Danh sách nhiệm vụ con ---
     public $task_list = [
-        ['content' => '', 'note' => '']
+        ['title' => '', 'description' => '', 'performer_ids' => []]
     ];
 
     // --- Khách hàng ---
@@ -131,7 +131,9 @@ class CreateWorkOrder extends Component
     // --- Logic thêm/xóa dòng nhiệm vụ ---
     public function addTaskRow()
     {
-        $this->task_list[] = ['content' => '', 'note' => ''];
+        // Tự động chọn staff từ assignees
+        $staffIds = $this->getStaffIdsFromAssignees();
+        $this->task_list[] = ['title' => '', 'description' => '', 'performer_ids' => $staffIds];
     }
 
     public function removeTaskRow($index)
@@ -156,6 +158,28 @@ class CreateWorkOrder extends Component
         } else {
             $this->selected_tags[] = $tagId;
         }
+    }
+
+    // --- Khi thay đổi assignees, auto select staff cho tất cả tasks ---
+    public function updatedAssigneeIds()
+    {
+        $staffIds = $this->getStaffIdsFromAssignees();
+        
+        foreach ($this->task_list as $i => $task) {
+            $this->task_list[$i]['performer_ids'] = $staffIds;
+        }
+    }
+
+    // Helper: Lấy staff IDs từ assignees
+    protected function getStaffIdsFromAssignees(): array
+    {
+        if (empty($this->assignee_ids)) return [];
+        
+        return Admin::whereIn('id', $this->assignee_ids)
+            ->whereHas('roles', fn($q) => $q->where('name', 'staff'))
+            ->pluck('id')
+            ->map(fn($id) => (string)$id)
+            ->toArray();
     }
 
     // --- Chọn khách hàng ---
@@ -221,7 +245,8 @@ class CreateWorkOrder extends Component
             'site_address' => 'required',
             'contact_person' => 'required',
             'contact_phone' => 'required',
-            'task_list.*.content' => 'required|min:3',
+            'task_list.*.title' => 'required|min:3',
+            'task_list.*.performer_ids' => 'array',
             'attachments.*' => 'nullable|file|max:10240', // Max 10MB per file
         ], [
             'assignee_ids.required' => 'Phải gán ít nhất 1 nhân viên.',
@@ -229,7 +254,7 @@ class CreateWorkOrder extends Component
             'site_address.required' => 'Địa chỉ thi công không được để trống.',
             'contact_person.required' => 'Người liên hệ không được để trống.',
             'contact_phone.required' => 'Số điện thoại không được để trống.',
-            'task_list.*.content.required' => 'Nội dung nhiệm vụ không được để trống.',
+            'task_list.*.title.required' => 'Tiêu đề nhiệm vụ không được để trống.',
         ]);
 
         try {
@@ -270,7 +295,7 @@ class CreateWorkOrder extends Component
                 'contact_person' => $this->contact_person,
                 'contact_phone' => $this->contact_phone,
                 'assignee_ids' => $this->assignee_ids,
-                'tasks' => array_column($this->task_list, 'content'),
+                'tasks' => $this->task_list, // Gửi đầy đủ title, description, performer_ids
             ];
 
             // Tạo Work Order qua Service
@@ -305,7 +330,7 @@ class CreateWorkOrder extends Component
 
             // Reset form
             $this->reset();
-            $this->task_list = [['content' => '', 'note' => '']];
+            $this->task_list = [['title' => '', 'description' => '', 'performer_ids' => []]];
             $this->started_at = now()->format('Y-m-d\TH:i');
             $this->deadline_option = 'custom';
             $this->selected_tags = [];

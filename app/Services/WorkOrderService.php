@@ -43,16 +43,35 @@ class WorkOrderService
 
             // 3. Tạo các Task con
             if (!empty($data['tasks'])) {
-                $mainPerformer = $data['assignee_ids'][0] ?? auth('admin')->id();
-                foreach ($data['tasks'] as $taskContent) {
-                    if (!empty($taskContent)) {
-                        Task::create([
-                            'work_order_id' => $workOrder->id,
-                            'performer_id' => $mainPerformer,
-                            'report_content' => $taskContent,
-                            'collected_amount' => 0,
-                            'is_paid' => false,
-                        ]);
+                $defaultPerformer = $data['assignee_ids'][0] ?? auth('admin')->id();
+                
+                foreach ($data['tasks'] as $taskData) {
+                    // Hỗ trợ cả format cũ (string) và mới (array)
+                    if (is_string($taskData)) {
+                        $taskContent = $taskData;
+                        $taskDescription = null;
+                        $performerIds = [$defaultPerformer];
+                    } else {
+                        $taskContent = $taskData['title'] ?? $taskData['content'] ?? '';
+                        $taskDescription = $taskData['description'] ?? null;
+                        $performerIds = $taskData['performer_ids'] ?? [$defaultPerformer];
+                    }
+
+                    if (empty($taskContent)) continue;
+
+                    $task = Task::create([
+                        'work_order_id' => $workOrder->id,
+                        'performer_id' => $performerIds[0] ?? $defaultPerformer, // Người chính
+                        'title' => $taskContent,
+                        'report_content' => $taskContent, // Backward compatible
+                        'description' => $taskDescription,
+                        'collected_amount' => 0,
+                        'is_paid' => false,
+                    ]);
+
+                    // Sync performers (nhiều người)
+                    if (!empty($performerIds)) {
+                        $task->performers()->sync($performerIds);
                     }
                 }
             }

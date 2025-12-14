@@ -52,8 +52,8 @@
     @endif
 
     {{-- Modal Tạo Việc Phát Sinh --}}
-    <div class="modal fade" id="additionalTaskModal" tabindex="-1" role="dialog" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal fade" id="additionalTaskModal" tabindex="-1" role="dialog" aria-hidden="true" wire:ignore.self>
+        <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
             <div class="modal-content">
                 <div class="modal-header bg-primary text-white">
                     <h5 class="modal-title"><i class="fas fa-plus-circle mr-2"></i>Tạo việc phát sinh</h5>
@@ -62,8 +62,51 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                    <p class="text-muted small mb-3">Tạo công việc mới liên quan đến phiếu này mà không cần hoàn thành task hiện tại.</p>
+                    <p class="text-muted small mb-3">Tạo công việc mới liên quan đến phiếu này.</p>
+
+                    {{-- DANH SÁCH VIỆC PHÁT SINH ĐÃ TẠO --}}
+                    @if($task->childTasks->count() > 0)
+                    <div class="mb-4 pb-3 border-bottom">
+                        <h6 class="font-weight-bold text-info mb-2">
+                            <i class="fas fa-list mr-1"></i> Việc phát sinh đã tạo ({{ $task->childTasks->count() }})
+                        </h6>
+                        <div class="list-group list-group-flush">
+                            @foreach($task->childTasks as $childTask)
+                            <a href="{{ route('admin.tasks.detail', $childTask->id) }}" 
+                               class="list-group-item list-group-item-action d-flex justify-content-between align-items-center py-2">
+                                <div>
+                                    <span class="font-weight-bold">{{ $childTask->title }}</span>
+                                    @if($childTask->watchers->count() > 0)
+                                        <span class="text-info ml-1">
+                                            @foreach($childTask->watchers as $watcher)
+                                                <span class="badge badge-light border">@{{ $watcher->name }}</span>
+                                            @endforeach
+                                        </span>
+                                    @endif
+                                    @if($childTask->performer)
+                                        <small class="text-muted d-block">
+                                            <i class="fas fa-user mr-1"></i>{{ $childTask->performer->name }}
+                                        </small>
+                                    @else
+                                        <small class="text-danger d-block">
+                                            <i class="fas fa-exclamation-triangle mr-1"></i>Chưa gán người thực hiện
+                                        </small>
+                                    @endif
+                                </div>
+                                <span class="badge badge-{{ $childTask->status->value == 'completed' ? 'success' : ($childTask->status->value == 'processing' ? 'primary' : 'warning') }}">
+                                    {{ $childTask->status->value == 'completed' ? 'Xong' : ($childTask->status->value == 'processing' ? 'Đang làm' : 'Chờ') }}
+                                </span>
+                            </a>
+                            @endforeach
+                        </div>
+                    </div>
+                    @endif
                     
+                    {{-- FORM TẠO VIỆC MỚI --}}
+                    <h6 class="font-weight-bold text-primary mb-3">
+                        <i class="fas fa-plus mr-1"></i> Tạo việc mới
+                    </h6>
+
                     <div class="form-group">
                         <label class="font-weight-bold">Nội dung công việc <span class="text-danger">*</span></label>
                         <input type="text" wire:model="newTaskTitle" class="form-control" 
@@ -71,17 +114,54 @@
                         @error('newTaskTitle') <span class="text-danger text-xs mt-1 d-block">{{ $message }}</span> @enderror
                     </div>
 
+                    {{-- Mô tả chi tiết --}}
+                    <div class="form-group">
+                        <label class="font-weight-bold">Mô tả chi tiết</label>
+                        <textarea wire:model="newTaskDescription" class="form-control" rows="3"
+                                  placeholder="Ghi chú thêm về công việc, yêu cầu đặc biệt, vật tư cần chuẩn bị..."></textarea>
+                    </div>
+
+                    {{-- Upload ảnh đính kèm --}}
+                    <div class="form-group">
+                        <label class="font-weight-bold"><i class="fas fa-camera mr-1"></i> Hình ảnh đính kèm</label>
+                        <input type="file" wire:model="newTaskImages" multiple accept="image/*" class="form-control-file">
+                        <small class="text-muted">Chọn nhiều ảnh cùng lúc (tối đa 10MB/ảnh)</small>
+                        @error('newTaskImages.*') <span class="text-danger text-xs mt-1 d-block">{{ $message }}</span> @enderror
+                        
+                        {{-- Preview ảnh --}}
+                        @if(count($newTaskImages) > 0)
+                        <div class="d-flex flex-wrap mt-2" style="gap: 8px;">
+                            @foreach($newTaskImages as $index => $image)
+                            <div class="position-relative">
+                                <img src="{{ $image->temporaryUrl() }}" class="img-thumbnail" 
+                                     style="width: 60px; height: 60px; object-fit: cover;">
+                                <button type="button" wire:click="removeNewTaskImage({{ $index }})" 
+                                        class="btn btn-xs btn-danger position-absolute" 
+                                        style="top: -5px; right: -5px; padding: 2px 5px;">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                            @endforeach
+                        </div>
+                        @endif
+                        <div wire:loading wire:target="newTaskImages" class="text-primary text-xs mt-1">
+                            <i class="fas fa-spinner fa-spin"></i> Đang tải ảnh...
+                        </div>
+                    </div>
+
                     <div class="row">
                         <div class="col-6">
                             <div class="form-group">
-                                <label class="text-sm font-weight-bold"><i class="fas fa-calendar mr-1"></i> Hẹn ngày</label>
-                                <input type="datetime-local" wire:model="newTaskScheduledAt" class="form-control form-control-sm">
+                                <label class="font-weight-bold"><i class="fas fa-calendar mr-1"></i> Hẹn ngày</label>
+                                <input type="datetime-local" wire:model="newTaskScheduledAt" class="form-control">
                             </div>
                         </div>
+                        {{-- Chỉ Admin mới được gán người thực hiện --}}
+                        @if(!auth('admin')->user()->hasRole('staff'))
                         <div class="col-6">
                             <div class="form-group">
-                                <label class="text-sm font-weight-bold"><i class="fas fa-user mr-1"></i> Gán cho</label>
-                                <select wire:model="newTaskAssigneeId" class="form-control form-control-sm">
+                                <label class="font-weight-bold"><i class="fas fa-user mr-1"></i> Gán cho</label>
+                                <select wire:model="newTaskAssigneeId" class="form-control">
                                     <option value="">-- Chưa gán --</option>
                                     @foreach(\App\Models\Admin::all() as $admin)
                                         <option value="{{ $admin->id }}">{{ $admin->name }}</option>
@@ -89,12 +169,37 @@
                                 </select>
                             </div>
                         </div>
+                        @endif
+                    </div>
+
+                    {{-- @mention - Tag người quan tâm (Select2 với search) --}}
+                    <div class="form-group mt-3 p-3 bg-light border rounded">
+                        <label class="font-weight-bold">
+                            <i class="fas fa-at text-info mr-1"></i> Tag người quan tâm
+                        </label>
+                        <div wire:ignore>
+                            <select id="watcher-select" class="form-control" multiple="multiple" style="width: 100%;">
+                                @foreach(\App\Models\Admin::all() as $admin)
+                                    <option value="{{ $admin->id }}">{{ $admin->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <small class="text-muted d-block mt-1">
+                            <i class="fas fa-info-circle mr-1"></i>
+                            Gõ tên để tìm và chọn nhiều người. Họ sẽ được thông báo về task này.
+                        </small>
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
-                    <button type="button" class="btn btn-primary" wire:click="createAdditionalTask" data-dismiss="modal">
-                        <i class="fas fa-plus-circle mr-1"></i> Tạo việc
+                    <button type="button" class="btn btn-primary" wire:click="createAdditionalTask" 
+                            wire:loading.attr="disabled" wire:target="createAdditionalTask, newTaskImages">
+                        <span wire:loading.remove wire:target="createAdditionalTask">
+                            <i class="fas fa-plus-circle mr-1"></i> Tạo việc
+                        </span>
+                        <span wire:loading wire:target="createAdditionalTask">
+                            <i class="fas fa-spinner fa-spin mr-1"></i> Đang tạo...
+                        </span>
                     </button>
                 </div>
             </div>

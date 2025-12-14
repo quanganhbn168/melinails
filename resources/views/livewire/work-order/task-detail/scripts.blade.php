@@ -25,6 +25,25 @@
         Livewire.hook('morph.updated', ({ el, component }) => {
             if(document.getElementById('signature-pad')) resizeCanvas();
         });
+
+        // Init Select2 for watcher-select khi modal mở
+        $('#additionalTaskModal').on('shown.bs.modal', function () {
+            if (!$('#watcher-select').data('select2')) {
+                $('#watcher-select').select2({
+                    theme: 'bootstrap4',
+                    placeholder: 'Gõ tên để tìm...',
+                    allowClear: true,
+                    dropdownParent: $('#additionalTaskModal')
+                }).on('change', function(e) {
+                    @this.set('newTaskWatcherIds', $(this).val() || []);
+                });
+            }
+        });
+
+        // Reset Select2 khi modal đóng
+        $('#additionalTaskModal').on('hidden.bs.modal', function () {
+            $('#watcher-select').val(null).trigger('change');
+        });
     });
 
     // --- SIGNATURE LOGIC ---

@@ -84,39 +84,92 @@
             </div>
         </div>
 
-        {{-- 3. TIỀN NONG (ĐƠN GIẢN HÓA) --}}
+        {{-- 3. TÀI CHÍNH - TỔNG TIỀN & THU TIỀN --}}
         <div class="app-card border-warning">
             <div class="app-card-header bg-warning text-dark">
-                <span><i class="fas fa-money-bill-wave mr-1"></i> Thu tiền</span>
+                <span><i class="fas fa-money-bill-wave mr-1"></i> Tài chính</span>
             </div>
             <div class="app-card-body py-3">
-                <div class="form-group mb-2">
-                    <label class="text-sm font-weight-bold">Số tiền thu (nếu có)</label>
-                    <input type="number" wire:model.live="collected_amount" 
-                           class="form-control form-control-lg font-weight-bold text-success" 
-                           min="0" placeholder="0">
-                    <small class="text-muted">Nhập 0 nếu không thu tiền</small>
+                {{-- TỔNG TIỀN CÔNG VIỆC (Công nợ - LUÔN NHẬP) --}}
+                <div class="form-group mb-3" 
+                     x-data="{ 
+                        amount: @entangle('collected_amount'),
+                        format(val) {
+                            if (!val) return '';
+                            return parseInt(val).toLocaleString('en-US');
+                        },
+                        input(e) {
+                            let raw = e.target.value.replace(/[^0-9]/g, ''); 
+                            this.amount = raw ? parseInt(raw) : 0;
+                            e.target.value = this.format(this.amount);
+                        }
+                     }"
+                     x-init="$refs.moneyInput.value = format(amount)">
+                    <label class="text-sm font-weight-bold">
+                        <i class="fas fa-file-invoice-dollar text-primary mr-1"></i>
+                        Tổng tiền công việc <span class="text-danger">*</span>
+                    </label>
+                    <input type="text" 
+                           x-ref="moneyInput"
+                           @input="input($event)"
+                           class="form-control form-control-lg font-weight-bold text-primary" 
+                           placeholder="Nhập tổng tiền khách phải trả...">
+                    <small class="text-muted">Đây là số tiền khách phải trả (công nợ), dù đã thu hay chưa</small>
                 </div>
 
-                {{-- Chỉ hiện khi có tiền --}}
-                @if((int)$collected_amount > 0)
-                    <div class="mt-3 pt-3 border-top">
-                        <label class="text-xs text-muted font-weight-bold text-uppercase mb-2">Hình thức thanh toán</label>
-                        <div class="d-flex">
-                            <div class="custom-control custom-radio mr-4">
-                                <input class="custom-control-input" type="radio" id="pay_cash" value="cash" wire:model="payment_method">
-                                <label class="custom-control-label" for="pay_cash">
-                                    <i class="fas fa-money-bill-alt text-success mr-1"></i> Tiền mặt
-                                </label>
-                            </div>
-                            <div class="custom-control custom-radio">
-                                <input class="custom-control-input" type="radio" id="pay_transfer" value="transfer" wire:model="payment_method">
-                                <label class="custom-control-label" for="pay_transfer">
-                                    <i class="fas fa-university text-info mr-1"></i> Chuyển khoản
-                                </label>
-                            </div>
+                {{-- Checkbox đã thu tiền --}}
+                <div class="custom-control custom-checkbox mb-2">
+                    <input class="custom-control-input" type="checkbox" id="is_collected" wire:model.live="is_collected">
+                    <label class="custom-control-label font-weight-bold" for="is_collected">
+                        <i class="fas fa-check-circle text-success mr-1"></i> Đã thu tiền từ khách
+                    </label>
+                </div>
+
+                {{-- Hiện form thu tiền khi đã tích --}}
+                @if($is_collected)
+                <div class="bg-light rounded p-3 border mt-2">
+                    {{-- Số tiền thực thu (mặc định = tổng tiền, có thể sửa) --}}
+                    <div class="form-group mb-3" 
+                         x-data="{ 
+                            recv: @entangle('received_amount'),
+                            format(val) {
+                                if (!val) return '';
+                                return parseInt(val).toLocaleString('en-US');
+                            },
+                            input(e) {
+                                let raw = e.target.value.replace(/[^0-9]/g, ''); 
+                                this.recv = raw ? parseInt(raw) : 0;
+                                e.target.value = this.format(this.recv);
+                            }
+                         }"
+                         x-init="$refs.recvInput.value = format(recv)">
+                        <label class="text-sm font-weight-bold text-success">
+                            <i class="fas fa-hand-holding-usd mr-1"></i> Số tiền thực thu
+                        </label>
+                        <input type="text" 
+                               x-ref="recvInput"
+                               @input="input($event)"
+                               class="form-control font-weight-bold text-success" 
+                               placeholder="Nhập số tiền khách đưa...">
+                        <small class="text-muted">Nhập nhỏ hơn tổng tiền nếu khách chỉ trả 1 phần</small>
+                    </div>
+
+                    <label class="text-xs text-muted font-weight-bold text-uppercase mb-2">Hình thức thanh toán</label>
+                    <div class="d-flex">
+                        <div class="custom-control custom-radio mr-4">
+                            <input class="custom-control-input" type="radio" id="pay_cash" value="cash" wire:model="payment_method">
+                            <label class="custom-control-label" for="pay_cash">
+                                <i class="fas fa-money-bill-alt text-success mr-1"></i> Tiền mặt
+                            </label>
+                        </div>
+                        <div class="custom-control custom-radio">
+                            <input class="custom-control-input" type="radio" id="pay_transfer" value="transfer" wire:model="payment_method">
+                            <label class="custom-control-label" for="pay_transfer">
+                                <i class="fas fa-university text-info mr-1"></i> Chuyển khoản
+                            </label>
                         </div>
                     </div>
+                </div>
                 @endif
             </div>
         </div>
@@ -156,8 +209,7 @@
                                                 class="list-group-item list-group-item-action p-2 text-left">
                                             <small class="d-block font-weight-bold text-dark">{{ $suggestion->name }}</small>
                                             <small class="text-muted text-xs">
-                                                Mã: {{ $suggestion->code ?? '---' }} | 
-                                                {{ number_format($suggestion->price) }}đ/{{ $suggestion->unit }}
+                                                Mã: {{ $suggestion->code ?? '---' }}
                                             </small>
                                         </button>
                                     @endforeach
@@ -172,7 +224,7 @@
                                            class="form-control" 
                                            placeholder="Serial (nếu có)">
                                     <div class="input-group-append">
-                                        <button class="btn btn-outline-secondary px-2" onclick="openScanner({{ $index }})">
+                                        <button class="btn btn-outline-secondary px-2" type="button" onclick="openScanner({{ $index }})">
                                             <i class="fas fa-qrcode text-dark"></i>
                                         </button>
                                     </div>
@@ -297,74 +349,7 @@
             </div>
         </div>
 
-        {{-- 7. ĐÁNH DẤU HOÀN THÀNH --}}
-        <div class="app-card border-success mt-3">
-            <div class="app-card-header bg-success text-white">
-                <span><i class="fas fa-check-circle mr-1"></i> Hoàn thành công việc</span>
-            </div>
-            <div class="app-card-body py-3">
-                <div class="custom-control custom-switch">
-                    <input type="checkbox" class="custom-control-input" id="toggleComplete" 
-                           wire:model.live="is_task_completed">
-                    <label class="custom-control-label font-weight-bold" for="toggleComplete">
-                        Đánh dấu đã hoàn thành công việc này
-                    </label>
-                </div>
-                <small class="text-muted d-block mt-1">
-                    Bật toggle này nếu đây là báo cáo cuối cùng cho công việc.
-                </small>
-
-                {{-- FORM TẠO VIỆC TIẾP THEO (Chỉ hiện khi tick hoàn thành) --}}
-                @if($is_task_completed && $task->workOrder->allowsAdditionalTasks())
-                <div class="mt-4 pt-3 border-top" wire:transition>
-                    <h6 class="font-weight-bold text-primary mb-3">
-                        <i class="fas fa-forward mr-1"></i> Tạo công việc tiếp theo (nếu cần)
-                    </h6>
-                    
-                    <div class="form-group">
-                        <label class="text-sm font-weight-bold">Nội dung công việc</label>
-                        <input type="text" wire:model="newTaskTitle" class="form-control" 
-                               placeholder="VD: Triển khai lắp đặt camera...">
-                        @error('newTaskTitle') <span class="text-danger text-xs mt-1 d-block">{{ $message }}</span> @enderror
-                        <small class="text-muted">Để trống nếu không cần tạo việc mới</small>
-                    </div>
-
-                    {{-- Mô tả chi tiết --}}
-                    <div class="form-group">
-                        <label class="text-sm font-weight-bold">Mô tả chi tiết</label>
-                        <textarea wire:model="newTaskDescription" class="form-control form-control-sm" rows="2"
-                                  placeholder="Ghi chú thêm về công việc, yêu cầu đặc biệt..."></textarea>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-6">
-                            <div class="form-group">
-                                <label class="text-sm font-weight-bold"><i class="fas fa-calendar mr-1"></i> Hẹn ngày</label>
-                                <input type="datetime-local" wire:model="newTaskScheduledAt" class="form-control form-control-sm">
-                            </div>
-                        </div>
-                        <div class="col-6">
-                            <div class="form-group">
-                                <label class="text-sm font-weight-bold">
-                                    <i class="fas fa-user-plus mr-1"></i> Gán cho 
-                                    <span class="badge badge-warning text-dark ml-1 blink-animation">QUAN TÂM</span>
-                                </label>
-                                <select wire:model="newTaskAssigneeId" class="form-control form-control-sm border-warning">
-                                    <option value="">-- Chưa gán (Admin xem lại) --</option>
-                                    @foreach(\App\Models\Admin::all() as $admin)
-                                        <option value="{{ $admin->id }}">{{ $admin->name }}</option>
-                                    @endforeach
-                                </select>
-                                <small class="text-warning">
-                                    <i class="fas fa-exclamation-triangle mr-1"></i>
-                                    Nếu chưa gán, Admin sẽ được thông báo để điều chuyển.
-                                </small>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                @endif
-            </div>
-        </div>
+        {{-- FORM TẠO VIỆC TIẾP THEO ĐÃ CHUYỂN SANG MODAL RIÊNG (main.blade.php) --}}
+        {{-- Sử dụng nút FAB (+) để mở modal --}}
     @endif
 </div>

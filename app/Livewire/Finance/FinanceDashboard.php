@@ -3,6 +3,7 @@
 namespace App\Livewire\Finance;
 
 use App\Models\TaskReport;
+use App\Models\WorkOrderPayment;
 use Livewire\Attributes\Layout;
 use Livewire\WithPagination;
 use Livewire\Component;
@@ -20,14 +21,68 @@ class FinanceDashboard extends Component
     public function updatingStatusFilter() { $this->resetPage(); }
     public function updatingDateFilter() { $this->resetPage(); }
 
+    public function syncLegacyData()
+    {
+        $reports = TaskReport::where('collected_amount', '>', 0)->get();
+        $count = 0;
+
+        foreach ($reports as $report) {
+            $exists = WorkOrderPayment::where('task_report_id', $report->id)->exists();
+            if (!$exists) {
+                // 1. Create ITEM_VALUE (Debt)
+                WorkOrderPayment::create([
+                    'work_order_id' => $report->task->work_order_id ?? null,
+                    'task_report_id' => $report->id,
+                    'payment_type' => \App\Enums\PaymentType::ITEM_VALUE,
+                    'amount' => $report->collected_amount,
+                    'description' => 'Đồng bộ từ báo cáo cũ #' . $report->id,
+                    'is_collected' => false,
+                    'status' => $this->mapLegacyStatus($report->finance_status),
+                    'created_by' => $report->reporter_id,
+                    'created_at' => $report->created_at,
+                ]);
+
+                // 2. Create COLLECTION (Payment)
+                WorkOrderPayment::create([
+                    'work_order_id' => $report->task->work_order_id ?? null,
+                    'task_report_id' => $report->id,
+                    'payment_type' => \App\Enums\PaymentType::COLLECTION,
+                    'amount' => $report->collected_amount,
+                    'description' => 'Thu tiền (Đồng bộ) #' . $report->id,
+                    'is_collected' => true,
+                    'payment_method' => $report->payment_method ?? 'cash',
+                    'transfer_target' => $report->transfer_target,
+                    'status' => $this->mapLegacyStatus($report->finance_status),
+                    'created_by' => $report->reporter_id,
+                    'collector_id' => $report->reporter_id,
+                    'verified_by' => ($report->finance_status == 'verified' || $report->finance_status == 'handed_over') ? auth('admin')->id() : null,
+                    'collected_at' => $report->created_at,
+                    'created_at' => $report->created_at,
+                ]);
+                $count++;
+            }
+        }
+
+        $this->dispatch('alert', ['type' => 'success', 'message' => "Đã đồng bộ $count báo cáo cũ!"]);
+    }
+
+    private function mapLegacyStatus($status)
+    {
+        return match ($status) {
+            'verified', 'handed_over' => \App\Enums\PaymentStatus::VERIFIED,
+            'cancelled' => \App\Enums\PaymentStatus::CANCELLED,
+            default => \App\Enums\PaymentStatus::PENDING,
+        };
+    }
+
     public function render()
     {
-        $query = TaskReport::with(['task.workOrder.customer', 'reporter'])
-            ->where('collected_amount', '>', 0);
+        $query = WorkOrderPayment::with(['workOrder.customer', 'taskReport.task', 'creator', 'collector'])
+            ->orderByDesc('created_at');
 
         // Filter by Status
         if ($this->statusFilter != 'all') {
-            $query->where('finance_status', $this->statusFilter);
+            $query->where('status', $this->statusFilter);
         }
 
         // Filter by Date
@@ -38,30 +93,23 @@ class FinanceDashboard extends Component
                   ->whereYear('created_at', Carbon::now()->year);
         }
 
-        // Clone query for stats to avoid pagination issues
-        $statsQuery = clone $query;
-        
-        // Calculate Stats (based on current filters or global? Usually global or filtered. Let's do filtered for now, or maybe global stats are better for the top cards?)
-        // Let's do Global Stats for the cards to show overall health, and Filtered list for the table.
-        
-        // Calculate Stats (New Logic: Pending, Company, Personal, Cash)
-        $stats = TaskReport::where('collected_amount', '>', 0)
-            ->selectRaw("
-                SUM(CASE WHEN finance_status = 'pending' THEN collected_amount ELSE 0 END) as pending_total,
-                COUNT(CASE WHEN finance_status = 'pending' THEN 1 END) as pending_count,
+        // Calculate Stats
+        $stats = WorkOrderPayment::selectRaw("
+                SUM(CASE WHEN status = 'pending' THEN amount ELSE 0 END) as pending_total,
+                COUNT(CASE WHEN status = 'pending' THEN 1 END) as pending_count,
                 
-                SUM(CASE WHEN finance_status = 'verified' AND transfer_target = 'company' THEN collected_amount ELSE 0 END) as company_total,
-                COUNT(CASE WHEN finance_status = 'verified' AND transfer_target = 'company' THEN 1 END) as company_count,
+                SUM(CASE WHEN status = 'verified' AND transfer_target = 'company' THEN amount ELSE 0 END) as company_total,
+                COUNT(CASE WHEN status = 'verified' AND transfer_target = 'company' THEN 1 END) as company_count,
 
-                SUM(CASE WHEN finance_status = 'verified' AND transfer_target = 'personal' THEN collected_amount ELSE 0 END) as personal_total,
-                COUNT(CASE WHEN finance_status = 'verified' AND transfer_target = 'personal' THEN 1 END) as personal_count,
+                SUM(CASE WHEN status = 'verified' AND transfer_target = 'personal' THEN amount ELSE 0 END) as personal_total,
+                COUNT(CASE WHEN status = 'verified' AND transfer_target = 'personal' THEN 1 END) as personal_count,
 
-                SUM(CASE WHEN finance_status = 'handed_over' THEN collected_amount ELSE 0 END) as cash_total,
-                COUNT(CASE WHEN finance_status = 'handed_over' THEN 1 END) as cash_count
+                SUM(CASE WHEN status = 'verified' AND payment_method = 'cash' THEN amount ELSE 0 END) as cash_total,
+                COUNT(CASE WHEN status = 'verified' AND payment_method = 'cash' THEN 1 END) as cash_count
             ")
             ->first();
 
-        $reports = $query->orderByDesc('created_at')->paginate(20);
+        $reports = $query->paginate(20);
 
         return view('livewire.finance.finance-dashboard', [
             'reports' => $reports,

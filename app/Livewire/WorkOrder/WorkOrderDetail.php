@@ -36,16 +36,25 @@ class WorkOrderDetail extends Component
         'price' => 0,
     ];
 
+    // Additional Task Modal
+    public $showAdditionalTaskModal = false;
+    public $parentTaskId = null;
+    public $newAdditionalTask = [
+        'title' => '',
+        'description' => '',
+        'assignee_id' => '',
+    ];
+
     public function mount($id)
     {
-        $this->workOrder = WorkOrder::with(['customer.contacts', 'tasks.reports.items', 'tasks.reports.returnedItems', 'tasks.reports', 'creator', 'activityLogs.user'])
+        $this->workOrder = WorkOrder::with(['customer.contacts', 'tasks.reports.items', 'tasks.reports.returnedItems', 'tasks.reports', 'creator', 'activityLogs.user', 'attachments'])
             ->findOrFail($id);
         $this->refreshTasks(); 
     }
 
     public function refreshTasks()
     {
-        $this->tasks = $this->workOrder->tasks()->with(['reports.items', 'reports.returnedItems', 'performer'])->orderBy('id', 'asc')->get();
+        $this->tasks = $this->workOrder->tasks()->with(['reports.items', 'reports.returnedItems', 'performer', 'performers'])->orderBy('id', 'asc')->get();
         
         // Aggregate all reports for History tab
         $this->allReports = $this->workOrder->tasks
@@ -79,38 +88,51 @@ class WorkOrderDetail extends Component
         $this->allItems = [];
         $this->allPayments = [];
 
+        // 1. Lấy vật tư từ task reports (giữ nguyên)
         foreach ($this->tasks as $task) {
             foreach ($task->reports as $report) {
-                // 1. Tổng hợp vật tư
                 foreach ($report->items as $item) {
                     $this->allItems[] = [
                         'id' => $item->id,
                         'name' => $item->item_name,
                         'serial' => $item->serial_number,
                         'quantity' => $item->quantity,
-                        'price' => $item->price,
+                        'price' => $item->price ?? 0,
                         'task_id' => $task->id,
                         'report_date' => $report->created_at
                     ];
                 }
-
-                // 2. Tổng hợp thanh toán
-                if ($report->collected_amount > 0) {
-                    // Chỉ tính những khoản đã được kế toán xác nhận (verified hoặc handed_over)
-                    if (in_array($report->finance_status, ['verified', 'handed_over'])) {
-                        $this->totalCollected += $report->collected_amount;
-                    }
-                    
-                    $this->allPayments[] = [
-                        'amount' => $report->collected_amount,
-                        'method' => $report->payment_method ?? 'cash',
-                        'target' => $report->transfer_target,
-                        'reporter' => $report->reporter->name ?? 'N/A',
-                        'date' => $report->created_at,
-                        'status' => $report->finance_status
-                    ];
-                }
             }
+        }
+
+        // 2. Lấy payments từ bảng work_order_payments MỚI
+        $payments = $this->workOrder->payments()
+            ->with(['creator', 'collector', 'verifier'])
+            ->orderByDesc('created_at')
+            ->get();
+
+        foreach ($payments as $payment) {
+            // Tính tổng tiền đã thu (bất kể trạng thái verified)
+            if ($payment->is_collected) {
+                $this->totalCollected += $payment->amount;
+            }
+
+            $this->allPayments[] = [
+                'id' => $payment->id,
+                'amount' => $payment->amount,
+                'description' => $payment->description,
+                'payment_type' => $payment->payment_type,
+                'method' => $payment->payment_method ?? 'cash',
+                'target' => $payment->transfer_target,
+                'is_collected' => $payment->is_collected,
+                'status' => $payment->status,
+                'created_by' => $payment->creator?->name ?? 'N/A',
+                'collector' => $payment->collector?->name,
+                'verified_by' => $payment->verifier?->name,
+                'date' => $payment->created_at,
+                'collected_at' => $payment->collected_at,
+                'verified_at' => $payment->verified_at,
+            ];
         }
     }
 
@@ -240,6 +262,60 @@ class WorkOrderDetail extends Component
             $this->workOrder->update(['status' => $statusEnum]);
             session()->flash('message', 'Đã cập nhật trạng thái đơn hàng.');
         }
+    }
+
+    // --- ADDITIONAL TASK MODAL METHODS ---
+
+    #[\Livewire\Attributes\On('openAdditionalTaskModal')]
+    public function openAdditionalTaskModal($parentTaskId)
+    {
+        $this->parentTaskId = $parentTaskId;
+        $this->newAdditionalTask = [
+            'title' => '',
+            'description' => '',
+            'assignee_id' => auth('admin')->id(), // Mặc định gán cho người tạo
+        ];
+        $this->showAdditionalTaskModal = true;
+    }
+
+    public function closeAdditionalTaskModal()
+    {
+        $this->showAdditionalTaskModal = false;
+        $this->parentTaskId = null;
+        $this->reset('newAdditionalTask');
+    }
+
+    public function createAdditionalTask()
+    {
+        $this->validate([
+            'newAdditionalTask.title' => 'required|string|max:255',
+            'newAdditionalTask.assignee_id' => 'required|exists:admins,id',
+        ], [
+            'newAdditionalTask.title.required' => 'Vui lòng nhập tiêu đề công việc.',
+            'newAdditionalTask.assignee_id.required' => 'Vui lòng chọn người thực hiện.',
+        ]);
+
+        $parentTask = Task::find($this->parentTaskId);
+        if (!$parentTask) {
+            session()->flash('error', 'Không tìm thấy task gốc.');
+            return;
+        }
+
+        // Tạo task phát sinh
+        $newTask = Task::create([
+            'work_order_id' => $this->workOrder->id,
+            'parent_task_id' => $this->parentTaskId,
+            'title' => $this->newAdditionalTask['title'],
+            'report_content' => $this->newAdditionalTask['title'], // Backward compatibility
+            'description' => $this->newAdditionalTask['description'] ?? '',
+            'performer_id' => $this->newAdditionalTask['assignee_id'],
+            'status' => \App\Enums\TaskStatus::PENDING,
+            'is_additional' => true,
+        ]);
+
+        session()->flash('message', 'Đã tạo việc phát sinh: ' . $newTask->title);
+        $this->closeAdditionalTaskModal();
+        $this->refreshTasks();
     }
 
     public function render()

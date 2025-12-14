@@ -46,7 +46,7 @@ class EditWorkOrder extends Component
 
     public function mount($id)
     {
-        $order = WorkOrder::with(['customer', 'assignees', 'tasks', 'attachments'])->findOrFail($id);
+        $order = WorkOrder::with(['customer', 'assignees', 'tasks.performers', 'attachments'])->findOrFail($id);
 
         // 1. Chặn nếu đã hoàn thành hoặc hủy
         if (in_array($order->status, ['completed', 'cancelled'])) {
@@ -85,13 +85,15 @@ class EditWorkOrder extends Component
         // Lấy tags đã gán
         $this->selectedTags = $order->tags->pluck('id')->toArray();
 
-        // Lấy danh sách Task
+        // Lấy danh sách Task với format mới
         foreach ($order->tasks as $task) {
             $this->tasks[] = [
                 'id' => $task->id,
-                'content' => $task->report_content, // Dùng report_content làm tên task như lúc tạo
-                'status' => $task->status,
-                'is_deleted' => false // Flag để đánh dấu xóa
+                'title' => $task->title ?: $task->report_content, // Ưu tiên title
+                'description' => $task->description ?? '',
+                'performer_ids' => $task->performers->pluck('id')->map(fn($id) => (string)$id)->toArray(),
+                'status' => $task->status->value ?? $task->status, // Lưu string value
+                'is_deleted' => false
             ];
         }
 
@@ -114,12 +116,42 @@ class EditWorkOrder extends Component
 
     public function addTask()
     {
+        // Auto chọn staff từ assignees
+        $staffIds = $this->getStaffIdsFromAssignees();
+        
         $this->tasks[] = [
-            'id' => null, // Task mới chưa có ID
-            'content' => '',
+            'id' => null,
+            'title' => '',
+            'description' => '',
+            'performer_ids' => $staffIds,
             'status' => 'pending',
             'is_deleted' => false
         ];
+    }
+
+    // Helper: Lấy staff IDs từ assignees
+    protected function getStaffIdsFromAssignees(): array
+    {
+        if (empty($this->assignee_ids)) return [];
+        
+        return Admin::whereIn('id', $this->assignee_ids)
+            ->whereHas('roles', fn($q) => $q->where('name', 'staff'))
+            ->pluck('id')
+            ->map(fn($id) => (string)$id)
+            ->toArray();
+    }
+
+    // Khi thay đổi assignees, auto select staff cho tasks mới
+    public function updatedAssigneeIds()
+    {
+        $staffIds = $this->getStaffIdsFromAssignees();
+        
+        // Chỉ update performer_ids cho task mới (chưa có ID)
+        foreach ($this->tasks as $i => $task) {
+            if (empty($task['id'])) {
+                $this->tasks[$i]['performer_ids'] = $staffIds;
+            }
+        }
     }
 
     public function removeTask($index)
@@ -229,7 +261,8 @@ class EditWorkOrder extends Component
             'contact_person' => 'required',
             'contact_phone' => 'required',
             'assignee_ids' => 'array',
-            'tasks.*.content' => 'required_unless:tasks.*.is_deleted,true', // Validate content nếu không bị xóa
+            'tasks.*.title' => 'required_unless:tasks.*.is_deleted,true',
+            'tasks.*.performer_ids' => 'array',
         ]);
 
         $order = WorkOrder::find($this->workOrderId);
@@ -265,21 +298,34 @@ class EditWorkOrder extends Component
                 continue;
             }
 
+            $performerIds = $taskData['performer_ids'] ?? [];
+            $defaultPerformer = $performerIds[0] ?? $mainPerformer;
+
             if ($taskData['id']) {
                 // Update task cũ
-                \App\Models\Task::where('id', $taskData['id'])->update([
-                    'report_content' => $taskData['content']
-                ]);
+                $task = \App\Models\Task::find($taskData['id']);
+                if ($task) {
+                    $task->update([
+                        'title' => $taskData['title'],
+                        'description' => $taskData['description'] ?? null,
+                        'report_content' => $taskData['title'], // Sync
+                        'performer_id' => $defaultPerformer,
+                    ]);
+                    $task->performers()->sync($performerIds);
+                }
             } else {
                 // Tạo task mới
-                \App\Models\Task::create([
+                $task = \App\Models\Task::create([
                     'work_order_id' => $order->id,
-                    'performer_id' => $mainPerformer,
-                    'report_content' => $taskData['content'],
+                    'performer_id' => $defaultPerformer,
+                    'title' => $taskData['title'],
+                    'description' => $taskData['description'] ?? null,
+                    'report_content' => $taskData['title'],
                     'status' => 'pending',
                     'collected_amount' => 0,
                     'is_paid' => false
                 ]);
+                $task->performers()->sync($performerIds);
             }
         }
 

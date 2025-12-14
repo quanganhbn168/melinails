@@ -148,6 +148,40 @@ class WorkOrder extends Model
         return $this->belongsToMany(Tag::class, 'work_order_tag');
     }
 
+    // Payments (Các khoản thanh toán)
+    public function payments(): HasMany
+    {
+        return $this->hasMany(WorkOrderPayment::class);
+    }
+
+    // --- FINANCIAL COMPUTED ---
+
+    /**
+     * Tổng giá trị phiếu việc (tất cả payments đã verified)
+     */
+    public function getTotalValueAttribute(): int
+    {
+        return $this->payments()
+            ->where('payment_type', '!=', \App\Enums\PaymentType::COLLECTION)
+            ->sum('amount');
+    }
+
+    /**
+     * Tổng tiền đã thu (các payments có is_collected = true)
+     */
+    public function getTotalCollectedAttribute(): int
+    {
+        return $this->payments()->collected()->sum('amount');
+    }
+
+    /**
+     * Công nợ còn lại
+     */
+    public function getBalanceAttribute(): int
+    {
+        return $this->total_value - $this->total_collected;
+    }
+
     // --- HELPER METHODS ---
 
     /**

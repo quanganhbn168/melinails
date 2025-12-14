@@ -7,7 +7,10 @@
             box-shadow: 0 1px 2px rgba(0,0,0,0.05);
             margin-bottom: 12px; 
             border: 1px solid #e9ecef;
-            overflow: hidden; 
+            position: relative;
+        }
+        .task-card .dropdown-menu {
+            z-index: 1050;
         }
         .status-border-completed { border-left: 5px solid #28a745; }
         .status-border-processing { border-left: 5px solid #17a2b8; }
@@ -155,6 +158,16 @@
                                 <i class="fas fa-money-bill-wave mr-1"></i> Thu tiền
                             </a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link font-weight-bold {{ $activeTab == 'attachments' ? 'active' : '' }}" 
+                               wire:click="$set('activeTab', 'attachments')"
+                               href="javascript:void(0)" role="tab">
+                                <i class="fas fa-paperclip mr-1"></i> Tài liệu
+                                @if($workOrder->attachments->count() > 0)
+                                    <span class="badge badge-secondary badge-pill ml-1">{{ $workOrder->attachments->count() }}</span>
+                                @endif
+                            </a>
+                        </li>
 
                     </ul>
                 </div>
@@ -176,7 +189,7 @@
                                 </div>
                             </div>
                             
-                            @foreach($tasks as $task)
+                            @foreach($tasks as $index => $task)
                                 <div class="task-card {{ $task->status === \App\Enums\TaskStatus::COMPLETED ? 'status-border-completed' : ($task->status === \App\Enums\TaskStatus::PROCESSING ? 'status-border-processing' : 'status-border-pending') }}">
                                     
                                     {{-- Link to Admin Task Detail --}}
@@ -184,48 +197,87 @@
                                         <div class="d-flex justify-content-between align-items-start">
                                             <div style="flex: 1; padding-right: 10px;">
                                                 <h6 class="mb-1 font-weight-bold" style="font-size: 15px; line-height: 1.4;">
-                                                    {{ $task->report_content }}
+                                                    <span class="text-muted">Hạng mục {{ $index + 1 }}:</span> {{ $task->title }}
+                                                    @if($task->is_additional)
+                                                        <span class="badge badge-info text-xs ml-1">Phát sinh</span>
+                                                    @endif
                                                 </h6>
+                                                @if($task->description)
+                                                <p class="text-muted small mb-1">{{ Str::limit($task->description, 100) }}</p>
+                                                @endif
                                                 <div class="text-xs text-muted mt-1">
-                                                     <i class="fas fa-user text-xs mr-1"></i> {{ $task->performer->name ?? 'Chưa gán' }}
+                                                    <i class="fas fa-users text-xs mr-1"></i> 
+                                                    @if($task->performers->count() > 0)
+                                                        {{ $task->performers->pluck('name')->join(', ') }}
+                                                    @elseif($task->performer)
+                                                        {{ $task->performer->name }}
+                                                    @else
+                                                        Chưa gán
+                                                    @endif
                                                 </div>
                                             </div>
 
-                                            <div class="text-right" style="min-width: 80px;">
-                                                @if($task->status === \App\Enums\TaskStatus::COMPLETED)
-                                                    <span class="badge badge-success px-2 py-1"><i class="fas fa-check"></i> Xong</span>
-                                                @elseif($task->status === \App\Enums\TaskStatus::PROCESSING)
-                                                    <span class="badge badge-info px-2 py-1">Đang làm</span>
-                                                @else
-                                                    <span class="badge badge-warning px-2 py-1">Chờ làm</span>
-                                                @endif
+                                            <div class="text-right" style="min-width: 90px;">
+                                                <span class="badge badge-{{ $task->status->color() }} px-2 py-1">
+                                                    @if($task->status === \App\Enums\TaskStatus::COMPLETED)
+                                                        <i class="fas fa-check mr-1"></i>
+                                                    @endif
+                                                    {{ $task->status->label() }}
+                                                </span>
                                             </div>
                                         </div>
                                     </a>
 
-                                    <div class="px-3 py-2 border-top bg-light d-flex justify-content-end align-items-center">
+                                    <div class="px-3 py-2 border-top bg-light d-flex justify-content-between align-items-center">
+                                        {{-- Thông tin bổ sung --}}
+                                        <div class="text-muted small">
+                                            @if($task->reports->count() > 0)
+                                                <i class="fas fa-file-alt mr-1"></i> {{ $task->reports->count() }} báo cáo
+                                            @else
+                                                <span class="text-warning"><i class="fas fa-exclamation-circle mr-1"></i>Chưa có báo cáo</span>
+                                            @endif
+                                        </div>
                                         
-                                        {{-- NÚT: ĐÃ XONG (Chỉ hiện khi chưa xong VÀ đã có báo cáo - giống Worker) --}}
-                                        @if($task->status !== \App\Enums\TaskStatus::COMPLETED && $task->reports->count() > 0)
-                                            <button wire:click="quickFinishTask({{ $task->id }})" 
-                                                    wire:confirm="Admin: Xác nhận nhiệm vụ này ĐÃ HOÀN THÀNH?"
-                                                    class="btn btn-sm btn-outline-success font-weight-bold mr-2">
-                                                <i class="fas fa-check"></i> Xong việc
+                                        {{-- Menu 3 chấm --}}
+                                        <div class="dropdown">
+                                            <button class="btn btn-sm btn-light border" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                <i class="fas fa-ellipsis-v"></i>
                                             </button>
-                                        @endif
-
-                                        {{-- NÚT: MỞ LẠI (Chỉ hiện khi đã xong) --}}
-                                        @if($task->status === \App\Enums\TaskStatus::COMPLETED)
-                                            <button wire:click="reopenTask({{ $task->id }})" 
-                                                    wire:confirm="Admin: Mở lại nhiệm vụ này?"
-                                                    class="btn btn-sm btn-outline-danger font-weight-bold mr-2">
-                                                <i class="fas fa-undo"></i> Mở lại
-                                            </button>
-                                        @endif
-
-                                        <a href="{{ route('admin.tasks.detail', $task->id) }}" class="btn btn-sm btn-primary font-weight-bold">
-                                            Chi tiết <i class="fas fa-chevron-right ml-1"></i>
-                                        </a>
+                                            <div class="dropdown-menu dropdown-menu-right shadow-sm">
+                                                {{-- Chi tiết --}}
+                                                <a class="dropdown-item" href="{{ route('admin.tasks.detail', $task->id) }}">
+                                                    <i class="fas fa-eye text-primary mr-2"></i>Chi tiết
+                                                </a>
+                                                
+                                                <div class="dropdown-divider"></div>
+                                                
+                                                {{-- Tạo việc phát sinh (nếu WO cho phép) --}}
+                                                @if($workOrder->allowsAdditionalTasks())
+                                                <a class="dropdown-item" href="javascript:void(0)" 
+                                                   wire:click="$dispatch('openAdditionalTaskModal', { parentTaskId: {{ $task->id }} })">
+                                                    <i class="fas fa-plus-circle text-info mr-2"></i>Tạo việc phát sinh
+                                                </a>
+                                                @endif
+                                                
+                                                {{-- Đánh dấu xong (nếu chưa xong + có báo cáo) --}}
+                                                @if($task->status !== \App\Enums\TaskStatus::COMPLETED && $task->reports->count() > 0)
+                                                <a class="dropdown-item" href="javascript:void(0)" 
+                                                   wire:click="quickFinishTask({{ $task->id }})"
+                                                   wire:confirm="Admin: Xác nhận nhiệm vụ này ĐÃ HOÀN THÀNH?">
+                                                    <i class="fas fa-check-circle text-success mr-2"></i>Đánh dấu hoàn thành
+                                                </a>
+                                                @endif
+                                                
+                                                {{-- Mở lại (nếu đã xong) --}}
+                                                @if($task->status === \App\Enums\TaskStatus::COMPLETED)
+                                                <a class="dropdown-item" href="javascript:void(0)" 
+                                                   wire:click="reopenTask({{ $task->id }})"
+                                                   wire:confirm="Admin: Mở lại nhiệm vụ này?">
+                                                    <i class="fas fa-undo text-warning mr-2"></i>Mở lại
+                                                </a>
+                                                @endif
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             @endforeach
@@ -303,17 +355,28 @@
 
 
 
-                        {{-- TAB 4: TÀI CHÍNH (THU TIỀN) --}}
                         <div class="tab-pane fade {{ $activeTab == 'finance' ? 'show active' : '' }}" id="tab-finance" role="tabpanel">
-                            {{-- SUMMARY CARD --}}
+                            {{-- SUMMARY CARD - 3 Cột --}}
                             <div class="row mb-3">
-                                <div class="col-12">
-                                    <div class="bg-white border rounded p-3 shadow-sm d-flex justify-content-between align-items-center">
-                                        <div>
-                                            <small class="text-muted font-weight-bold text-uppercase d-block">Tổng thu (Đã duyệt)</small>
-                                            <h4 class="text-success font-weight-bold mb-0 mt-1">{{ number_format($totalCollected) }} đ</h4>
-                                        </div>
-                                        <i class="fas fa-wallet text-success fa-2x opacity-50"></i>
+                                {{-- Tổng giá trị --}}
+                                <div class="col-4 pr-1">
+                                    <div class="bg-white border rounded p-2 shadow-sm text-center border-primary h-100">
+                                        <small class="text-muted font-weight-bold text-uppercase d-block" style="font-size: 10px;">Tổng giá trị</small>
+                                        <h5 class="text-primary font-weight-bold mb-0 mt-1">{{ number_format($workOrder->total_value) }}</h5>
+                                    </div>
+                                </div>
+                                {{-- Đã thu --}}
+                                <div class="col-4 px-1">
+                                    <div class="bg-white border rounded p-2 shadow-sm text-center border-success h-100">
+                                        <small class="text-muted font-weight-bold text-uppercase d-block" style="font-size: 10px;">Đã thu</small>
+                                        <h5 class="text-success font-weight-bold mb-0 mt-1">{{ number_format($workOrder->total_collected) }}</h5>
+                                    </div>
+                                </div>
+                                {{-- Còn nợ --}}
+                                <div class="col-4 pl-1">
+                                    <div class="bg-white border rounded p-2 shadow-sm text-center border-danger h-100">
+                                        <small class="text-muted font-weight-bold text-uppercase d-block" style="font-size: 10px;">Còn nợ</small>
+                                        <h5 class="text-danger font-weight-bold mb-0 mt-1">{{ number_format($workOrder->balance) }}</h5>
                                     </div>
                                 </div>
                             </div>
@@ -322,43 +385,68 @@
                              <div class="card shadow-none border mb-0">
                                 <div class="card-header bg-light py-2">
                                     <h3 class="card-title text-sm font-weight-bold text-muted text-uppercase">
-                                        Lịch sử thu tiền
+                                        Chi tiết giao dịch
                                     </h3>
                                 </div>
                                 <div class="card-body p-0">
                                     <table class="table table-sm table-striped mb-0 text-sm">
                                         <thead>
                                             <tr>
-                                                <th>Ngày</th>
-                                                <th>Hình thức</th>
-                                                <th class="text-right">Số tiền</th>
+                                                <th style="width: 35%">Mô tả</th>
+                                                <th class="text-center" style="width: 20%">Loại</th>
+                                                <th class="text-center" style="width: 20%">Trạng thái</th>
+                                                <th class="text-right" style="width: 25%">Số tiền</th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             @forelse($allPayments as $payment)
                                                 <tr>
                                                     <td>
-                                                        <div class="font-weight-bold">{{ $payment['date']->format('d/m') }}</div>
-                                                        <div class="text-xs text-muted">{{ $payment['date']->format('H:i') }}</div>
-                                                    </td>
-                                                    <td>
-                                                        @if($payment['method'] == 'transfer')
-                                                            <span class="badge badge-info text-xs">CK {{ $payment['target'] == 'company' ? '(Cty)' : '(CN)' }}</span>
-                                                        @else
-                                                            <span class="badge badge-secondary text-xs">Tiền mặt</span>
-                                                        @endif
-                                                        <div class="mt-1">
-                                                            @if($payment['status'] == 'verified') <i class="fas fa-check-circle text-success text-xs" title="Đã duyệt"></i>
-                                                            @elseif($payment['status'] == 'handed_over') <i class="fas fa-info-circle text-info text-xs" title="Đã nộp"></i>
-                                                            @else <i class="fas fa-clock text-warning text-xs" title="Chờ duyệt"></i>
-                                                            @endif
+                                                        <div class="font-weight-bold">{{ $payment['description'] ?? 'N/A' }}</div>
+                                                        <div class="text-xs text-muted">
+                                                            {{ $payment['created_by'] }} · {{ $payment['date']->format('d/m H:i') }}
                                                         </div>
                                                     </td>
-                                                    <td class="text-right font-weight-bold text-success">+{{ number_format($payment['amount']) }}</td>
+                                                    <td class="text-center">
+                                                        @php
+                                                            $type = $payment['payment_type'] ?? null;
+                                                        @endphp
+                                                        @if($type && $type->value === 'collection')
+                                                            <span class="badge badge-success text-xs">Thu tiền</span>
+                                                        @elseif($type && $type->value === 'item_value')
+                                                            <span class="badge badge-info text-xs">Ghi nợ</span>
+                                                        @else
+                                                            <span class="badge badge-secondary text-xs">{{ $type ? $type->label() : 'Khác' }}</span>
+                                                        @endif
+                                                    </td>
+                                                    <td class="text-center">
+                                                        @php
+                                                            $statusValue = is_object($payment['status']) ? $payment['status']->value : $payment['status'];
+                                                        @endphp
+                                                        
+                                                        <div class="mb-1">
+                                                           @if($payment['is_collected'])
+                                                                <span class="text-success text-xs font-weight-bold"><i class="fas fa-check"></i> Đã thu</span>
+                                                            @else
+                                                                <span class="text-muted text-xs"><i class="fas fa-times"></i> Chưa thu</span>
+                                                            @endif 
+                                                        </div>
+
+                                                        @if($statusValue == 'verified') 
+                                                            <span class="badge badge-outline-success text-xs">Đã duyệt</span>
+                                                        @elseif($statusValue == 'cancelled')
+                                                            <span class="badge badge-secondary text-xs">Hủy</span>
+                                                        @else
+                                                            <span class="badge badge-outline-warning text-xs">Chờ duyệt</span>
+                                                        @endif
+                                                    </td>
+                                                    <td class="text-right font-weight-bold {{ $payment['is_collected'] ? 'text-success' : 'text-primary' }}">
+                                                        {{ number_format($payment['amount']) }}đ
+                                                    </td>
                                                 </tr>
                                             @empty
                                                 <tr>
-                                                    <td colspan="3" class="text-center text-muted py-3">Chưa có khoản thu nào.</td>
+                                                    <td colspan="4" class="text-center text-muted py-3">Chưa có giao dịch nào.</td>
                                                 </tr>
                                             @endforelse
                                         </tbody>
@@ -372,10 +460,120 @@
                             @livewire('work-order.work-order-discussion', ['workOrder' => $workOrder], key('discussion-'.$workOrder->id))
                         </div>
 
+                        {{-- TAB 6: TÀI LIỆU ĐÍNH KÈM --}}
+                        <div class="tab-pane fade {{ $activeTab == 'attachments' ? 'show active' : '' }}" id="tab-attachments" role="tabpanel">
+                            @if($workOrder->attachments->count() > 0)
+                                {{-- Ảnh đính kèm --}}
+                                @php $images = $workOrder->attachments->where('type', 'image'); @endphp
+                                @if($images->count() > 0)
+                                    <h6 class="text-muted font-weight-bold mb-2"><i class="fas fa-images mr-1"></i> Hình ảnh ({{ $images->count() }})</h6>
+                                    <div class="d-flex flex-wrap mb-3" style="gap: 10px;">
+                                        @foreach($images as $img)
+                                            <a href="{{ asset('storage/' . $img->file_path) }}" target="_blank" class="position-relative">
+                                                <img src="{{ asset('storage/' . $img->file_path) }}" 
+                                                     class="img-thumbnail shadow-sm" 
+                                                     style="width: 100px; height: 100px; object-fit: cover;">
+                                            </a>
+                                        @endforeach
+                                    </div>
+                                @endif
+
+                                {{-- Tài liệu khác (PDF, CAD, Word...) --}}
+                                @php $docs = $workOrder->attachments->where('type', 'document'); @endphp
+                                @if($docs->count() > 0)
+                                    <h6 class="text-muted font-weight-bold mb-2"><i class="fas fa-file-alt mr-1"></i> Tài liệu ({{ $docs->count() }})</h6>
+                                    <div class="list-group">
+                                        @foreach($docs as $doc)
+                                            <a href="{{ asset('storage/' . $doc->file_path) }}" target="_blank" 
+                                               class="list-group-item list-group-item-action d-flex align-items-center">
+                                                @php
+                                                    $ext = pathinfo($doc->file_name, PATHINFO_EXTENSION);
+                                                    $icon = match(strtolower($ext)) {
+                                                        'pdf' => 'fa-file-pdf text-danger',
+                                                        'doc', 'docx' => 'fa-file-word text-primary',
+                                                        'xls', 'xlsx' => 'fa-file-excel text-success',
+                                                        'dwg', 'dxf' => 'fa-drafting-compass text-info',
+                                                        default => 'fa-file text-secondary'
+                                                    };
+                                                @endphp
+                                                <i class="fas {{ $icon }} fa-lg mr-3"></i>
+                                                <div>
+                                                    <div class="font-weight-bold">{{ $doc->file_name }}</div>
+                                                    <small class="text-muted">Tải về</small>
+                                                </div>
+                                            </a>
+                                        @endforeach
+                                    </div>
+                                @endif
+                            @else
+                                <div class="text-center py-5 text-muted">
+                                    <i class="fas fa-folder-open fa-3x mb-3"></i>
+                                    <p>Chưa có tài liệu đính kèm nào.</p>
+                                </div>
+                            @endif
+                        </div>
+
                     </div>
                 </div>
             </div>
 
         </div>
     </section>
+
+    {{-- MODAL: Tạo việc phát sinh --}}
+    @if($showAdditionalTaskModal)
+    <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-info text-white">
+                    <h5 class="modal-title"><i class="fas fa-plus-circle mr-2"></i>Tạo việc phát sinh</h5>
+                    <button type="button" class="close text-white" wire:click="closeAdditionalTaskModal">
+                        <span>&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    @php
+                        $parentTask = $tasks->firstWhere('id', $parentTaskId);
+                    @endphp
+                    @if($parentTask)
+                    <div class="alert alert-light border mb-3">
+                        <small class="text-muted">Phát sinh từ:</small>
+                        <div class="font-weight-bold">{{ $parentTask->title }}</div>
+                    </div>
+                    @endif
+
+                    <div class="form-group">
+                        <label>Tiêu đề công việc <span class="text-danger">*</span></label>
+                        <input type="text" wire:model="newAdditionalTask.title" class="form-control" 
+                               placeholder="VD: Kiểm tra lại, Bổ sung vật tư...">
+                        @error('newAdditionalTask.title') <span class="text-danger text-sm">{{ $message }}</span> @enderror
+                    </div>
+
+                    <div class="form-group">
+                        <label>Mô tả chi tiết</label>
+                        <textarea wire:model="newAdditionalTask.description" class="form-control" rows="3"
+                                  placeholder="Mô tả chi tiết công việc cần làm..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Gán cho <span class="text-danger">*</span></label>
+                        <select wire:model="newAdditionalTask.assignee_id" class="form-control">
+                            <option value="">-- Chọn người thực hiện --</option>
+                            @foreach($workOrder->assignees as $assignee)
+                                <option value="{{ $assignee->id }}">{{ $assignee->name }}</option>
+                            @endforeach
+                        </select>
+                        @error('newAdditionalTask.assignee_id') <span class="text-danger text-sm">{{ $message }}</span> @enderror
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" wire:click="closeAdditionalTaskModal">Hủy</button>
+                    <button type="button" class="btn btn-info" wire:click="createAdditionalTask">
+                        <i class="fas fa-plus mr-1"></i> Tạo việc phát sinh
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    @endif
 </div>

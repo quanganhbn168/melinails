@@ -72,12 +72,7 @@ return [
                 'active_pattern' => 'admin.returned-materials.*',
                 'permission' => 'view_materials',
             ],
-            [
-                'title' => 'Nhà cung cấp',
-                'route' => 'admin.suppliers.index',
-                'active_pattern' => 'admin.suppliers.*',
-                'permission' => 'view_materials',
-            ],
+
         ],
     ],
     [

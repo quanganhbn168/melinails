@@ -5,7 +5,6 @@ namespace App\Livewire\Material;
 use Livewire\Component;
 use Livewire\WithPagination;
 use App\Models\ReturnedItem;
-use App\Models\Supplier;
 use Illuminate\Support\Facades\Auth;
 
 class ReturnedMaterialList extends Component
@@ -168,7 +167,8 @@ class ReturnedMaterialList extends Component
             'stats' => $stats,
             'reasons' => $reasons,
             'statuses' => ReturnedItem::getStatusOptions(),
-            'suppliers' => Supplier::active()->orderBy('name')->get(['id', 'name']),
+            'statuses' => ReturnedItem::getStatusOptions(),
+            'suppliers' => \App\Models\Customer::suppliers()->orderBy('name')->get(['id', 'name']),
         ])->layout('layouts.admin');
     }
 }

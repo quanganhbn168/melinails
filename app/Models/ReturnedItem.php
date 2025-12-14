@@ -39,7 +39,7 @@ class ReturnedItem extends Model
 
     public function supplier(): BelongsTo
     {
-        return $this->belongsTo(Supplier::class);
+        return $this->belongsTo(Customer::class, 'supplier_id');
     }
 
     public function returnedByAdmin(): BelongsTo

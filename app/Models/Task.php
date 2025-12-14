@@ -14,13 +14,14 @@ class Task extends Model
     protected $fillable = [
         'work_order_id', 
         'parent_task_id',      // Task cha (nếu được spawn từ task khác)
-        'title',              
+        'title',
+        'description',         // Mô tả chi tiết công việc
         'performer_id', 
         'report_content', 
         'collected_amount', 
         'is_paid', 
         'status',
-        'is_additional',       
+        'is_additional',
         'created_by_worker_id', 
         'customer_signature',
         'scheduled_at',        // Ngày hẹn thực hiện
@@ -92,5 +93,38 @@ class Task extends Model
     public function isSpawned(): bool
     {
         return $this->parent_task_id !== null;
+    }
+
+    // 9. Người được @mention trong task (@QUAN TÂM)
+    public function watchers()
+    {
+        return $this->belongsToMany(Admin::class, 'task_watchers')
+            ->withTimestamps();
+    }
+
+    public function hasWatchers(): bool
+    {
+        return $this->watchers()->count() > 0;
+    }
+
+    // 10. Nhiều người thực hiện task (performers)
+    public function performers()
+    {
+        return $this->belongsToMany(Admin::class, 'task_performers')
+            ->withTimestamps();
+    }
+
+    public function hasPerformers(): bool
+    {
+        return $this->performers()->count() > 0;
+    }
+
+    // Helper: Lấy danh sách tên performers
+    public function getPerformerNamesAttribute(): string
+    {
+        if ($this->hasPerformers()) {
+            return $this->performers->pluck('name')->implode(', ');
+        }
+        return $this->performer?->name ?? 'Chưa gán';
     }
 }

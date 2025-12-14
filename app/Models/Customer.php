@@ -14,8 +14,24 @@ class Customer extends Model
         'email', 
         'tax_code', 
         'representative_name', 
-        'type'
+        'type',
+        'is_supplier',
+        'code',
+        'bank_account',
+        'bank_name',
+        'type_tag_id',
     ];
+
+    // Scope for Suppliers
+    public function scopeSuppliers($query)
+    {
+        return $query->where('is_supplier', true);
+    }
+    
+    public function typeTag()
+    {
+        return $this->belongsTo(\App\Models\Tag::class, 'type_tag_id');
+    }
 
     // Lấy tất cả liên hệ
     public function contacts(): HasMany

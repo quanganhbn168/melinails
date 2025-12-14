@@ -77,13 +77,17 @@
             <div class="card">
                 <div class="card-header">
                     <h3 class="card-title">Danh sách giao dịch</h3>
-                    <div class="card-tools">
+                    <div class="card-tools d-flex align-items-center">
+                        <button wire:click="syncLegacyData" wire:loading.attr="disabled" class="btn btn-sm btn-outline-info mr-3">
+                            <i class="fas fa-sync" wire:loading.remove wire:target="syncLegacyData"></i>
+                            <i class="fas fa-spinner fa-spin" wire:loading wire:target="syncLegacyData"></i>
+                            Đồng bộ dữ liệu cũ
+                        </button>
                         <div class="input-group input-group-sm" style="width: 350px;">
                             <select wire:model.live="statusFilter" class="form-control float-right">
                                 <option value="all">Tất cả trạng thái</option>
                                 <option value="pending">Chờ duyệt</option>
-                                <option value="verified">Đã về TK</option>
-                                <option value="handed_over">Đã nộp tiền</option>
+                                <option value="verified">Đã duyệt</option>
                             </select>
                             <select wire:model.live="dateFilter" class="form-control float-right ml-2">
                                 <option value="all">Tất cả thời gian</option>
@@ -98,52 +102,82 @@
                         <thead>
                             <tr>
                                 <th>Ngày</th>
-                                <th>Phiếu việc</th>
-                                <th>Khách hàng</th>
-                                <th>Người thu</th>
+                                <th>Nội dung</th>
+                                <th>Người tạo/Thu</th>
                                 <th>Số tiền</th>
-                                <th>Hình thức</th>
+                                <th>Loại</th>
                                 <th>Trạng thái</th>
                                 <th></th>
                             </tr>
                         </thead>
                         <tbody>
-                            @forelse($reports as $report)
+                            @forelse($reports as $payment)
                                 <tr>
-                                    <td>{{ $report->created_at->format('d/m/Y H:i') }}</td>
                                     <td>
-                                        <a href="{{ route('admin.work-orders.show', $report->task->workOrder->id) }}">
-                                            #{{ $report->task->workOrder->id }}
-                                        </a>
+                                        <div>{{ $payment->created_at->format('d/m/Y') }}</div>
+                                        <small class="text-muted">{{ $payment->created_at->format('H:i') }}</small>
                                     </td>
-                                    <td>{{ $report->task->workOrder->customer->name ?? 'N/A' }}</td>
-                                    <td>{{ $report->reporter->name }}</td>
-                                    <td class="font-weight-bold">{{ number_format($report->collected_amount) }} đ</td>
                                     <td>
-                                        @if($report->payment_method == 'transfer')
-                                            <span class="badge badge-info">CK {{ $report->transfer_target == 'company' ? '(Cty)' : '(CN)' }}</span>
+                                        {{-- Work Order Title --}}
+                                        @if($payment->work_order_id)
+                                            <div class="font-weight-bold">
+                                                <a href="{{ route('admin.work-orders.show', $payment->work_order_id) }}">
+                                                    {{ $payment->workOrder->title ?? '#'.$payment->work_order_id }}
+                                                </a>
+                                            </div>
                                         @else
-                                            <span class="badge badge-secondary">Tiền mặt</span>
+                                            <span class="text-muted font-italic">Không xác định</span>
+                                        @endif
+                                        
+                                        {{-- Task Info --}}
+                                        @if($payment->taskReport && $payment->taskReport->task)
+                                             <div class="text-sm">
+                                                <i class="fas fa-tasks text-muted mr-1"></i> 
+                                                {{ $payment->taskReport->task->name }}
+                                            </div>
+                                        @endif
+
+                                        {{-- Description --}}
+                                        <div class="text-xs text-muted font-italic">{{ $payment->description }}</div>
+                                    </td>
+                                    <td>
+                                        <div>{{ $payment->creator->name ?? 'N/A' }}</div>
+                                        @if($payment->collector_id && $payment->collector_id != $payment->created_by)
+                                            <small class="text-muted">Thu bởi: {{ $payment->collector->name ?? '' }}</small>
+                                        @endif
+                                    </td>
+                                    <td class="font-weight-bold">{{ number_format($payment->amount) }} đ</td>
+                                    <td>
+                                        <span class="badge badge-{{ $payment->payment_type->color() }}">
+                                            {{ $payment->payment_type->label() }}
+                                        </span>
+                                        
+                                        @if($payment->payment_type === \App\Enums\PaymentType::COLLECTION)
+                                            <div class="text-xs mt-1">
+                                                @if($payment->payment_method == 'transfer')
+                                                    CK {{ $payment->transfer_target == 'company' ? '(Cty)' : '('.($payment->transfer_target == 'personal' ? 'CN' : $payment->transfer_target).')' }}
+                                                @else
+                                                    Tiền mặt
+                                                @endif
+                                            </div>
                                         @endif
                                     </td>
                                     <td>
-                                        @if($report->finance_status == 'verified')
-                                            <span class="badge badge-success">Đã về TK</span>
-                                        @elseif($report->finance_status == 'handed_over')
-                                            <span class="badge badge-success">Đã nộp tiền</span>
-                                        @else
-                                            <span class="badge badge-warning">Chờ duyệt</span>
-                                        @endif
+                                        <span class="badge badge-{{ $payment->status->color() }}">
+                                            {{ $payment->status->label() }}
+                                        </span>
                                     </td>
                                     <td class="text-right">
-                                        <a href="{{ route('admin.finance.work-order', $report->task->workOrder->id) }}" class="btn btn-xs btn-primary">
-                                            <i class="fas fa-eye"></i> Duyệt
-                                        </a>
+                                        @if($payment->work_order_id)
+                                            <a href="{{ route('admin.work-orders.show', ['id' => $payment->work_order_id, 'tab' => 'finance']) }}" class="btn btn-xs btn-primary">
+                                                <i class="fas fa-eye"></i> Xem
+                                            </a>
+                                        @endif
                                     </td>
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="8" class="text-center text-muted">Không tìm thấy giao dịch nào.</td>
+                                    <td colspan="7" class="text-center text-muted">Không tìm thấy giao dịch nào.</td>
                                 </tr>
                             @endforelse
                         </tbody>

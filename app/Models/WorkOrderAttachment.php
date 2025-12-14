@@ -9,6 +9,7 @@ class WorkOrderAttachment extends Model
 {
     protected $fillable = [
         'work_order_id',
+        'task_id',  // Link với task phát sinh
         'type', // 'image' hoặc 'document'
         'file_path',
         'file_name',
@@ -19,6 +20,11 @@ class WorkOrderAttachment extends Model
     public function workOrder(): BelongsTo
     {
         return $this->belongsTo(WorkOrder::class);
+    }
+
+    public function task(): BelongsTo
+    {
+        return $this->belongsTo(Task::class);
     }
 
     public function uploader(): BelongsTo

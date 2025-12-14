@@ -221,49 +221,71 @@
                                 </div>
                                 @error('assignee_ids') <span class="text-danger text-sm">{{ $message }}</span> @enderror
 
-                                {{-- Tiêu đề --}}
+                                {{-- Tên phiếu việc --}}
                                 <div class="form-group">
-                                    <label>Tiêu đề công việc <span class="text-danger">*</span></label>
-                                    <input type="text" wire:model="title" class="form-control" placeholder="VD: Lắp đặt camera nhà anh Minh...">
+                                    <label>Tên phiếu việc <span class="text-danger">*</span></label>
+                                    <input type="text" wire:model="title" class="form-control" placeholder="VD: Lắp camera nhà anh Minh, Sửa điện công ty ABC...">
                                     @error('title') <span class="text-danger text-sm">{{ $message }}</span> @enderror
                                 </div>
 
-                                {{-- Danh sách nhiệm vụ --}}
+                                {{-- Danh sách hạng mục --}}
                                 <div class="form-group mt-4">
                                     <label class="d-flex justify-content-between align-items-center">
-                                        <span><i class="fas fa-list-ul"></i> Danh sách đầu việc</span>
+                                        <span><i class="fas fa-list-ul"></i> Hạng mục công việc</span>
                                         <button type="button" wire:click="addTaskRow" class="btn btn-xs btn-primary">
-                                            <i class="fas fa-plus"></i> Thêm
+                                            <i class="fas fa-plus"></i> Thêm hạng mục
                                         </button>
                                     </label>
                                     
-                                    <table class="table table-bordered table-sm">
-                                        <thead>
-                                            <tr class="bg-light">
-                                                <th>Nội dung công việc</th>
-                                                <th style="width: 50px"></th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            @foreach($task_list as $index => $task)
-                                            <tr>
-                                                <td>
-                                                    <input type="text" wire:model="task_list.{{ $index }}.content" 
-                                                    class="form-control form-control-sm border-0" 
-                                                    placeholder="VD: Kéo dây tầng 1...">
-                                                    @error('task_list.'.$index.'.content') <span class="text-danger text-xs">Nhập nội dung</span> @enderror
-                                                </td>
-                                                <td class="text-center">
+                                    <div class="border rounded p-3 bg-light">
+                                        @foreach($task_list as $index => $task)
+                                        <div class="card mb-3 shadow-sm" wire:key="task-{{ $index }}">
+                                            <div class="card-body p-3">
+                                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                                    <span class="badge badge-secondary">Hạng mục {{ $index + 1 }}</span>
                                                     @if(count($task_list) > 1)
-                                                    <button type="button" wire:click="removeTaskRow({{ $index }})" class="btn btn-xs btn-danger">
+                                                    <button type="button" wire:click="removeTaskRow({{ $index }})" class="btn btn-xs btn-outline-danger">
                                                         <i class="fas fa-trash"></i>
                                                     </button>
                                                     @endif
-                                                </td>
-                                            </tr>
-                                            @endforeach
-                                        </tbody>
-                                    </table>
+                                                </div>
+                                                
+                                                <div class="form-group mb-2">
+                                                    <input type="text" wire:model="task_list.{{ $index }}.title" 
+                                                        class="form-control" 
+                                                        placeholder="Tên hạng mục (VD: Khảo sát, Kéo dây tầng 1, Lắp đầu ghi...)">
+                                                    @error('task_list.'.$index.'.title') <span class="text-danger text-xs">{{ $message }}</span> @enderror
+                                                </div>
+                                                
+                                                <div class="form-group mb-2">
+                                                    <textarea wire:model="task_list.{{ $index }}.description" 
+                                                        class="form-control form-control-sm" rows="2"
+                                                        placeholder="Mô tả chi tiết (tùy chọn)..."></textarea>
+                                                </div>
+                                                
+                                                {{-- Người thực hiện (Select2 từ assignees) --}}
+                                                @if(count($assignee_ids) > 0)
+                                                <div class="form-group mb-0">
+                                                    <label class="text-muted small mb-1"><i class="fas fa-user-cog mr-1"></i> Người thực hiện:</label>
+                                                    <select class="form-control performer-select" 
+                                                            id="performer-select-{{ $index }}"
+                                                            data-task-index="{{ $index }}"
+                                                            multiple="multiple">
+                                                        @foreach(\App\Models\Admin::whereIn('id', $assignee_ids)->get() as $staff)
+                                                            <option value="{{ $staff->id }}" 
+                                                                {{ in_array((string)$staff->id, $task['performer_ids'] ?? []) ? 'selected' : '' }}>
+                                                                {{ $staff->name }}
+                                                            </option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                                @else
+                                                <small class="text-warning"><i class="fas fa-info-circle"></i> Chọn đội ngũ thực hiện trước</small>
+                                                @endif
+                                            </div>
+                                        </div>
+                                        @endforeach
+                                    </div>
                                 </div>
 
                                 {{-- Ghi chú --}}
@@ -329,12 +351,46 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
     document.addEventListener('livewire:initialized', () => {
+        // Staff select (đội ngũ thực hiện Work Order)
         $('#staff-select').select2({ theme: 'bootstrap4', placeholder: 'Chọn nhân viên...' });
         $('#staff-select').on('change', function (e) {
             @this.set('assignee_ids', $(this).val() || []);
         });
         @this.on('clear-select2', () => {
             $('#staff-select').val(null).trigger('change');
+            // Destroy performer selects khi clear
+            $('.performer-select').each(function() {
+                if ($(this).hasClass('select2-hidden-accessible')) {
+                    $(this).select2('destroy');
+                }
+            });
+        });
+
+        // Init performer select2 sau khi Livewire update
+        function initPerformerSelects() {
+            $('.performer-select').each(function() {
+                if (!$(this).hasClass('select2-hidden-accessible')) {
+                    $(this).select2({ 
+                        theme: 'bootstrap4', 
+                        placeholder: 'Chọn người thực hiện...',
+                        width: '100%'
+                    });
+                    
+                    $(this).on('change', function (e) {
+                        const index = $(this).data('task-index');
+                        const values = $(this).val() || [];
+                        @this.set('task_list.' + index + '.performer_ids', values);
+                    });
+                }
+            });
+        }
+
+        // Init sau khi trang load
+        setTimeout(initPerformerSelects, 100);
+        
+        // Re-init khi Livewire update DOM
+        Livewire.hook('morph.updated', ({ el, component }) => {
+            setTimeout(initPerformerSelects, 50);
         });
 
         // SweetAlert Toast

@@ -6,9 +6,9 @@
             <i class="fas fa-arrow-left fa-lg"></i>
         </a>
         <div style="flex: 1; min-width: 0;">
-            <h6 class="m-0 font-weight-bold text-dark text-truncate">{{ $task->report_content }}</h6>
+            <h6 class="m-0 font-weight-bold text-dark text-truncate">{{ $task->title ?: $task->report_content }}</h6>
             @if($task->isSpawned())
-                <small class="text-info"><i class="fas fa-code-branch mr-1"></i>Phát sinh từ task khác</small>
+                <small class="text-info"><i class="fas fa-code-branch mr-1"></i>Phát sinh từ: {{ $task->parentTask->title ?? 'Task cha' }}</small>
             @endif
         </div>
         {{-- Status Badge --}}
@@ -17,7 +17,65 @@
         </span>
     </div>
 
-    {{-- Row 2: Work Order Context (ĐỀ BÀI) --}}
+    {{-- Row 2: ĐỀ BÀI CỦA TASK (title, description, attachments) --}}
+    <div class="px-3 py-3 bg-white border-bottom">
+        <div class="d-flex align-items-start">
+            <div class="text-info mr-2" style="min-width: 24px;">
+                <i class="fas fa-file-alt fa-lg"></i>
+            </div>
+            <div style="flex: 1; min-width: 0;">
+                <span class="text-uppercase text-muted small font-weight-bold">Đề bài công việc</span>
+                
+                {{-- Tiêu đề task --}}
+                <h5 class="font-weight-bold text-dark mt-1 mb-1">{{ $task->title ?: 'Chưa có tiêu đề' }}</h5>
+                
+                {{-- Mô tả task --}}
+                @if($task->description)
+                <div class="text-muted mb-2" style="white-space: pre-line;">{{ $task->description }}</div>
+                @endif
+                
+                {{-- Người thực hiện --}}
+                <div class="text-sm text-muted">
+                    <i class="fas fa-users mr-1"></i>
+                    @if($task->performers->count() > 0)
+                        <strong>Người thực hiện:</strong> {{ $task->performers->pluck('name')->join(', ') }}
+                    @elseif($task->performer)
+                        <strong>Người thực hiện:</strong> {{ $task->performer->name }}
+                    @else
+                        <span class="text-warning">Chưa gán người thực hiện</span>
+                    @endif
+                </div>
+                
+                {{-- Attachments của Task (nếu có) --}}
+                @php
+                    $taskAttachments = $task->workOrder->attachments->where('task_id', $task->id);
+                @endphp
+                @if($taskAttachments->count() > 0)
+                <div class="mt-2">
+                    <small class="text-muted"><i class="fas fa-paperclip mr-1"></i> Tài liệu đính kèm:</small>
+                    <div class="d-flex flex-wrap mt-1" style="gap: 8px;">
+                        @foreach($taskAttachments as $attachment)
+                            <a href="{{ asset('storage/' . $attachment->file_path) }}" target="_blank" 
+                               class="border rounded p-1" style="text-decoration: none;">
+                                @if($attachment->type == 'image')
+                                    <img src="{{ asset('storage/' . $attachment->file_path) }}" 
+                                         style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px;">
+                                @else
+                                    <div class="text-center p-2">
+                                        <i class="fas fa-file text-muted fa-2x"></i>
+                                        <small class="d-block text-truncate" style="max-width: 60px;">{{ $attachment->file_name }}</small>
+                                    </div>
+                                @endif
+                            </a>
+                        @endforeach
+                    </div>
+                </div>
+                @endif
+            </div>
+        </div>
+    </div>
+
+    {{-- Row 3: Work Order Context (Phiếu việc) --}}
     <div class="px-3 py-2 bg-light">
         <div class="d-flex align-items-start">
             <div class="text-primary mr-2" style="min-width: 24px;">
@@ -25,6 +83,7 @@
             </div>
             <div style="flex: 1; min-width: 0;">
                 {{-- Work Order Title --}}
+                <small class="text-uppercase text-muted font-weight-bold">Phiếu việc</small>
                 <a href="{{ route('admin.work-orders.show', $task->work_order_id) }}" class="text-dark font-weight-bold d-block text-truncate">
                     {{ $task->workOrder->title }}
                 </a>
@@ -44,7 +103,7 @@
         </div>
     </div>
 
-    {{-- Row 3: Site Info (Địa chỉ + Liên hệ) --}}
+    {{-- Row 4: Site Info (Địa chỉ + Liên hệ) --}}
     <div class="px-3 py-2 border-top">
         <div class="row text-sm">
             {{-- Khách hàng --}}
@@ -67,7 +126,7 @@
         </div>
     </div>
 
-    {{-- Row 4: Tags (nếu có) --}}
+    {{-- Row 5: Tags (nếu có) --}}
     @if($task->workOrder->tags->count() > 0)
     <div class="px-3 py-2 border-top">
         <div class="d-flex flex-wrap" style="gap: 5px;">
@@ -80,7 +139,7 @@
     </div>
     @endif
 
-    {{-- Row 5: Ghi chú / Mô tả (nếu có) --}}
+    {{-- Row 6: Ghi chú / Mô tả WorkOrder (nếu có) --}}
     @if($task->workOrder->description)
     <div class="px-3 py-2 border-top bg-warning-light" style="background-color: #fff8e1;">
         <div class="d-flex align-items-start">

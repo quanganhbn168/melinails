@@ -23,11 +23,18 @@ class TaskDetail extends Component
     public $report_content;
     public $is_task_completed = false;
     
-    // TIỀN NONG (ĐƠN GIẢN HÓA)
-    public $collected_amount = 0;
+    public function updatedCollectedAmount()
+    {
+        $this->received_amount = $this->collected_amount;
+    }
+    
+    // TIỀN NONG (CẢI TIẾN)
+    public $is_collected = false;      // Checkbox: đã thu tiền chưa
+    public $collected_amount = 0;      // Tổng giá trị công việc (Công nợ)
+    public $received_amount = 0;       // Số tiền thực thu (Thanh toán)
     public $payment_method = 'cash'; 
 
-    public $items = [['name' => '', 'serial' => '', 'qty' => 1]]; 
+    public $items = [['name' => '', 'serial' => '', 'qty' => 1]]; // Không cần price
     public $proof_images = [];
     public $signature_data;
 
@@ -40,6 +47,8 @@ class TaskDetail extends Component
     public $newTaskScheduledAt = '';
     public $newTaskAssigneeId = '';
     public $newTaskDescription = ''; // Mô tả công việc mới
+    public $newTaskImages = [];      // Ảnh đính kèm
+    public $newTaskWatcherIds = [];  // @mention - người được tag
 
     // BIẾN MỚI CHO SUGGESTION
     public $materialSuggestions = []; // Danh sách gợi ý trả về
@@ -50,10 +59,14 @@ class TaskDetail extends Component
         $this->task = Task::with([
             'workOrder.customer', 
             'workOrder.tags',
+            'workOrder.attachments',
             'reports.images', 
             'reports.items', 
             'reports.returnedItems',
-            'reports.reporter'
+            'reports.reporter',
+            'performer',
+            'performers',
+            'parentTask'
         ])->findOrFail($id);
         
         // Nếu WorkOrder đã hoàn thành HOẶC task đã xong -> vào xem lịch sử
@@ -125,30 +138,25 @@ class TaskDetail extends Component
                 }
             }
 
-            // 2. Xử lý Tiền nong (ĐƠN GIẢN: nếu amount > 0 thì có thu tiền)
-            $hasPayment = (int) $this->collected_amount > 0;
-
-            // 3. Tạo Report
+            // 2. Tạo Report (không lưu collected_amount nữa - sẽ lưu vào bảng payments)
             $report = TaskReport::create([
                 'task_id' => $this->task->id,
                 'reporter_id' => auth('admin')->id(),
                 'content' => $this->report_content,
                 'is_completed' => $this->is_task_completed,
-                
-                'collected_amount' => $hasPayment ? $this->collected_amount : 0,
-                'payment_method' => $hasPayment ? $this->payment_method : null,
-                'transfer_target' => null, // Đã bỏ chi tiết TK
-                
+                'collected_amount' => $this->collected_amount, // Luôn lưu tổng tiền
+                'payment_method' => $this->is_collected ? $this->payment_method : null,
+                'finance_status' => ($this->collected_amount > 0) ? 'pending' : null,
                 'customer_signature' => $signaturePath,
             ]);
 
-            // 4. Ảnh
+            // 3. Ảnh
             foreach ($this->proof_images as $photo) {
                 $path = $photo->store('reports/' . date('Y-m'), 'public');
                 TaskImage::create(['task_report_id' => $report->id, 'image_path' => $path]);
             }
 
-            // 5. Vật tư
+            // 4. Vật tư (KHÔNG CẦN GIÁ - đơn giản như cũ)
             foreach ($this->items as $item) {
                 if (!empty($item['name'])) {
                     TaskItem::create([
@@ -158,6 +166,39 @@ class TaskDetail extends Component
                         'quantity' => $item['qty'] ?? 1,
                     ]);
                 }
+            }
+
+            // 5. TẠO PAYMENT (GHI NHẬN DOANH THU/CÔNG NỢ)
+            
+            // A. Ghi nhận GIÁ TRỊ CÔNG VIỆC (Nợ) - Luôn tạo
+            if ($this->collected_amount > 0) {
+                \App\Models\WorkOrderPayment::create([
+                    'work_order_id' => $this->task->work_order_id,
+                    'task_report_id' => $report->id,
+                    'payment_type' => \App\Enums\PaymentType::ITEM_VALUE, 
+                    'amount' => $this->collected_amount,
+                    'description' => 'Chi phí báo cáo (Tổng tiền)',
+                    'is_collected' => false, // Luôn là false (nợ) - việc thu tiền tách riêng ở dưới
+                    'status' => \App\Enums\PaymentStatus::PENDING,
+                    'created_by' => auth('admin')->id(),
+                ]);
+            }
+
+            // B. Ghi nhận THU TIỀN (Nếu có)
+            if ($this->is_collected && $this->received_amount > 0) {
+                 \App\Models\WorkOrderPayment::create([
+                    'work_order_id' => $this->task->work_order_id,
+                    'task_report_id' => $report->id,
+                    'payment_type' => \App\Enums\PaymentType::COLLECTION, // Loại là Thu tiền
+                    'amount' => $this->received_amount,
+                    'description' => 'Thu tiền từ khách (Thanh toán)',
+                    'is_collected' => true,
+                    'payment_method' => $this->payment_method,
+                    'status' => \App\Enums\PaymentStatus::PENDING, 
+                    'created_by' => auth('admin')->id(),
+                    'collector_id' => auth('admin')->id(),
+                    'collected_at' => now(),
+                ]);
             }
 
             // 6. Thiết bị thu hồi (Bảo hành)
@@ -225,8 +266,7 @@ class TaskDetail extends Component
         if ($material) {
             // Điền tên chuẩn vào ô
             $this->items[$index]['name'] = $material->name;
-            // Nếu có mã SKU, có thể điền tạm vào ô serial hoặc ghi chú (tùy nhu cầu)
-            // $this->items[$index]['serial'] = $material->code; 
+            // Không điền price - thợ tự điền số tiền thu ở phần Thanh toán
         }
         
         // Ẩn dropdown
@@ -346,6 +386,15 @@ class TaskDetail extends Component
     }
 
     // --- TASK PHÁT SINH / SPAWN ---
+
+    /**
+     * Xóa ảnh đính kèm trước khi submit
+     */
+    public function removeNewTaskImage($index)
+    {
+        array_splice($this->newTaskImages, $index, 1);
+    }
+
     public function createAdditionalTask()
     {
         // Chặn nếu WorkOrder đã đóng
@@ -358,6 +407,9 @@ class TaskDetail extends Component
             'newTaskTitle' => 'required|min:5|max:255',
             'newTaskScheduledAt' => 'nullable|date|after_or_equal:today',
             'newTaskAssigneeId' => 'nullable|exists:admins,id',
+            'newTaskImages.*' => 'image|max:10240',
+            'newTaskWatcherIds' => 'array',
+            'newTaskWatcherIds.*' => 'exists:admins,id',
         ], [
             'newTaskTitle.required' => 'Vui lòng nhập nội dung công việc.',
             'newTaskTitle.min' => 'Nội dung phải có ít nhất 5 ký tự.',
@@ -368,6 +420,7 @@ class TaskDetail extends Component
             'work_order_id' => $this->task->work_order_id,
             'parent_task_id' => $this->task->id, // Link to current task as parent
             'title' => $this->newTaskTitle,
+            'description' => $this->newTaskDescription ?: null,
             'performer_id' => $this->newTaskAssigneeId ?: null,
             'scheduled_at' => $this->newTaskScheduledAt ?: null,
             'status' => \App\Enums\TaskStatus::PENDING,
@@ -375,12 +428,43 @@ class TaskDetail extends Component
             'created_by_worker_id' => auth('admin')->id(),
         ]);
 
-        session()->flash('success', 'Đã tạo công việc tiếp theo: ' . $newTask->title);
+        // Sync watchers (@mention)
+        if (!empty($this->newTaskWatcherIds)) {
+            $newTask->watchers()->sync($this->newTaskWatcherIds);
+        }
+
+        // Lưu ảnh đính kèm (tái sử dụng WorkOrderAttachment)
+        if (!empty($this->newTaskImages)) {
+            foreach ($this->newTaskImages as $file) {
+                $path = $file->store('tasks/' . $newTask->id, 'public');
+                \App\Models\WorkOrderAttachment::create([
+                    'work_order_id' => $this->task->work_order_id,
+                    'task_id' => $newTask->id,
+                    'type' => 'image',
+                    'file_path' => $path,
+                    'file_name' => $file->getClientOriginalName(),
+                    'uploaded_by' => auth('admin')->id(),
+                ]);
+            }
+        }
+
+        // Build message
+        $watcherNames = '';
+        if (!empty($this->newTaskWatcherIds)) {
+            $watchers = \App\Models\Admin::whereIn('id', $this->newTaskWatcherIds)->pluck('name');
+            $watcherNames = ' (@' . $watchers->implode(', @') . ')';
+        }
+        session()->flash('success', 'Đã tạo công việc phát sinh: ' . $newTask->title . $watcherNames);
+        
+        // Reset form
         $this->newTaskTitle = '';
+        $this->newTaskDescription = '';
         $this->newTaskScheduledAt = '';
         $this->newTaskAssigneeId = '';
+        $this->newTaskImages = [];
+        $this->newTaskWatcherIds = [];
         
-        return redirect()->route('admin.tasks.detail', $newTask->id);
+        return redirect()->route('admin.tasks.detail', $this->task->id);
     }
 
     public function render()

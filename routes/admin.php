@@ -206,8 +206,7 @@ Route::middleware(['auth:admin'])->prefix('admin')->as('admin.')->group(function
      Route::get('/finance', \App\Livewire\Finance\FinanceDashboard::class)->name('finance.index');
      Route::get('/finance/work-order/{id}', \App\Livewire\Finance\WorkOrderFinanceDetail::class)->name('finance.work-order');
 
-     // Suppliers (Nhà cung cấp)
-     Route::get('/suppliers', \App\Livewire\Supplier\SupplierList::class)->name('suppliers.index');
+
 
      // Returned Materials (Vật tư thu hồi)
      Route::get('/returned-materials', \App\Livewire\Material\ReturnedMaterialList::class)->name('returned-materials.index');
