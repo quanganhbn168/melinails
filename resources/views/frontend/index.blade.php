@@ -3,8 +3,12 @@
 @section('meta_description',$setting->meta_description)
 @section('meta_keywords',$setting->meta_keywords)
 @push('css')
-<link rel="stylesheet" href="{{ asset('css/counter.css') }}">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/glightbox/dist/css/glightbox.min.css" />
+<link rel="stylesheet" href="{{ asset('css/counter.css') }}" media="print" onload="this.media='all'">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/glightbox/dist/css/glightbox.min.css" media="print" onload="this.media='all'">
+<noscript>
+    <link rel="stylesheet" href="{{ asset('css/counter.css') }}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/glightbox/dist/css/glightbox.min.css">
+</noscript>
 @endpush
 @push('jsonld')
 <script type="application/ld+json">
