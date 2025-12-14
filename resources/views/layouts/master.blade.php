@@ -29,6 +29,8 @@
     {{-- Fonts, Favicons --}}
     <link rel="icon" href="{{ asset($setting->favicon) }}" type="image/x-icon" />
     <link rel="apple-touch-icon" sizes="180x180" href="{{ asset($setting->favicon) }}" />
+    {{-- Preload Critical Font --}}
+    <link rel="preload" href="{{ asset('css/fonts/Lexend/Lexend-VariableFont_wght.woff2') }}" as="font" type="font/woff2" crossorigin>
     {{-- CSS & JS --}}
     <link rel="stylesheet" href="{{asset('vendor/bootstrap/css/bootstrap.min.css')}}">
     <link rel="stylesheet" href="{{asset('vendor/swiper/swiper-bundle.min.css')}}">

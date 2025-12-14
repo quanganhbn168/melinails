@@ -16,8 +16,8 @@
 
                     decoding="async"
 
+                    @if($i==0) fetchpriority="high" @endif
                     @if($i>0) loading="lazy" @endif
-
                 >
 
             </div>

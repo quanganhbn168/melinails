@@ -62,7 +62,7 @@
         <div class="row align-items-center">
             <div class="col-12 col-md-6">
                 <a href="{{route('frontend.slug.handle',$introMain->slug)}}">
-                    <img src="{{ optional($introMain->mainImage())->url() }}" alt="{{$introMain->name}}">
+                    <img src="{{ optional($introMain->mainImage())->url() }}" alt="{{$introMain->name}}" loading="lazy" width="600" height="400" style="width: 100%; height: auto;">
                 </a>
             </div>
             <div class="col-12 col-md-6">
