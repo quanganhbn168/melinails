@@ -1,0 +1,7 @@
+/* Main Frontend CSS Entry Point */
+
+@import './frontend/slide.css';
+@import './frontend/global.css';
+@import './frontend/style.css';
+@import './frontend/responsive.css';
+@import './frontend/project-slider.css';

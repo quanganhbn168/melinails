@@ -34,11 +34,11 @@
     <link rel="stylesheet" href="{{asset('vendor/fontawesome/css/all.min.css')}}">
     <link rel="stylesheet" href="{{asset('vendor/swiper/swiper-bundle.min.css')}}">
     <link rel="stylesheet" href="{{asset('plugins/sweetalert2/bootstrap-4.min.css')}}">
-    <link rel="stylesheet" href="{{ asset('css/slide.css') }}?v={{ filemtime(public_path('css/slide.css')) }}">
-    <link rel="stylesheet" href="{{ asset('css/global.css') }}?v={{ filemtime(public_path('css/global.css')) }}">
-    <link rel="stylesheet" href="{{ asset('css/style.css') }}?v={{ filemtime(public_path('css/style.css')) }}">
-    <link rel="stylesheet" href="{{ asset('css/responsive.css') }}?v={{ filemtime(public_path('css/responsive.css')) }}">
-    <link rel="stylesheet" href="{{ asset('css/project-slider.css') }}?v={{ filemtime(public_path('css/project-slider.css')) }}">
+    <link rel="stylesheet" href="{{asset('plugins/sweetalert2/bootstrap-4.min.css')}}">
+    
+    {{-- Bundle Frontend CSS via Vite --}}
+    @vite(['resources/css/frontend.css'])
+
 
     @stack('css')
     {!!$setting->head_script!!}
@@ -83,9 +83,11 @@
     <script src="{{asset('/vendor/bootstrap/js/bootstrap.min.js')}}?{{time()}}"></script>
     <script src="{{asset('/vendor/swiper/swiper-bundle.min.js')}}?{{time()}}"></script>
     <script src="{{asset('plugins/sweetalert2/sweetalert2.min.js')}}"></script>
-    <script src="{{ asset('js/cart.js') }}"></script>
-    <script src="{{ asset('js/counter.js') }}"></script>
-    <script src="{{ asset('js/TabbedSwiperHandler.js') }}?v={{ filemtime(public_path('js/TabbedSwiperHandler.js')) }}"></script>
+    <script src="{{asset('plugins/sweetalert2/sweetalert2.min.js')}}"></script>
+    
+    {{-- Bundle Frontend JS via Vite --}}
+    @vite(['resources/js/frontend.js'])
+
 
     @if(session('success'))
     <script>
@@ -145,52 +147,9 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 </script>
-    <script type="text/javascript">
-        function googleTranslateElementInit() {
-            new google.translate.TranslateElement({
-                pageLanguage: 'vi',      
-                includedLanguages: 'vi,en,zh-CN,ko', 
-                autoDisplay: false
-            }, 'google_translate_element');
-            setActiveFlag();
-        }
-        function changeLanguage(lang) {
-            var a = document.querySelector("#google_translate_element select");
-            if (a) {
-                a.value = lang;
-                a.dispatchEvent(new Event('change'));
-            }
-        }
-        function setActiveFlag() {
-            var currentLang = getCookie('googtrans') ? getCookie('googtrans').split('/')[2] : 'vi';
-            document.querySelectorAll('.language-switcher-flags a').forEach(function(el) {
-                if (el.getAttribute('data-lang') === currentLang) {
-                    el.classList.add('active');
-                } else {
-                    el.classList.remove('active');
-                }
-            });
-        }
-        function getCookie(name) {
-            var value = "; " + document.cookie;
-            var parts = value.split("; " + name + "=");
-            if (parts.length == 2) return parts.pop().split(";").shift();
-        }
-        var originalTranslateElementInit = window.googleTranslateElementInit;
-        window.googleTranslateElementInit = function() {
-            originalTranslateElementInit();
-            var observer = new MutationObserver(function(mutations) {
-                mutations.forEach(function(mutation) {
-                    if(mutation.type === 'attributes' && mutation.attributeName === 'class' && mutation.target.nodeName === 'BODY') {
-                        if(!document.body.classList.contains('google-translating')) {
-                            setActiveFlag();
-                        }
-                    }
-                });
-            });
-            observer.observe(document.body, { attributes: true });
-        };
-    </script>
+    {{-- New GTranslate Widget --}}
+    <script>window.gtranslateSettings = {"default_language":"vi","native_language_names":true,"detect_browser_language":true,"languages":["vi","ko","zh-CN","en"],"wrapper_selector":".gtranslate_wrapper","switcher_horizontal_position":"inline","alt_flags":{"en":"usa"}}</script>
+    <script src="https://cdn.gtranslate.net/widgets/latest/dwf.js" defer></script>
     <script>
         $(document).ready(function(){
             $('#contactModal').on('show.bs.modal', function (event) {

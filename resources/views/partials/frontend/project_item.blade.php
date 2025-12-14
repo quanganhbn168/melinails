@@ -3,7 +3,7 @@
     <div class="project-item">
         {{-- Phần ảnh nền --}}
         <div class="project-image">
-            <img src="{{ optional($project->mainImage())->url() }}" alt="{{ $project->name }}">
+            <img src="{{ optional($project->mainImage())->url() }}" alt="{{ $project->name }}" loading="lazy">
         </div>
 
         {{-- Lớp overlay sẽ hiện ra khi hover --}}

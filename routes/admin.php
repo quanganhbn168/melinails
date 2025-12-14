@@ -174,6 +174,8 @@ Route::middleware(['auth:admin'])->prefix('admin')->as('admin.')->group(function
      Route::resource('career-applications', \App\Http\Controllers\Admin\CareerApplicationController::class)
          ->except(['create', 'store', 'edit']);
          
+    // 5. Consulting Requests (Yêu cầu tư vấn)
+     Route::resource('consulting-requests', \App\Http\Controllers\Admin\ConsultingRequestController::class);
 
      Route::get('/work-orders', \App\Livewire\WorkOrder\WorkOrderList::class)->name('work-orders.index');
      Route::get('/work-orders/create', CreateWorkOrder::class)->name('work-orders.create');

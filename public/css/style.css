@@ -6,6 +6,18 @@
 #slider{
     padding: 0px;
 }
+.section-intro {
+    padding: 50px 0;
+    background-color: var(--cnet-bg-light);
+}
+.section-intro img {
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08); 
+    transition: transform 0.3s ease;
+}
+.section-intro img:hover {
+    transform: translateY(-5px);
+}
 .intro-action {
     margin-top: 25px;
     display: flex;

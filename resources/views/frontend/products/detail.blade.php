@@ -1,7 +1,35 @@
 @extends('layouts.master')
-@section('title', $product->name)
-@section('meta_description', $product->descrition)
+@section('title', $product->meta_title ?? $product->name)
+@section('meta_description', $product->meta_description ?? Str::limit(strip_tags($product->description), 155))
 @section('meta_image', optional($product->mainImage())->url())
+
+@push('jsonld')
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org/",
+  "@type": "Product",
+  "name": "{{ $product->name }}",
+  "image": [
+    "{{ optional($product->mainImage())->url() ?? asset('images/setting/no-image.png') }}"
+   ],
+  "description": "{{ $product->meta_description ?? Str::limit(strip_tags($product->description), 155) }}",
+  "sku": "{{ $product->code ?? '' }}",
+  "brand": {
+    "@type": "Brand",
+    "name": "{{ $product->brand->name ?? $setting->name }}"
+  },
+  "offers": {
+    "@type": "Offer",
+    "url": "{{ url()->current() }}",
+    "priceCurrency": "VND",
+    "price": "{{ $product->price }}",
+    "availability": "{{ $product->stock > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock' }}",
+    "itemCondition": "https://schema.org/NewCondition"
+  }
+}
+</script>
+@endpush
+
 @push('css')
     <link rel="stylesheet" href="{{ asset('css/product.css') }}">
 @endpush

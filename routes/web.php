@@ -59,6 +59,14 @@ Route::get('/gioi-thieu', [IntroController::class,'index'])->name('frontend.intr
 Route::get('/gioi-thieu/{intro:slug}', [IntroController::class,'getBySlug'])->name('frontend.intro.getBySlug');
 Route::get('lien-he',[ContactController::class,'show'])->name('contact.show');
 Route::post('lien-he',[ContactController::class,'store'])->name('contact.store');
+
+// Tư vấn triển khai
+Route::get('tu-van-trien-khai', [App\Http\Controllers\Frontend\ConsultingController::class, 'index'])->name('consulting.index');
+Route::post('tu-van-trien-khai', [App\Http\Controllers\Frontend\ConsultingController::class, 'store'])->name('consulting.store');
+
+// Đại lý
+Route::get('dai-ly', [App\Http\Controllers\Frontend\AgencyController::class, 'index'])->name('agency.index');
+Route::post('dai-ly', [App\Http\Controllers\Frontend\AgencyController::class, 'store'])->name('agency.store');
 Route::middleware('auth')->prefix('cart')->name('cart.')->group(function () {
     Route::get('/', [CartController::class, 'index'])->name('index');
     Route::post('/add', [CartController::class, 'add'])->name('add');

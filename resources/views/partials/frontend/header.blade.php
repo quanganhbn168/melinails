@@ -55,27 +55,34 @@
                 </div>
                 <div class="header-col-right">
                     <div class="d-lg-none">
+                        {{-- Custom Dropdown linked to GTranslate --}}
                         <div class="dropdown">
                             <button class="btn btn-light rounded-circle shadow-sm dropdown-toggle p-0 d-flex align-items-center justify-content-center" type="button" data-toggle="dropdown" aria-expanded="false" style="width: 40px; height: 40px; border: 1px solid #eee;">
-                                <span class="current-flag" style="font-size: 20px;">🇻🇳</span>
+                                <img src="{{ asset('images/flags/vn.png') }}" class="current-flag-img rounded-circle" style="width: 24px; height: 24px; object-fit: cover;">
                             </button>
-                            <div class="dropdown-menu dropdown-menu-right" style="min-width: 120px;">
-                                <a class="dropdown-item d-flex align-items-center" href="#" onclick="changeLanguage('vi'); updateFlag('🇻🇳'); return false;">
-                                    <span class="me-2 mr-2" style="font-size: 18px;">🇻🇳</span> Tiếng Việt
+                            <div class="dropdown-menu dropdown-menu-right shadow-lg border-0" style="min-width: 180px; border-radius: 16px; padding: 8px; margin-top: 10px;">
+                                <a class="dropdown-item d-flex align-items-center px-3 py-2 rounded mb-1" href="#" onclick="doGTranslate('vi|vi'); updateFlag('{{ asset('images/flags/vn.png') }}'); return false;" style="transition: all 0.2s;">
+                                    <img src="{{ asset('images/flags/vn.png') }}" class="me-3 mr-3 rounded-circle shadow-sm" style="width: 24px; height: 24px; object-fit: cover;"> 
+                                    <span style="font-weight: 600; font-size: 14px; color: #333;">Tiếng Việt</span>
                                 </a>
-                                <a class="dropdown-item d-flex align-items-center" href="#" onclick="changeLanguage('en'); updateFlag('🇺🇸'); return false;">
-                                    <span class="me-2 mr-2" style="font-size: 18px;">🇺🇸</span> English
+                                <a class="dropdown-item d-flex align-items-center px-3 py-2 rounded mb-1" href="#" onclick="doGTranslate('vi|en'); updateFlag('{{ asset('images/flags/us.png') }}'); return false;" style="transition: all 0.2s;">
+                                    <img src="{{ asset('images/flags/us.png') }}" class="me-3 mr-3 rounded-circle shadow-sm" style="width: 24px; height: 24px; object-fit: cover;"> 
+                                    <span style="font-weight: 600; font-size: 14px; color: #333;">English</span>
                                 </a>
-                                <a class="dropdown-item d-flex align-items-center" href="#" onclick="changeLanguage('zh-CN'); updateFlag('🇨🇳'); return false;">
-                                    <span class="me-2 mr-2" style="font-size: 18px;">🇨🇳</span> 中文
+                                <a class="dropdown-item d-flex align-items-center px-3 py-2 rounded mb-1" href="#" onclick="doGTranslate('vi|zh-CN'); updateFlag('{{ asset('images/flags/cn.png') }}'); return false;" style="transition: all 0.2s;">
+                                    <img src="{{ asset('images/flags/cn.png') }}" class="me-3 mr-3 rounded-circle shadow-sm" style="width: 24px; height: 24px; object-fit: cover;"> 
+                                    <span style="font-weight: 600; font-size: 14px; color: #333;">中文 (Chinese)</span>
                                 </a>
-                                <a class="dropdown-item d-flex align-items-center" href="#" onclick="changeLanguage('ko'); updateFlag('🇰🇷'); return false;">
-                                    <span class="me-2 mr-2" style="font-size: 18px;">🇰🇷</span> 한국어
+                                <a class="dropdown-item d-flex align-items-center px-3 py-2 rounded" href="#" onclick="doGTranslate('vi|ko'); updateFlag('{{ asset('images/flags/kr.png') }}'); return false;" style="transition: all 0.2s;">
+                                    <img src="{{ asset('images/flags/kr.png') }}" class="me-3 mr-3 rounded-circle shadow-sm" style="width: 24px; height: 24px; object-fit: cover;"> 
+                                    <span style="font-weight: 600; font-size: 14px; color: #333;">한국어 (Korean)</span>
                                 </a>
                             </div>
                         </div>
+                        {{-- Hidden GTranslate Widget --}}
+                        <div class="gtranslate_wrapper" style="display:none;"></div>
                     </div>
-                    <div class="d-lg-block">
+                    <div class="d-none d-lg-block">
                         <button class="btn btn-primary rounded-pill">
                             <span class="d-inline-flex align-items-center justify-content-center bg-white rounded-circle me-2" style="width: 32px; height: 32px;">
         
@@ -109,12 +116,14 @@
         <a href="#" class="offcanvas-close"><i class="fa fa-times"></i></a>
     </div>
     <div class="offcanvas-menu-content">
-        {{-- ADDED: Mobile Search in Offcanvas --}}
+        {{-- ADDED: Mobile Search in Offcanvas (Styled) --}}
         <div class="offcanvas-search p-3 border-bottom">
             <form action="/search" method="get">
-                <div class="input-group">
-                    <input type="text" class="form-control" name="keyword" placeholder="Tìm kiếm...">
-                    <button class="btn btn-outline-secondary" type="submit"><i class="fa fa-search"></i></button>
+                <div class="position-relative">
+                    <input type="text" class="form-control rounded-pill bg-light border-0 pl-4 pr-5" name="keyword" placeholder="Tìm kiếm sản phẩm..." style="height: 45px; padding-left: 20px; font-size: 14px;">
+                    <button class="btn position-absolute text-muted" type="submit" style="right: 5px; top: 2px; height: 40px; border: none; background: transparent;">
+                        <i class="fa fa-search" style="font-size: 18px;"></i>
+                    </button>
                 </div>
             </form>
         </div>
@@ -251,8 +260,24 @@
     $(document).on('click', function() {
         $('.header-actions .frame-fix').removeClass('active');
     });
-    function updateFlag(flag) {
-        $('.current-flag').text(flag);
+    function updateFlag(flagSrc) {
+        $('.current-flag-img').attr('src', flagSrc);
+    }
+    // Set active flag on load based on GTranslate cookie
+    function getCookie(name) {
+        var v = document.cookie.match('(^|;) ?' + name + '=([^;]*)(;|$)');
+        return v ? v[2] : null;
+    }
+    var langCookie = getCookie('googtrans'); // Format: /vi/en
+    if (langCookie) {
+        var lang = langCookie.split('|').pop().split('/').pop(); 
+        // Logic might need adjustment based on exact cookie value from GTranslate Widget
+        // Usually /vi/en
+        var flag = '{{ asset('images/flags/vn.png') }}';
+        if (lang == 'en') flag = '{{ asset('images/flags/us.png') }}';
+        else if (lang == 'zh-CN') flag = '{{ asset('images/flags/cn.png') }}';
+        else if (lang == 'ko') flag = '{{ asset('images/flags/kr.png') }}';
+        $('.current-flag-img').attr('src', flag);
     }
 </script>
 @endpush

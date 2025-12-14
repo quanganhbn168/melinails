@@ -1,7 +1,39 @@
 @extends('layouts.master')
 @section('title', $post->title)
-@section('meta_description', $post->meta_description)
+@section('meta_description', $post->description ?? Str::limit(strip_tags($post->content), 155))
 @section('meta_image', optional($post->mainImage())->url() ?? '')
+@push('jsonld')
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "NewsArticle",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "{{ url()->current() }}"
+  },
+  "headline": "{{ $post->title }}",
+  "image": [
+    "{{ optional($post->mainImage())->url() ?? '' }}"
+  ],
+  "datePublished": "{{ $post->created_at->toIso8601String() }}",
+  "dateModified": "{{ $post->updated_at->toIso8601String() }}",
+  "author": {
+    "@type": "Person",
+    "name": "{{ $setting->name ?? 'Admin' }}"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "{{ $setting->name }}",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "{{ asset($setting->logo) }}"
+    }
+  },
+  "description": "{{ $post->description ?? Str::limit(strip_tags($post->content), 155) }}"
+}
+</script>
+@endpush
+
 @push('css')
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.css" />
 @extends('layouts.master')

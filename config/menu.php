@@ -182,6 +182,13 @@ return [
         'permission' => 'view_agents',
     ],
     [
+        'title' => 'Yêu cầu tư vấn',
+        'icon' => 'bi bi-envelope-paper-heart',
+        'route' => 'admin.consulting-requests.index',
+        'active_pattern' => 'admin.consulting-requests.*',
+        'permission' => 'view_customers', // Group with CRM/Customers
+    ],
+    [
         'title' => 'Quản lý Tuyển dụng',
         'icon' => 'bi bi-briefcase',
         'permission' => 'view_careers',

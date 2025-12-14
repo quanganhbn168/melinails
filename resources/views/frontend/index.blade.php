@@ -84,7 +84,7 @@
                 </div>
             </div>
         </div>
-        <div class="row">
+        <div class="row mt-5">
     @foreach($sodem as $item)
         <div class="col-md-3 col-6">
             <x-counter 
@@ -109,7 +109,7 @@
                 <div class="field-category-item">
                     <div class="field-category-item__image">
                         <a href="{{ route('frontend.slug.handle', $field->slugValue) }}">
-                            <img src="{{ optional($field->mainImage())->url() }}" alt="{{ $field->name }}">
+                            <img src="{{ optional($field->mainImage())->url() }}" alt="{{ $field->name }}" loading="lazy">
                         </a>
                     </div>
                     <div class="field-category-item__name">
@@ -196,7 +196,7 @@
                             <span class="author-title">Giám đốc</span>
                         </div>
                     </div>
-                    <img src="{{asset('images/setting/bat-tay.png')}}" alt="Ths. Ngô Anh Tuấn" class="director-image">
+                    <img src="{{asset('images/setting/bat-tay.png')}}" alt="Ths. Ngô Anh Tuấn" class="director-image" loading="lazy">
                 </div>
             </div>
             <div class="col-12 col-lg-6">
@@ -376,15 +376,42 @@
             </div>
             <div class="col-6 col-md-4">
                 <div class="career-item">
-                    <h4 class="career-item-title">{{ $daily->name }}</h4>
+                    <h4 class="career-item-title">{{ $daily->name ?? 'Hệ thống đại lý' }}</h4>
+                    @if(isset($daily))
                     <div class="career-item-img card-has-overlay">
-                        <a href="/tuyen-dung">
+                        <a href="{{ route('agency.index') }}">
                             <img src="{{ optional($daily->mainImage())->url() }}" alt="{{ $daily->description }}">
                         </a>
                         <p class="text-overlay">{{$daily->description}}</p>
                     </div>
                     <div class="career-item-link">
-                        <a href="/tuyen-dung">Tham gia ngay</a>
+                        <a href="{{ route('agency.index') }}">Hợp tác ngay</a>
+                    </div>
+                    @else
+                    <div class="career-item-img card-has-overlay">
+                        <a href="{{ route('agency.index') }}">
+                           <img src="https://placehold.co/600x400?text=Dai+Ly" alt="Đại lý">
+                        </a>
+                    </div>
+                    <div class="career-item-link">
+                        <a href="{{ route('agency.index') }}">Hợp tác ngay</a>
+                    </div>
+                    @endif
+                </div>
+            </div>
+
+            <div class="col-6 col-md-4">
+                <div class="career-item">
+                    <h4 class="career-item-title">Tư vấn triển khai</h4>
+                    <div class="career-item-img card-has-overlay">
+                        <a href="{{ route('consulting.index') }}">
+                            {{-- Use a distinct image or setting image --}}
+                            <img src="{{ asset($setting->banner_image ?? 'images/setting/lien-he-bg.jpg') }}" alt="Tư vấn triển khai" style="height: 100%; object-fit: cover;">
+                        </a>
+                        <p class="text-overlay">Giải pháp tối ưu - Chi phí hợp lý</p>
+                    </div>
+                    <div class="career-item-link">
+                        <a href="{{ route('consulting.index') }}">Gửi yêu cầu</a>
                     </div>
                 </div>
             </div>
