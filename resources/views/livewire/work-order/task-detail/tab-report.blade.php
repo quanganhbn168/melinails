@@ -70,10 +70,8 @@
                         @if ($proof_images)
                             @foreach($proof_images as $index => $image)
                                 <div class="img-thumb-wrapper">
-                                    <div class="img-thumb d-flex align-items-center justify-content-center bg-success text-white">
-                                        <i class="fas fa-check fa-lg"></i>
-                                    </div>
-                                    <button type="button" wire:click="removeProofImage({{ $index }})" class="btn btn-danger btn-remove-img shadow-sm">&times;</button>
+                                    <img src="{{ $image->temporaryUrl() }}" class="img-thumb">
+                                    <button wire:click="removeProofImage({{ $index }})" class="btn btn-danger btn-remove-img shadow-sm">&times;</button>
                                 </div>
                             @endforeach
                         @endif
