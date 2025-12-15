@@ -18,8 +18,8 @@
                             <div class="card-body">
                                 
                                 {{-- Loại khách --}}
-                                <div class="form-group">
-                                    <label class="d-block">Loại khách hàng</label>
+                                <div class="form-group border-bottom pb-3">
+                                    <label class="d-block mb-2">Loại khách hàng</label>
                                     <div class="custom-control custom-radio custom-control-inline">
                                         <input type="radio" id="typePersonal" name="type" class="custom-control-input" value="personal" wire:model.live="type">
                                         <label class="custom-control-label" for="typePersonal">Cá nhân</label>
@@ -27,6 +27,28 @@
                                     <div class="custom-control custom-radio custom-control-inline">
                                         <input type="radio" id="typeCompany" name="type" class="custom-control-input" value="company" wire:model.live="type">
                                         <label class="custom-control-label" for="typeCompany">Doanh nghiệp / Tổ chức</label>
+                                    </div>
+                                </div>
+
+                                <div class="form-group bg-light p-2 rounded">
+                                    <label class="d-block text-muted text-sm mb-2 font-weight-bold">Vai trò (Phân loại)</label> 
+                                    <div class="d-flex flex-wrap" style="gap: 15px;">
+                                        <div class="custom-control custom-checkbox">
+                                            <input type="checkbox" id="roleCustomer" class="custom-control-input" value="customer" wire:model="classifications">
+                                            <label class="custom-control-label" for="roleCustomer">Khách hàng</label>
+                                        </div>
+                                        <div class="custom-control custom-checkbox">
+                                            <input type="checkbox" id="roleSupplier" class="custom-control-input" value="supplier" wire:model="classifications">
+                                            <label class="custom-control-label" for="roleSupplier">Nhà cung cấp</label>
+                                        </div>
+                                        <div class="custom-control custom-checkbox">
+                                            <input type="checkbox" id="rolePartner" class="custom-control-input" value="partner" wire:model="classifications">
+                                            <label class="custom-control-label" for="rolePartner">Đối tác</label>
+                                        </div>
+                                        <div class="custom-control custom-checkbox">
+                                            <input type="checkbox" id="roleOther" class="custom-control-input" value="other" wire:model="classifications">
+                                            <label class="custom-control-label" for="roleOther">Khác</label>
+                                        </div>
                                     </div>
                                 </div>
 

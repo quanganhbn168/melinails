@@ -119,11 +119,14 @@ class TaskDetail extends Component
             'proof_images' => 'required|array|min:1',
             'proof_images.*' => 'image|max:10240',
             'collected_amount' => 'numeric|min:0',
+            'received_amount' => 'numeric|min:0', // Validate received amount
+            'payment_method' => ($this->received_amount > 0) ? 'required' : 'nullable',
         ], [
             'report_content.required' => 'Vui lòng nhập nội dung báo cáo.',
             'report_content.min' => 'Nội dung phải có ít nhất 5 ký tự.',
             'proof_images.required' => 'Vui lòng chụp ít nhất 1 ảnh nghiệm thu.',
             'proof_images.min' => 'Vui lòng chụp ít nhất 1 ảnh nghiệm thu.',
+            'payment_method.required' => 'Vui lòng chọn hình thức thanh toán khi đã thu tiền.',
         ]);
 
         DB::transaction(function () {
@@ -145,8 +148,8 @@ class TaskDetail extends Component
                 'content' => $this->report_content,
                 'is_completed' => $this->is_task_completed,
                 'collected_amount' => $this->collected_amount, // Luôn lưu tổng tiền
-                'payment_method' => $this->is_collected ? $this->payment_method : null,
-                'finance_status' => ($this->collected_amount > 0) ? 'pending' : null,
+                'payment_method' => ($this->received_amount > 0) ? $this->payment_method : null,
+                'finance_status' => ($this->collected_amount > 0) ? 'pending' : 'verified',
                 'customer_signature' => $signaturePath,
             ]);
 
@@ -185,7 +188,7 @@ class TaskDetail extends Component
             }
 
             // B. Ghi nhận THU TIỀN (Nếu có)
-            if ($this->is_collected && $this->received_amount > 0) {
+            if ($this->received_amount > 0) {
                  \App\Models\WorkOrderPayment::create([
                     'work_order_id' => $this->task->work_order_id,
                     'task_report_id' => $report->id,

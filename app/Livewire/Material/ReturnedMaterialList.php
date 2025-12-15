@@ -7,11 +7,19 @@ use Livewire\WithPagination;
 use App\Models\ReturnedItem;
 use Illuminate\Support\Facades\Auth;
 
+use App\Enums\ReturnedItemStatus;
+use App\Enums\SupplierResult;
+
 class ReturnedMaterialList extends Component
 {
     use WithPagination;
     
-    protected $paginationTheme = 'bootstrap';
+    // ... (keep properties) ...
+
+    public function paginationView()
+    {
+        return 'livewire::bootstrap'; 
+    }
 
     public $search = '';
     public $filterReason = '';
@@ -21,12 +29,19 @@ class ReturnedMaterialList extends Component
 
     // Modal state
     public $editingItemId = null;
-    public $editSupplierId = null;
-    public $editNotes = '';
+    
+    // Send to Supplier
+    public $sendSupplierId;
+    public $sendStaffId;
+    public $sendNote;
+
+    // Receive From Supplier
+    public $receiveResult;
+    public $receiveCost;
+    public $receiveNote;
 
     public function mount()
     {
-        // Default: tháng hiện tại
         $this->filterFrom = now()->startOfMonth()->format('Y-m-d');
         $this->filterTo = now()->format('Y-m-d');
     }
@@ -38,29 +53,111 @@ class ReturnedMaterialList extends Component
         $this->filterTo = now()->format('Y-m-d');
     }
 
-    /**
-     * Cập nhật status nhanh
-     */
+    // --- ACTIONS ---
+
+    public function openSendModal($itemId)
+    {
+        $item = ReturnedItem::find($itemId);
+        if (!$item) return;
+
+        $this->editingItemId = $itemId;
+        $this->sendSupplierId = $item->supplier_id;
+        $this->sendStaffId = Auth::guard('admin')->id();
+        $this->sendNote = '';
+
+        $this->dispatch('open-send-modal');
+    }
+
+    public function saveSendToSupplier()
+    {
+        $this->validate([
+            'sendSupplierId' => 'required',
+            'sendStaffId' => 'required',
+        ]);
+
+        $item = ReturnedItem::find($this->editingItemId);
+        if ($item) {
+            $item->update([
+                'status' => ReturnedItemStatus::SENT_TO_SUPPLIER,
+                'supplier_id' => $this->sendSupplierId,
+                'sent_to_supplier_by' => $this->sendStaffId,
+                'sent_to_supplier_at' => now(),
+                'notes' => $this->sendNote ? ($item->notes . "\n[Gửi NCC]: " . $this->sendNote) : $item->notes,
+            ]);
+            
+            $this->dispatch('notify', type: 'success', message: 'Đã cập nhật trạng thái: Gửi NCC');
+            $this->dispatch('close-modals');
+        }
+    }
+
+    public function openReceiveModal($itemId)
+    {
+        $item = ReturnedItem::find($itemId);
+        if (!$item) return;
+
+        $this->editingItemId = $itemId;
+        $this->receiveResult = SupplierResult::FIXED->value;
+        $this->receiveCost = 0;
+        $this->receiveNote = '';
+
+        $this->dispatch('open-receive-modal');
+    }
+
+    public function saveReceiveFromSupplier()
+    {
+        $this->validate([
+            'receiveResult' => 'required',
+            'receiveCost' => 'numeric|min:0',
+        ]);
+
+        $item = ReturnedItem::find($this->editingItemId);
+        if ($item) {
+            $item->update([
+                'status' => ReturnedItemStatus::RETURNED_FROM_SUPPLIER,
+                'supplier_result' => $this->receiveResult, // Auto-casted to Enum by Model
+                'repair_cost' => $this->receiveCost ?? 0,
+                'received_from_supplier_at' => now(),
+                'notes' => $this->receiveNote ? ($item->notes . "\n[Nhận từ NCC]: " . $this->receiveNote) : $item->notes,
+            ]);
+
+            $this->dispatch('notify', type: 'success', message: 'Đã cập nhật trạng thái: Nhận từ NCC');
+            $this->dispatch('close-modals');
+        }
+    }
+
+    public function markAsClosed($itemId)
+    {
+        $item = ReturnedItem::find($itemId);
+        if ($item) {
+            $item->update(['status' => ReturnedItemStatus::RETURNED]);
+            $this->dispatch('notify', type: 'success', message: 'Đã hoàn tất xử lý!');
+        }
+    }
+
+    // ... (updateStatus, openEditModal, saveDetails logic remains mostly same but update statuses if used) ...
+    
     public function updateStatus($itemId, $newStatus)
     {
         $item = ReturnedItem::find($itemId);
         if (!$item) return;
 
-        $item->status = $newStatus;
-        
-        // Nếu đánh dấu "Đã mang về", ghi nhận người và thời gian
-        if ($newStatus === ReturnedItem::STATUS_RETURNED) {
-            $item->returned_by = Auth::guard('admin')->id();
-            $item->returned_at = now();
+        // Try to cast string from UI to Enum
+        try {
+            $enumStatus = ReturnedItemStatus::from($newStatus);
+            $item->status = $enumStatus;
+            
+            if ($enumStatus === ReturnedItemStatus::RETURNED) {
+                $item->returned_by = Auth::guard('admin')->id();
+                $item->returned_at = now();
+            }
+            
+            $item->save();
+            $this->dispatch('notify', type: 'success', message: 'Đã cập nhật trạng thái!');
+        } catch (\ValueError $e) {
+            // Invalid status
         }
-        
-        $item->save();
-        $this->dispatch('notify', type: 'success', message: 'Đã cập nhật trạng thái!');
     }
 
-    /**
-     * Mở modal để chỉnh sửa thông tin chi tiết
-     */
     public function openEditModal($itemId)
     {
         $item = ReturnedItem::find($itemId);
@@ -73,9 +170,6 @@ class ReturnedMaterialList extends Component
         $this->dispatch('open-edit-modal');
     }
 
-    /**
-     * Lưu thông tin chi tiết (supplier, notes)
-     */
     public function saveDetails()
     {
         $item = ReturnedItem::find($this->editingItemId);
@@ -84,9 +178,8 @@ class ReturnedMaterialList extends Component
         $item->supplier_id = $this->editSupplierId;
         $item->notes = $this->editNotes;
         
-        // Nếu có gán NCC và status còn pending, tự động chuyển sang sent_to_supplier
-        if ($this->editSupplierId && $item->status === ReturnedItem::STATUS_PENDING) {
-            $item->status = ReturnedItem::STATUS_SENT_TO_SUPPLIER;
+        if ($this->editSupplierId && $item->status === ReturnedItemStatus::PENDING) {
+            $item->status = ReturnedItemStatus::SENT_TO_SUPPLIER;
         }
         
         $item->save();
@@ -106,7 +199,6 @@ class ReturnedMaterialList extends Component
             'returnedByAdmin:id,name'
         ]);
 
-        // Search by item name or serial
         if ($this->search) {
             $query->where(function ($q) {
                 $q->where('item_name', 'like', '%' . $this->search . '%')
@@ -114,61 +206,50 @@ class ReturnedMaterialList extends Component
             });
         }
 
-        // Filter by reason
         if ($this->filterReason) {
             $query->where('reason', $this->filterReason);
         }
 
-        // Filter by status
         if ($this->filterStatus) {
             $query->where('status', $this->filterStatus);
         }
 
-        // Filter by date range (via report created_at)
         if ($this->filterFrom) {
-            $query->whereHas('report', function ($q) {
-                $q->whereDate('created_at', '>=', $this->filterFrom);
-            });
+            $query->whereHas('report', fn($q) => $q->whereDate('created_at', '>=', $this->filterFrom));
         }
         if ($this->filterTo) {
-            $query->whereHas('report', function ($q) {
-                $q->whereDate('created_at', '<=', $this->filterTo);
-            });
+            $query->whereHas('report', fn($q) => $q->whereDate('created_at', '<=', $this->filterTo));
         }
 
         $items = $query->orderByDesc('id')->paginate(20);
 
         // Stats
         $statsQuery = ReturnedItem::query();
-        if ($this->filterFrom) {
-            $statsQuery->whereHas('report', fn($q) => $q->whereDate('created_at', '>=', $this->filterFrom));
-        }
-        if ($this->filterTo) {
-            $statsQuery->whereHas('report', fn($q) => $q->whereDate('created_at', '<=', $this->filterTo));
-        }
+        if ($this->filterFrom) $statsQuery->whereHas('report', fn($q) => $q->whereDate('created_at', '>=', $this->filterFrom));
+        if ($this->filterTo) $statsQuery->whereHas('report', fn($q) => $q->whereDate('created_at', '<=', $this->filterTo));
 
         $stats = [
             'total' => (clone $statsQuery)->count(),
-            'pending' => (clone $statsQuery)->where('status', ReturnedItem::STATUS_PENDING)->count(),
-            'sent_to_supplier' => (clone $statsQuery)->where('status', ReturnedItem::STATUS_SENT_TO_SUPPLIER)->count(),
-            'returned' => (clone $statsQuery)->where('status', ReturnedItem::STATUS_RETURNED)->count(),
-            'closed' => (clone $statsQuery)->where('status', ReturnedItem::STATUS_CLOSED)->count(),
-        ];
-
-        $reasons = [
-            'warranty' => 'Bảo hành',
-            'replace' => 'Đổi model',
-            'defective' => 'Lỗi nhà SX',
-            'upgrade' => 'Nâng cấp',
+            'pending' => (clone $statsQuery)->where('status', ReturnedItemStatus::PENDING)->count(),
+            'sent_to_supplier' => (clone $statsQuery)->where('status', ReturnedItemStatus::SENT_TO_SUPPLIER)->count(),
+            'returned_from_supplier' => (clone $statsQuery)->where('status', ReturnedItemStatus::RETURNED_FROM_SUPPLIER)->count(),
+            'done' => (clone $statsQuery)->whereIn('status', [ReturnedItemStatus::RETURNED, ReturnedItemStatus::CLOSED])->count(),
         ];
 
         return view('livewire.material.returned-material-list', [
             'items' => $items,
             'stats' => $stats,
-            'reasons' => $reasons,
-            'statuses' => ReturnedItem::getStatusOptions(),
-            'statuses' => ReturnedItem::getStatusOptions(),
+            'reasons' => [
+                'warranty' => 'Bảo hành',
+                'replace' => 'Đổi model',
+                'defective' => 'Lỗi nhà SX',
+                'upgrade' => 'Nâng cấp',
+            ],
+            // Pass Enum cases for Dropdowns
+            'statuses' => ReturnedItemStatus::cases(),
+            'resultOptions' => SupplierResult::cases(),
             'suppliers' => \App\Models\Customer::suppliers()->orderBy('name')->get(['id', 'name']),
+            'staffs' => \App\Models\Admin::all(['id', 'name']),
         ])->layout('layouts.admin');
     }
 }

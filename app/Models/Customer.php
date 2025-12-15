@@ -20,12 +20,20 @@ class Customer extends Model
         'bank_account',
         'bank_name',
         'type_tag_id',
+        'classifications',
+    ];
+
+    protected $casts = [
+        'classifications' => 'array',
     ];
 
     // Scope for Suppliers
     public function scopeSuppliers($query)
     {
-        return $query->where('is_supplier', true);
+        return $query->where(function($q) {
+            $q->where('is_supplier', true)
+              ->orWhereJsonContains('classifications', 'supplier');
+        });
     }
     
     public function typeTag()

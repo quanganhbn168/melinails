@@ -19,6 +19,7 @@ class CustomerForm extends Component
     public $tax_code;
     public $representative_name;
     public $notes;
+    public $classifications = ['customer']; // Mặc định là khách hàng
 
     // Danh sách liên hệ mở rộng (SĐT, Địa chỉ phụ...)
     public $contacts = []; 
@@ -36,6 +37,7 @@ class CustomerForm extends Component
             $this->tax_code = $customer->tax_code;
             $this->representative_name = $customer->representative_name;
             $this->notes = $customer->notes;
+            $this->classifications = $customer->classifications ?? ['customer'];
             
             foreach ($customer->contacts as $contact) {
                 $this->contacts[] = [
@@ -74,6 +76,7 @@ class CustomerForm extends Component
             'name' => 'required|min:2',
             'email' => 'nullable|email',
             'contacts.*.value' => 'required',
+            'classifications' => 'array',
         ], [
             'name.required' => 'Tên khách hàng là bắt buộc.',
             'email.email' => 'Email không đúng định dạng.',
@@ -90,7 +93,8 @@ class CustomerForm extends Component
                     'email' => $this->email,
                     'tax_code' => $this->tax_code,
                     'representative_name' => $this->representative_name,
-                    'notes' => $this->notes
+                    'notes' => $this->notes,
+                    'classifications' => $this->classifications,
                 ]
             );
 

@@ -35,20 +35,20 @@
                     </div>
                 </div>
                 <div class="col-md-2 col-6">
-                    <div class="info-box bg-success mb-3">
-                        <span class="info-box-icon"><i class="fas fa-check-circle"></i></span>
+                    <div class="info-box bg-primary mb-3">
+                        <span class="info-box-icon"><i class="fas fa-inbox"></i></span>
                         <div class="info-box-content">
-                            <span class="info-box-text">Đã mang về</span>
-                            <span class="info-box-number">{{ $stats['returned'] }}</span>
+                            <span class="info-box-text">Đã nhận về</span>
+                            <span class="info-box-number">{{ $stats['returned_from_supplier'] }}</span>
                         </div>
                     </div>
                 </div>
                 <div class="col-md-2 col-6">
-                    <div class="info-box bg-secondary mb-3">
-                        <span class="info-box-icon"><i class="fas fa-lock"></i></span>
+                    <div class="info-box bg-success mb-3">
+                        <span class="info-box-icon"><i class="fas fa-check-circle"></i></span>
                         <div class="info-box-content">
-                            <span class="info-box-text">Đã đóng</span>
-                            <span class="info-box-number">{{ $stats['closed'] }}</span>
+                            <span class="info-box-text">Hoàn tất</span>
+                            <span class="info-box-number">{{ $stats['done'] }}</span>
                         </div>
                     </div>
                 </div>
@@ -64,20 +64,12 @@
                     <label class="small mb-1">Trạng thái</label>
                     <select wire:model.live="filterStatus" class="form-control form-control-sm">
                         <option value="">Tất cả</option>
-                        @foreach($statuses as $key => $label)
-                            <option value="{{ $key }}">{{ $label }}</option>
+                        @foreach($statuses as $status)
+                            <option value="{{ $status->value }}">{{ $status->label() }}</option>
                         @endforeach
                     </select>
                 </div>
-                <div class="col-md-2">
-                    <label class="small mb-1">Lý do</label>
-                    <select wire:model.live="filterReason" class="form-control form-control-sm">
-                        <option value="">Tất cả</option>
-                        @foreach($reasons as $key => $label)
-                            <option value="{{ $key }}">{{ $label }}</option>
-                        @endforeach
-                    </select>
-                </div>
+                {{-- ... date filters ... --}}
                 <div class="col-md-2">
                     <label class="small mb-1">Từ ngày</label>
                     <input type="date" wire:model.live="filterFrom" class="form-control form-control-sm">
@@ -100,11 +92,8 @@
                         <tr>
                             <th style="width: 40px;">#</th>
                             <th>Thiết bị</th>
-                            <th>Serial</th>
-                            <th>Lý do</th>
-                            <th style="width: 140px;">Trạng thái</th>
-                            <th>Nhà cung cấp</th>
-                            <th>Phiếu việc</th>
+                            <th>Trạng thái & Tiến độ</th>
+                            <th>Nhà cung cấp / Kết quả</th>
                             <th style="width: 100px;">Thao tác</th>
                         </tr>
                     </thead>
@@ -113,142 +102,137 @@
                             <tr>
                                 <td>{{ $items->firstItem() + $index }}</td>
                                 <td>
-                                    <span class="font-weight-bold">{{ $item->item_name }}</span>
-                                    @if($item->condition_note)
-                                        <br><small class="text-muted">{{ Str::limit($item->condition_note, 30) }}</small>
-                                    @endif
+                                    <div class="font-weight-bold">{{ $item->item_name }}</div>
+                                    <small class="text-muted">{{ $item->serial_number ?: 'No Serial' }}</small>
+                                    <div class="mt-1"><span class="badge badge-default border">{{ $item->reason_label }}</span></div>
                                 </td>
                                 <td>
-                                    @if($item->serial_number)
-                                        <code>{{ $item->serial_number }}</code>
-                                    @else
-                                        <span class="text-muted">---</span>
-                                    @endif
+                                    <span class="badge badge-{{ $item->status->color() }}">{{ $item->status->label() }}</span>
+                                    <div class="text-xs text-muted mt-1">
+                                        @if($item->status->value == 'sent_to_supplier')
+                                            <i class="fas fa-arrow-right"></i> {{ $item->sentToSupplierBy->name ?? 'Staff' }}<br>
+                                            <i class="far fa-clock"></i> {{ $item->sent_to_supplier_at ? $item->sent_to_supplier_at->format('d/m H:i') : '' }}
+                                        @elseif($item->status->value == 'returned_from_supplier')
+                                            <i class="fas fa-undo"></i> Từ NCC<br>
+                                            <i class="far fa-clock"></i> {{ $item->received_from_supplier_at ? $item->received_from_supplier_at->format('d/m H:i') : '' }}
+                                        @endif
+                                    </div>
                                 </td>
                                 <td>
-                                    @php
-                                        $reasonColors = [
-                                            'warranty' => 'warning',
-                                            'replace' => 'primary',
-                                            'defective' => 'danger',
-                                            'upgrade' => 'success',
-                                        ];
-                                    @endphp
-                                    <span class="badge badge-{{ $reasonColors[$item->reason] ?? 'secondary' }}">
-                                        {{ $item->reason_label }}
-                                    </span>
-                                </td>
-                                <td>
-                                    {{-- Status Dropdown --}}
-                                    <select wire:change="updateStatus({{ $item->id }}, $event.target.value)" 
-                                            class="form-control form-control-sm border-{{ $item->status_color }}">
-                                        @foreach($statuses as $key => $label)
-                                            <option value="{{ $key }}" {{ $item->status === $key ? 'selected' : '' }}>
-                                                {{ $label }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                    @if($item->returned_at && $item->returnedByAdmin)
-                                        <small class="text-muted d-block mt-1">
-                                            <i class="fas fa-user"></i> {{ $item->returnedByAdmin->name }}
-                                            <br>{{ $item->returned_at->format('d/m H:i') }}
-                                        </small>
+                                    {{ $item->supplier->name ?? '---' }}
+                                    @if($item->supplier_result)
+                                        <div class="mt-1 font-weight-bold text-primary">
+                                            {{ $item->supplier_result->label() }}
+                                        </div>
+                                        @if($item->repair_cost > 0)
+                                            <small class="text-danger font-weight-bold">-{{ number_format($item->repair_cost) }}đ</small>
+                                        @endif
                                     @endif
                                 </td>
-                                <td>
-                                    @if($item->supplier)
-                                        <span class="text-primary">{{ $item->supplier->name }}</span>
-                                    @else
-                                        <span class="text-muted">Chưa gán</span>
+                                <td class="text-right">
+                                    @if($item->status->value == 'pending')
+                                        <button wire:click="openSendModal({{ $item->id }})" class="btn btn-xs btn-info" title="Gửi NCC">
+                                            <i class="fas fa-paper-plane"></i>
+                                        </button>
                                     @endif
-                                    @if($item->notes)
-                                        <br><small class="text-muted"><i class="fas fa-sticky-note"></i> {{ Str::limit($item->notes, 20) }}</small>
+
+                                    @if($item->status->value == 'sent_to_supplier')
+                                        <button wire:click="openReceiveModal({{ $item->id }})" class="btn btn-xs btn-primary" title="Nhận lại">
+                                            <i class="fas fa-download"></i>
+                                        </button>
                                     @endif
-                                </td>
-                                <td>
-                                    @if($item->report?->task?->workOrder)
-                                        <a href="{{ route('admin.work-orders.show', $item->report->task->workOrder->id) }}" 
-                                           class="text-primary font-weight-bold">
-                                            {{ $item->report->task->workOrder->code }}
-                                        </a>
-                                        <br>
-                                        <small class="text-muted">{{ $item->created_at->format('d/m/Y') }}</small>
-                                    @else
-                                        <span class="text-muted">---</span>
+
+                                    @if($item->status->value == 'returned_from_supplier')
+                                        <button wire:click="markAsClosed({{ $item->id }})" class="btn btn-xs btn-success" title="Hoàn tất">
+                                            <i class="fas fa-check"></i>
+                                        </button>
                                     @endif
-                                </td>
-                                <td class="text-center">
-                                    <button wire:click="openEditModal({{ $item->id }})" class="btn btn-xs btn-outline-info" title="Chỉnh sửa">
-                                        <i class="fas fa-edit"></i>
-                                    </button>
                                 </td>
                             </tr>
                         @empty
-                            <tr>
-                                <td colspan="8" class="text-center text-muted py-4">
-                                    <i class="fas fa-inbox fa-2x mb-2 d-block"></i>
-                                    Không có vật tư thu hồi trong khoảng thời gian này.
-                                </td>
-                            </tr>
+                            <tr><td colspan="5" class="text-center text-muted">Không có dữ liệu</td></tr>
                         @endforelse
                     </tbody>
                 </table>
             </div>
-
-            {{-- Pagination --}}
-            @if($items->hasPages())
-                <div class="float-right mt-3">
-                    {{ $items->links() }}
-                </div>
-            @endif
+            
+            <div class="card-footer clearfix">{{ $items->links() }}</div>
         </div>
     </div>
 
-    {{-- Edit Modal --}}
-    <div class="modal fade" id="editReturnedItemModal" tabindex="-1" wire:ignore.self>
+    {{-- MODAL SENT --}}
+    <div class="modal fade" id="modal-send-supplier" wire:ignore.self>
         <div class="modal-dialog">
             <div class="modal-content">
-                <div class="modal-header bg-info">
-                    <h5 class="modal-title text-white"><i class="fas fa-edit"></i> Chỉnh sửa thông tin</h5>
-                    <button type="button" class="close text-white" data-dismiss="modal">&times;</button>
-                </div>
+                <div class="modal-header bg-info"><h5 class="modal-title">Gửi NCC</h5></div>
                 <div class="modal-body">
                     <div class="form-group">
-                        <label>Nhà cung cấp</label>
-                        <select wire:model="editSupplierId" class="form-control">
-                            <option value="">-- Chọn nhà cung cấp --</option>
-                            @foreach($suppliers as $supplier)
-                                <option value="{{ $supplier->id }}">{{ $supplier->name }}</option>
+                        <label>Nhà cung cấp (*)</label>
+                        <select wire:model="sendSupplierId" class="form-control">
+                            <option value="">-- Chọn NCC --</option>
+                            @foreach($suppliers as $sup)
+                                <option value="{{ $sup->id }}">{{ $sup->name }}</option>
                             @endforeach
                         </select>
-                        <small class="text-muted">Nơi đang giữ thiết bị để bảo hành/sửa chữa</small>
+                    </div>
+                    <div class="form-group">
+                        <label>Nhân viên gửi (*)</label>
+                        <select wire:model="sendStaffId" class="form-control">
+                            <option value="">-- Chọn NV --</option>
+                            @foreach($staffs as $st)
+                                <option value="{{ $st->id }}">{{ $st->name }}</option>
+                            @endforeach
+                        </select>
                     </div>
                     <div class="form-group">
                         <label>Ghi chú</label>
-                        <textarea wire:model="editNotes" class="form-control" rows="3" placeholder="Ghi chú thêm..."></textarea>
+                        <textarea wire:model="sendNote" class="form-control" rows="3"></textarea>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
-                    <button wire:click="saveDetails" class="btn btn-primary">
-                        <i class="fas fa-save"></i> Lưu
-                    </button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Đóng</button>
+                    <button wire:click="saveSendToSupplier" class="btn btn-info">Lưu</button>
                 </div>
             </div>
         </div>
     </div>
 
-    @push('scripts')
+    {{-- MODAL RECEIVE --}}
+    <div class="modal fade" id="modal-receive-supplier" wire:ignore.self>
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-primary"><h5 class="modal-title">Nhận từ NCC</h5></div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>Kết quả (*)</label>
+                        <select wire:model="receiveResult" class="form-control">
+                            @foreach($resultOptions as $res)
+                                <option value="{{ $res->value }}">{{ $res->label() }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Chi phí</label>
+                        <input type="number" wire:model="receiveCost" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label>Ghi chú</label>
+                        <textarea wire:model="receiveNote" class="form-control" rows="3"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Đóng</button>
+                    <button wire:click="saveReceiveFromSupplier" class="btn btn-primary">Lưu</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
-        document.addEventListener('livewire:init', () => {
-            Livewire.on('open-edit-modal', () => {
-                $('#editReturnedItemModal').modal('show');
-            });
-            Livewire.on('close-edit-modal', () => {
-                $('#editReturnedItemModal').modal('hide');
-            });
+        window.addEventListener('open-send-modal', event => $('#modal-send-supplier').modal('show'));
+        window.addEventListener('open-receive-modal', event => $('#modal-receive-supplier').modal('show'));
+        window.addEventListener('close-modals', event => {
+            $('.modal').modal('hide');
         });
     </script>
-    @endpush
 </div>
-

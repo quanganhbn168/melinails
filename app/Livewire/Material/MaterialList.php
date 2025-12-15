@@ -12,6 +12,11 @@ use Illuminate\Support\Str;
 class MaterialList extends Component
 {
     use WithPagination;
+    
+    public function paginationView()
+    {
+        return 'livewire::bootstrap';
+    }
     use WithFileUploads;
 
     public $search = '';

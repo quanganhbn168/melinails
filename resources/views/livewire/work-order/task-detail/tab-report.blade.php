@@ -107,7 +107,7 @@
                      x-init="$refs.moneyInput.value = format(amount)">
                     <label class="text-sm font-weight-bold">
                         <i class="fas fa-file-invoice-dollar text-primary mr-1"></i>
-                        Tổng tiền công việc <span class="text-danger">*</span>
+                        Tổng tiền công việc
                     </label>
                     <input type="text" 
                            x-ref="moneyInput"
@@ -117,18 +117,10 @@
                     <small class="text-muted">Đây là số tiền khách phải trả (công nợ), dù đã thu hay chưa</small>
                 </div>
 
-                {{-- Checkbox đã thu tiền --}}
-                <div class="custom-control custom-checkbox mb-2">
-                    <input class="custom-control-input" type="checkbox" id="is_collected" wire:model.live="is_collected">
-                    <label class="custom-control-label font-weight-bold" for="is_collected">
-                        <i class="fas fa-check-circle text-success mr-1"></i> Đã thu tiền từ khách
-                    </label>
-                </div>
-
-                {{-- Hiện form thu tiền khi đã tích --}}
-                @if($is_collected)
+                {{-- Form thu tiền hiện luôn nếu có tiền --}}
+                @if($collected_amount > 0)
                 <div class="bg-light rounded p-3 border mt-2">
-                    {{-- Số tiền thực thu (mặc định = tổng tiền, có thể sửa) --}}
+                    {{-- Số tiền thực thu --}}
                     <div class="form-group mb-3" 
                          x-data="{ 
                             recv: @entangle('received_amount'),
@@ -154,7 +146,7 @@
                         <small class="text-muted">Nhập nhỏ hơn tổng tiền nếu khách chỉ trả 1 phần</small>
                     </div>
 
-                    <label class="text-xs text-muted font-weight-bold text-uppercase mb-2">Hình thức thanh toán</label>
+                    <label class="text-xs text-muted font-weight-bold text-uppercase mb-2">Hình thức thanh toán <span class="text-danger">*</span></label>
                     <div class="d-flex">
                         <div class="custom-control custom-radio mr-4">
                             <input class="custom-control-input" type="radio" id="pay_cash" value="cash" wire:model="payment_method">
@@ -169,8 +161,10 @@
                             </label>
                         </div>
                     </div>
+                    @error('payment_method') <span class="text-danger text-xs mt-1 d-block">{{ $message }}</span> @enderror
                 </div>
                 @endif
+
             </div>
         </div>
 

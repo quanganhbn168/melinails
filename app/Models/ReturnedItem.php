@@ -7,12 +7,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class ReturnedItem extends Model
 {
-    // Status constants
-    const STATUS_PENDING = 'pending';
-    const STATUS_SENT_TO_SUPPLIER = 'sent_to_supplier';
-    const STATUS_RETURNED = 'returned';
-    const STATUS_CLOSED = 'closed';
-
     protected $fillable = [
         'task_report_id',
         'item_name',
@@ -24,10 +18,19 @@ class ReturnedItem extends Model
         'returned_by',
         'returned_at',
         'notes',
+        'sent_to_supplier_by',
+        'sent_to_supplier_at',
+        'received_from_supplier_at',
+        'supplier_result',
+        'repair_cost',
     ];
 
     protected $casts = [
+        'status' => \App\Enums\ReturnedItemStatus::class,
+        'supplier_result' => \App\Enums\SupplierResult::class,
         'returned_at' => 'datetime',
+        'sent_to_supplier_at' => 'datetime',
+        'received_from_supplier_at' => 'datetime',
     ];
 
     // --- RELATIONSHIPS ---
@@ -47,6 +50,11 @@ class ReturnedItem extends Model
         return $this->belongsTo(Admin::class, 'returned_by');
     }
 
+    public function sentToSupplierBy(): BelongsTo
+    {
+        return $this->belongsTo(Admin::class, 'sent_to_supplier_by');
+    }
+
     // --- ACCESSORS ---
 
     /**
@@ -61,46 +69,5 @@ class ReturnedItem extends Model
             'upgrade' => 'Nâng cấp',
             default => $this->reason ?? 'Khác',
         };
-    }
-
-    /**
-     * Status với label tiếng Việt
-     */
-    public function getStatusLabelAttribute(): string
-    {
-        return match($this->status) {
-            self::STATUS_PENDING => 'Chờ xử lý',
-            self::STATUS_SENT_TO_SUPPLIER => 'Đã gửi NCC',
-            self::STATUS_RETURNED => 'Đã mang về',
-            self::STATUS_CLOSED => 'Đã đóng',
-            default => 'Không xác định',
-        };
-    }
-
-    /**
-     * Status badge color class
-     */
-    public function getStatusColorAttribute(): string
-    {
-        return match($this->status) {
-            self::STATUS_PENDING => 'warning',
-            self::STATUS_SENT_TO_SUPPLIER => 'info',
-            self::STATUS_RETURNED => 'success',
-            self::STATUS_CLOSED => 'secondary',
-            default => 'light',
-        };
-    }
-
-    /**
-     * Danh sách tất cả status để hiển thị dropdown
-     */
-    public static function getStatusOptions(): array
-    {
-        return [
-            self::STATUS_PENDING => 'Chờ xử lý',
-            self::STATUS_SENT_TO_SUPPLIER => 'Đã gửi NCC',
-            self::STATUS_RETURNED => 'Đã mang về',
-            self::STATUS_CLOSED => 'Đã đóng',
-        ];
     }
 }
