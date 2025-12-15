@@ -290,6 +290,11 @@ class TaskDetail extends Component
         $this->items[] = ['name' => '', 'serial' => '', 'qty' => 1];
     }
 
+    public function removeProofImage($index)
+    {
+        array_splice($this->proof_images, $index, 1);
+    }
+
     public function removeItem($index)
     {
         unset($this->items[$index]);
