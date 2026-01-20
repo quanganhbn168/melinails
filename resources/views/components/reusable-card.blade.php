@@ -8,7 +8,7 @@
 <div class="item-card">
     {{-- Phần hình ảnh nền --}}
     <div class="item-card__image">
-        <img src="{{ optional($item->mainImage())->url() }}" alt="{{ $title }}">
+        <img src="{{ !empty($item->image) ? asset($item->image) : (optional($item->mainImage())->url() ?: asset('images/setting/no-image.png')) }}" alt="{{ $title }}">
     </div>
 
     {{-- Lớp phủ chứa thông tin --}}

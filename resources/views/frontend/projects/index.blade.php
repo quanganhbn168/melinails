@@ -15,7 +15,7 @@
     $pf = isset($projectFeature) ? $projectFeature : null;
 
     // Lấy URL ảnh đại diện an toàn
-    $pfImage = optional(optional($pf)->mainImage())->url() ?: $fallbackImage;
+    $pfImage = !empty(optional($pf)->image) ? asset($pf->image) : (optional(optional($pf)->mainImage())->url() ?: $fallbackImage);
 
     // Tạo link an toàn (nếu không có slug thì để '#')
     $pfHref  = (!empty(optional($pf)->slug)) ? route('frontend.slug.handle', $pf->slug) : '#';

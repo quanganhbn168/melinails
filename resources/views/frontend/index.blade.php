@@ -123,7 +123,7 @@
                 <div class="field-category-item">
                     <div class="field-category-item__image">
                         <a href="{{ route('frontend.slug.handle', $field->slugValue) }}">
-                            <img src="{{ optional($field->mainImage())->url() }}" alt="{{ $field->name }}" loading="lazy">
+                            <img src="{{ !empty($field->image) ? asset($field->image) : (optional($field->mainImage())->url() ?: asset('images/setting/no-image.png')) }}" alt="{{ $field->name }}" loading="lazy">
                         </a>
                     </div>
                     <div class="field-category-item__name">
@@ -295,7 +295,7 @@
                         <div class="news-grid">
                             <div class="news-grid-large">
                                 <a href="{{ route('frontend.slug.handle', $firstAllPost->slug) }}" class="news-item">
-                                    <img src="{{ optional($firstAllPost->mainImage())->url() }}" alt="{{ $firstAllPost->title }}">
+                                    <img src="{{ !empty($firstAllPost->image) ? asset($firstAllPost->image) : (optional($firstAllPost->mainImage())->url() ?: asset('images/setting/no-image.png')) }}" alt="{{ $firstAllPost->title }}">
                                     <div class="news-item-title">
                                         <h3>{{ $firstAllPost->title }}</h3>
                                     </div>
@@ -305,7 +305,7 @@
                             <div class="news-grid-small">
                                 @foreach($otherAllPosts as $post)
                                 <a href="{{ route('frontend.slug.handle', $post->slug) }}" class="news-item">
-                                    <img src="{{ optional($post->mainImage())->url() }}" alt="{{ $post->title }}">
+                                    <img src="{{ !empty($post->image) ? asset($post->image) : (optional($post->mainImage())->url() ?: asset('images/setting/no-image.png')) }}" alt="{{ $post->title }}">
                                     <div class="news-item-title">
                                         <h4>{{ $post->title }}</h4>
                                     </div>
@@ -328,7 +328,7 @@
                         <div class="news-grid">
                             <div class="news-grid-large">
                                 <a href="{{ route('frontend.slug.handle', $firstPost->slugValue) }}" class="news-item">
-                                    <img src="{{ optional($firstPost->mainImage())->url() }}" alt="{{ $firstPost->title }}">
+                                    <img src="{{ !empty($firstPost->image) ? asset($firstPost->image) : (optional($firstPost->mainImage())->url() ?: asset('images/setting/no-image.png')) }}" alt="{{ $firstPost->title }}">
                                     <div class="news-item-title">
                                         <h3>{{ $firstPost->title }}</h3>
                                     </div>
@@ -338,7 +338,7 @@
                             <div class="news-grid-small">
                                 @foreach($otherPosts as $post)
                                 <a href="{{ route('frontend.slug.handle', $post->slugValue) }}" class="news-item">
-                                    <img src="{{ optional($post->mainImage())->url() }}" alt="{{ $post->title }}">
+                                    <img src="{{ !empty($post->image) ? asset($post->image) : (optional($post->mainImage())->url() ?: asset('images/setting/no-image.png')) }}" alt="{{ $post->title }}">
                                     <div class="news-item-title">
                                         <h4>{{ $post->title }}</h4>
                                     </div>
@@ -357,7 +357,8 @@
         <a href="javascript:void(0)">{{ $newsSection->getSetting('video_title', 'Video giới thiệu') }}</a>
     </h4>
     <div class="video-list">
-        <div class="position-relative rounded overflow-hidden" style="background: #000; min-height: 200px;">
+
+                    position-relative rounded overflow-hidden" style="background: #000; min-height: 200px;">
             
             {{-- LOGIC YOUTUBE --}}
             @if(($setting->video_type ?? 'youtube') === 'youtube' && !empty($setting->intro_video_url))

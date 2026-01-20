@@ -279,7 +279,7 @@
 @section('content')
 <div id="project-wrapper">
     <div class="project-banner mb-4">
-        <img src="{{ optional($project->bannerImage())->url() }}"
+        <img src="{{ !empty($project->banner) ? asset($project->banner) : (optional($project->bannerImage())->url() ?: asset('images/setting/cover01.jpg')) }}"
              alt="{{ $project->name }}" width="1920" height="300" loading="eager">
         <div class="project-banner_overlay"></div>
     </div>
@@ -301,7 +301,7 @@
             </div>
             <div class="col-12 col-md-6">
                 <div class="project-image">
-                    <img src="{{ optional($project->mainImage())->url() }}" alt="{{$project->name}}">
+                    <img src="{{ !empty($project->image) ? asset($project->image) : (optional($project->mainImage())->url() ?: asset('images/setting/no-image.png')) }}" alt="{{$project->name}}">
                 </div>
             </div>
         </div>
@@ -368,7 +368,7 @@
                     @foreach($relatedProjects as $other)
                     <div class="swiper-slide">
                         <a href="{{ route('frontend.slug.handle', $other->slug) }}" class="project-card">
-                            <img src="{{ optional($other->mainImage())->url() }}" alt="{{ $other->name }}">
+                            <img src="{{ !empty($other->image) ? asset($other->image) : (optional($other->mainImage())->url() ?: asset('images/setting/no-image.png')) }}" alt="{{ $other->name }}">
                             <span class="project-name">{{ $other->name }}</span>
                         </a>
                     </div>

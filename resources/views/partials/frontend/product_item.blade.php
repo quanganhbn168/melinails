@@ -1,7 +1,7 @@
 <div class="product_item">
     <div class="product_item-img">
         <a href="{{ route('frontend.slug.handle', $product->slugValue) }}">
-            <img class="main-image" src="{{ optional($product->mainImage())->url() }}" alt="{{ $product->name }}">
+            <img class="main-image" src="{{ !empty($product->image) ? asset($product->image) : (optional($product->mainImage())->url() ?: asset('images/setting/no-image.png')) }}" alt="{{ $product->name }}">
         </a>
     </div>
     <div class="product_item-name">

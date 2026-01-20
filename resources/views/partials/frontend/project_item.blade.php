@@ -3,7 +3,7 @@
     <div class="project-item">
         {{-- Phần ảnh nền --}}
         <div class="project-image">
-            <img src="{{ optional($project->mainImage())->url() }}" alt="{{ $project->name }}" loading="lazy">
+            <img src="{{ !empty($project->image) ? asset($project->image) : (optional($project->mainImage())->url() ?: asset('images/setting/no-image.png')) }}" alt="{{ $project->name }}" loading="lazy">
         </div>
 
         {{-- Lớp overlay sẽ hiện ra khi hover --}}

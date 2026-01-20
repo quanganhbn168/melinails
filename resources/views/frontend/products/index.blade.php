@@ -42,7 +42,7 @@
 
 @section('content')
     <div class="banner">
-        <img src="{{ optional($page->bannerImage())->url() }}" alt="{{ $page->title }}">
+        <img src="{{ !empty($page->banner) ? asset($page->banner) : (optional($page->bannerImage())->url() ?: asset('images/setting/cover01.jpg')) }}" alt="{{ $page->title }}">
     </div>
 
     <div class="container py-4">
@@ -80,7 +80,7 @@
                 <div class="col-6 col-md-4 category-card">
                     <a href="{{ route('frontend.slug.handle', $item->slug) }}" class="d-block text-center text-decoration-none text-dark font-weight-bold">
                         <div class="item-banner mb-2 border">
-                            <img src="{{ optional($item->bannerImage())->url() }}" alt="{{ $item->name }}">
+                            <img src="{{ !empty($item->banner) ? asset($item->banner) : (optional($item->bannerImage())->url() ?: asset('images/setting/no-image.png')) }}" alt="{{ $item->name }}">
                         </div>
                         {{ $item->name }}
                     </a>
