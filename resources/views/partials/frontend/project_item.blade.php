@@ -13,11 +13,11 @@
                 <div class="project-owner">
                     <p>
                         <i class="fa-regular fa-building"></i>
-                        <strong>Chủ đầu tư:</strong> {{ $project->owner }}
+                        <strong>Chủ đầu tư:</strong> {{ $project->investor }}
                     </p>
                     <p>
                         <i class="fa-solid fa-tag"></i>
-                        <strong>Giá thầu:</strong> {{ $project->bid_price ?? 'Đang cập nhật' }}
+                        <strong>Giá thầu:</strong> {{ $project->value ? number_format($project->value, 0, ',', '.') : 'Đang cập nhật' }}
                     </p>
                 </div>
             </div>
