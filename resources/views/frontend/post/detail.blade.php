@@ -47,8 +47,7 @@
 	@endphp
 	<img src="{{ $bannerUrl }}" 
          alt="{{ $post->title }}" 
-         class="img-fluid w-100" 
-         style="max-height: 500px; object-fit: cover;" 
+         class="img-fluid w-100 banner-image" 
          loading="lazy">
 </div>
 <section class="section py-4">

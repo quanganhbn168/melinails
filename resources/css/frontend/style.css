@@ -3863,3 +3863,19 @@ input:checked~.star-label i::before,
         opacity: 1;
     }
 }
+/* Fix Post Detail Image */
+.post-image img {
+    width: 100%;
+    height: auto;
+    object-fit: contain;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+}
+
+/* Banner Image Detail Styles */
+.banner-image {
+    max-height: 500px;
+    object-fit: cover;
+    object-position: center;
+}
