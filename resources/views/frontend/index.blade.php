@@ -68,13 +68,13 @@
 <section class="section section-intro">
     <div class="container">
         <div class="row align-items-center">
-            <div class="col-12 col-md-6">
+            <div class="col-12 col-md-6 intro-image-wrapper">
                 <a href="{{route('frontend.slug.handle',$introMain->slug)}}">
-                    <img src="{{ optional($introMain->mainImage())->url() }}" alt="{{$introMain->name}}" fetchpriority="high" width="600" height="400" style="width: 100%; height: auto;">
+                    <img src="{{ optional($introMain->mainImage())->url() }}" alt="{{$introMain->name}}" fetchpriority="high" width="600" height="400">
                 </a>
             </div>
-            <div class="col-12 col-md-6">
-                <h2 class="">{{$setting->name}}</h2>
+            <div class="col-12 col-md-6 intro-content">
+                <h2>{{$setting->name}}</h2>
                 {!! $introMain->description !!}
                 <div class="intro-action">
                     <a href="{{ $introSection->getSetting('button_link', asset('storage/' . $setting->profile)) }}" target="_blank" class="btn btn-primary rounded-pill btn-crossover">
@@ -267,20 +267,26 @@
                 @if(!empty($newsSection->subtitle))
                     <p class="text-left mb-3 section-subtitle">{{ $newsSection->subtitle }}</p>
                 @endif
+                
+                {{-- Desktop Tabs - ẩn trên mobile --}}
                 @if($homePostCategories->isNotEmpty())
-                <ul class="nav nav-pills mb-3" id="newsTabs" role="tablist">
+                <ul class="nav nav-pills mb-3 d-none d-md-flex" id="newsTabs" role="tablist">
                     <li class="nav-item" role="presentation">
                         <button class="nav-link active" id="tab-news-all" data-toggle="pill" data-target="#pane-news-all" type="button" role="tab" aria-controls="pane-news-all" aria-selected="true">Tất cả</button>
                     </li>
                     @foreach($homePostCategories as $postCategory)
                     @if($postCategory->posts->isNotEmpty())
                     <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="tab-news-{{ $postCategory->slug }}" data-toggle="pill" data-target="#pane-news-{{ $postCategory->slug }}" type="button" role="tab" aria-controls="pane-news-{{ $postCategory->slug }}" aria-selected="{{ $loop->first ? 'true' : 'false' }}">{{ $postCategory->name }}</button>
+                        <button class="nav-link" id="tab-news-{{ $postCategory->slug }}" data-toggle="pill" data-target="#pane-news-{{ $postCategory->slug }}" type="button" role="tab" aria-controls="pane-news-{{ $postCategory->slug }}" aria-selected="false">{{ $postCategory->name }}</button>
                     </li>
                     @endif
                     @endforeach
                 </ul>
+                @endif
+                
                 <div class="tab-content" id="newsTabsContent">
+                    {{-- Tab All Posts --}}
+                    <div class="news-header-mobile is-open d-md-none" data-target="#pane-news-all">Tất cả</div>
                     <div class="tab-pane fade show active" id="pane-news-all" role="tabpanel" aria-labelledby="tab-news-all">
                         @php
                         $firstAllPost = $allPosts->first();
@@ -309,8 +315,11 @@
                             @endif
                         </div>
                     </div>
+                    
+                    {{-- Category Tabs --}}
                     @foreach($homePostCategories as $postCategory)
                     @if($postCategory->posts->isNotEmpty())
+                    <div class="news-header-mobile d-md-none" data-target="#pane-news-{{ $postCategory->slug }}">{{ $postCategory->name }}</div>
                     <div class="tab-pane fade" id="pane-news-{{ $postCategory->slug }}" role="tabpanel" aria-labelledby="tab-news-{{ $postCategory->slug }}">
                         @php
                         $firstPost = $postCategory->posts->first();
@@ -342,7 +351,6 @@
                     @endif
                     @endforeach
                 </div>
-                @endif
             </div>
             <div class="col-12 col-lg-4 mt-4 mt-lg-0">
     <h4 class="section-title">
@@ -400,61 +408,68 @@
 </section>
 @endisset
 @isset($sections['careers'])
+@php $careersSection = $sections['careers']; @endphp
 <section class="section section-careers">
     <div class="container">
+        @if(!empty($careersSection->title))
+            <h2 class="section-title"><a href="">{{ $careersSection->title }}</a></h2>
+        @endif
+        @if(!empty($careersSection->subtitle))
+            <p class="text-center mb-4 section-subtitle">{{ $careersSection->subtitle }}</p>
+        @endif
         <div class="row">
-            <div class="col-6 col-md-4">
+            {{-- Card 1: Tuyển dụng --}}
+            <div class="col-12 col-md-4">
                 <div class="career-item">
-                    <h4 class="career-item-title">{{ $tuyendung->name }}</h4>
+                    <h4 class="career-item-title">{{ $careersSection->getSetting('card_1_title', $tuyendung->name ?? 'Tuyển dụng') }}</h4>
                     <div class="career-item-img card-has-overlay">
-                        <a href="/tuyen-dung">
-                            <img src="{{ optional($tuyendung->mainImage())->url() }}" alt="{{ $tuyendung->description }}">
+                        <a href="{{ $careersSection->getSetting('card_1_link', '/tuyen-dung') }}">
+                            @if($tuyendung)
+                                <img src="{{ optional($tuyendung->mainImage())->url() }}" alt="{{ $tuyendung->name }}">
+                            @endif
                         </a>
-                        <p class="text-overlay">{{$tuyendung->description}}</p>
+                        </a>
+                        <p class="text-overlay">{{ $careersSection->getSetting('card_1_desc', $tuyendung->description ?? '') }}</p>
                     </div>
                     <div class="career-item-link">
-                        <a href="/tuyen-dung">Ứng tuyển</a>
+                        <a href="{{ $careersSection->getSetting('card_1_link', '/tuyen-dung') }}">{{ $careersSection->getSetting('card_1_button', 'Ứng tuyển') }}</a>
                     </div>
                 </div>
             </div>
-            <div class="col-6 col-md-4">
+            
+            {{-- Card 2: Đại lý --}}
+            <div class="col-12 col-md-4">
                 <div class="career-item">
-                    <h4 class="career-item-title">{{ $daily->name ?? 'Hệ thống đại lý' }}</h4>
-                    @if(isset($daily))
+                    <h4 class="career-item-title">{{ $careersSection->getSetting('card_2_title', $daily->name ?? 'Hệ thống đại lý') }}</h4>
                     <div class="career-item-img card-has-overlay">
-                        <a href="{{ route('agency.index') }}">
-                            <img src="{{ optional($daily->mainImage())->url() }}" alt="{{ $daily->description }}">
+                        <a href="{{ $careersSection->getSetting('card_2_link', route('agency.index')) }}">
+                            @if($daily)
+                                <img src="{{ optional($daily->mainImage())->url() }}" alt="{{ $daily->name }}">
+                            @else
+                                <img src="https://placehold.co/600x400?text=Dai+Ly" alt="Đại lý">
+                            @endif
                         </a>
-                        <p class="text-overlay">{{$daily->description}}</p>
+                        </a>
+                        <p class="text-overlay">{{ $careersSection->getSetting('card_2_desc', $daily->description ?? '') }}</p>
                     </div>
                     <div class="career-item-link">
-                        <a href="{{ route('agency.index') }}">Hợp tác ngay</a>
+                        <a href="{{ $careersSection->getSetting('card_2_link', route('agency.index')) }}">{{ $careersSection->getSetting('card_2_button', 'Hợp tác ngay') }}</a>
                     </div>
-                    @else
-                    <div class="career-item-img card-has-overlay">
-                        <a href="{{ route('agency.index') }}">
-                           <img src="https://placehold.co/600x400?text=Dai+Ly" alt="Đại lý">
-                        </a>
-                    </div>
-                    <div class="career-item-link">
-                        <a href="{{ route('agency.index') }}">Hợp tác ngay</a>
-                    </div>
-                    @endif
                 </div>
             </div>
 
-            <div class="col-6 col-md-4">
+            {{-- Card 3: Tư vấn --}}
+            <div class="col-12 col-md-4">
                 <div class="career-item">
-                    <h4 class="career-item-title">Tư vấn triển khai</h4>
+                    <h4 class="career-item-title">{{ $careersSection->getSetting('card_3_title', 'Tư vấn triển khai') }}</h4>
                     <div class="career-item-img card-has-overlay">
-                        <a href="{{ route('consulting.index') }}">
-                            {{-- Use a distinct image or setting image --}}
-                            <img src="{{ asset($setting->banner_image ?? 'images/setting/lien-he-bg.jpg') }}" alt="Tư vấn triển khai" style="height: 100%; object-fit: cover;">
+                        <a href="{{ $careersSection->getSetting('card_3_link', route('consulting.index')) }}">
+                            <img src="{{ asset($setting->banner_image ?? 'images/setting/lien-he-bg.jpg') }}" alt="Tư vấn triển khai">
                         </a>
-                        <p class="text-overlay">Giải pháp tối ưu - Chi phí hợp lý</p>
+                        <p class="text-overlay">{{ $careersSection->getSetting('card_3_desc', 'Giải pháp tối ưu - Chi phí hợp lý') }}</p>
                     </div>
                     <div class="career-item-link">
-                        <a href="{{ route('consulting.index') }}">Gửi yêu cầu</a>
+                        <a href="{{ $careersSection->getSetting('card_3_link', route('consulting.index')) }}">{{ $careersSection->getSetting('card_3_button', 'Gửi yêu cầu') }}</a>
                     </div>
                 </div>
             </div>
@@ -646,13 +661,13 @@
         }
         // --- 2. Khởi tạo slider cho tab đầu tiên khi tải trang ---
         initSwiper('#pane-all-projects');
-        // --- 3. Lắng nghe sự kiện click Desktop ---
-        $('button[data-toggle="pill"]').on('click', function(e) {
+        // --- 3. Lắng nghe sự kiện click Desktop (Projects) ---
+        $('#projectTabs button[data-toggle="pill"]').on('click', function(e) {
             e.preventDefault();
             const targetPaneId = $(this).data('target');
             if (targetPaneId) {
-                // Ẩn tất cả panes thủ công cho chắc
-                $('.tab-pane').removeClass('show active');
+                // Ẩn tất cả panes trong Project Tabs
+                $('#projectTabsContent .tab-pane').removeClass('show active');
                 
                 // Hiện pane đích
                 $(targetPaneId).addClass('show active');
@@ -669,13 +684,34 @@
             }
         });
 
+        // --- 3b. Lắng nghe sự kiện click Desktop (News) ---
+        $('#newsTabs button[data-toggle="pill"]').on('click', function(e) {
+            e.preventDefault();
+            const targetPaneId = $(this).data('target');
+            if (targetPaneId) {
+                // Ẩn tất cả panes trong News Tabs
+                $('#newsTabsContent .tab-pane').removeClass('show active');
+                
+                // Hiện pane đích
+                $(targetPaneId).addClass('show active');
+                
+                // Cập nhật Buttons Desktop
+                $('#newsTabs .nav-link').removeClass('active');
+                $(this).addClass('active');
+
+                // Đồng bộ Header Mobile
+                $('.news-header-mobile').removeClass('is-open');
+                $(`.news-header-mobile[data-target="${targetPaneId}"]`).addClass('is-open');
+            }
+        });
+
         // --- 4. Lắng nghe sự kiện Accordion Mobile ---
         $('.project-header-mobile').on('click', function() {
             const targetPaneId = $(this).data('target');
             if ($(this).hasClass('is-open')) return;
 
             // Ẩn tất cả panes
-            $('.tab-pane').removeClass('show active');
+            $('#projectTabsContent .tab-pane').removeClass('show active');
             
             // Hiện pane đích
             $(targetPaneId).addClass('show active');
@@ -689,6 +725,32 @@
             $(`button[data-target="${targetPaneId}"]`).addClass('active');
 
             initSwiper(targetPaneId);
+
+            // Cuộn mượt tới tiêu đề
+            const offset = $(this).offset().top - 60;
+            $('html, body').stop().animate({
+                scrollTop: offset
+            }, 500);
+        });
+
+        // --- 5. News Accordion Mobile ---
+        $('.news-header-mobile').on('click', function() {
+            const targetPaneId = $(this).data('target');
+            if ($(this).hasClass('is-open')) return;
+
+            // Ẩn tất cả news panes
+            $('#newsTabsContent .tab-pane').removeClass('show active');
+            
+            // Hiện pane đích
+            $(targetPaneId).addClass('show active');
+            
+            // Cập nhật giao diện Accordion
+            $('.news-header-mobile').removeClass('is-open');
+            $(this).addClass('is-open');
+
+            // Đồng bộ Tab Desktop
+            $('#newsTabs .nav-link').removeClass('active');
+            $(`button[data-target="${targetPaneId}"]`).addClass('active');
 
             // Cuộn mượt tới tiêu đề
             const offset = $(this).offset().top - 60;

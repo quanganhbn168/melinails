@@ -121,18 +121,23 @@ class HomepageSectionService
                 // Banner lấy từ Slides model (type=BANNER_AD)
             ],
             'news' => [
-                // Tin tức lấy từ Post model
+                ['name' => 'video_title', 'label' => 'Tiêu đề Video', 'type' => 'text', 'placeholder' => 'Video giới thiệu'],
             ],
             'careers' => [
                 ['name' => 'card_1_title', 'label' => 'Tiêu đề Card 1', 'type' => 'text'],
                 ['name' => 'card_1_link', 'label' => 'Link Card 1', 'type' => 'text'],
                 ['name' => 'card_1_button', 'label' => 'Text nút Card 1', 'type' => 'text'],
+                ['name' => 'card_1_desc', 'label' => 'Mô tả Card 1 (Tuyển dụng)', 'type' => 'textarea', 'placeholder' => 'Để trống sẽ lấy từ trang Tuyển dụng'],
+                
                 ['name' => 'card_2_title', 'label' => 'Tiêu đề Card 2', 'type' => 'text'],
                 ['name' => 'card_2_link', 'label' => 'Link Card 2', 'type' => 'text'],
                 ['name' => 'card_2_button', 'label' => 'Text nút Card 2', 'type' => 'text'],
+                ['name' => 'card_2_desc', 'label' => 'Mô tả Card 2 (Đại lý)', 'type' => 'textarea', 'placeholder' => 'Để trống sẽ lấy từ trang Đại lý'],
+
                 ['name' => 'card_3_title', 'label' => 'Tiêu đề Card 3', 'type' => 'text'],
                 ['name' => 'card_3_link', 'label' => 'Link Card 3', 'type' => 'text'],
                 ['name' => 'card_3_button', 'label' => 'Text nút Card 3', 'type' => 'text'],
+                ['name' => 'card_3_desc', 'label' => 'Mô tả Card 3 (Tư vấn)', 'type' => 'textarea', 'placeholder' => 'Giải pháp tối ưu - Chi phí hợp lý'],
             ],
             'testimonials' => [
                 // Đánh giá lấy từ Testimonial model

@@ -146,8 +146,45 @@ section {
     padding: 40px 0px;
 }
 
-/* Increased padding */
+/* ==========================================
+   CONTAINER OVERRIDES - Larger than Bootstrap 4 default
+   Bootstrap 4 defaults: sm=540, md=720, lg=960, xl=1140
+   ========================================== */
+.container {
+    max-width: 100%;
+}
 
+@media (min-width: 576px) {
+    .container {
+        max-width: 540px;
+    }
+}
+
+@media (min-width: 768px) {
+    .container {
+        max-width: 750px;
+    }
+}
+
+@media (min-width: 992px) {
+    .container {
+        max-width: 1000px;
+    }
+}
+
+@media (min-width: 1200px) {
+    .container {
+        max-width: 1200px;
+    }
+}
+
+@media (min-width: 1400px) {
+    .container {
+        max-width: 1340px;
+    }
+}
+
+/* Custom container for full-width sections */
 .container-custom {
     width: 100%;
     padding-right: 20px;
@@ -166,18 +203,10 @@ section {
 }
 
 body.show-offcanvas {
-
     overflow: hidden;
-
 }
 
-.section-title {
-
-    font-weight: 400;
-
-    text-align: center;
-
-}
+/* .section-title moved to style.css for consolidation */
 
 .top-bar span a {
 
@@ -918,43 +947,7 @@ body.show-offcanvas .offcanvas-overlay,
     font-weight: 500;
 }
 
-.section-title a {
-    color: var(--cnet-blue-primary);
-}
-
-section.section .section-title h2 {
-
-    display: inline-block;
-    font-weight: 700;
-    font-size: 3rem;
-
-    text-transform: uppercase;
-    margin-bottom: 0px;
-    font-family: 'Oswald', sans-serif;
-
-    position: relative;
-    padding-bottom: 8px;
-
-}
-
-section.section .section-title h2:before {
-
-    content: "";
-    display: block;
-    width: 80px;
-    height: 4px;
-
-    background: var(--cnet-orange-accent);
-
-    position: absolute;
-    bottom: 0px;
-    left: 0px;
-
-    -webkit-clip-path: polygon(0% 0%, 100% 0%, calc(100% - 4px) 100%, 0% 100%);
-
-    clip-path: polygon(0% 0%, 100% 0%, calc(100% - 4px) 100%, 0% 100%);
-
-}
+/* NOTE: .section-title styles consolidated in style.css */
 
 @media (min-width: 992px) {
 
@@ -1604,6 +1597,37 @@ section.section .section-title h2:before {
 }
 
 .project-header-mobile.is-open::after {
+    transform: rotate(180deg);
+}
+
+/* News Accordion Mobile - same style as projects */
+.news-header-mobile {
+    padding: 15px 0;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #333;
+    border-bottom: 1px solid #eee;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.news-header-mobile::after {
+    content: '\f078';
+    font-family: 'Font Awesome 6 Free';
+    font-weight: 900;
+    font-size: 0.8rem;
+    transition: transform 0.3s ease;
+}
+
+.news-header-mobile.is-open {
+    color: var(--cnet-blue-primary);
+    border-bottom-color: var(--cnet-blue-primary);
+}
+
+.news-header-mobile.is-open::after {
     transform: rotate(180deg);
 }
 

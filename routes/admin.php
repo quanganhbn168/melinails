@@ -223,6 +223,7 @@ Route::middleware(['auth:admin'])->prefix('admin')->as('admin.')->group(function
      Route::prefix('homepage-sections')->name('homepage-sections.')->controller(\App\Http\Controllers\Admin\HomepageSectionController::class)->group(function () {
          Route::get('/', 'index')->name('index');
          Route::get('/{id}/edit', 'edit')->name('edit');
+         Route::get('/{id}/edit-form', 'editForm')->name('edit-form');
          Route::put('/{id}', 'update')->name('update');
          Route::post('/{id}/toggle', 'toggleActive')->name('toggle');
          Route::post('/reorder', 'reorder')->name('reorder');
