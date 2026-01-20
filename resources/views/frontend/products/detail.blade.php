@@ -1,7 +1,7 @@
 @extends('layouts.master')
 @section('title', $product->meta_title ?? $product->name)
 @section('meta_description', $product->meta_description ?? Str::limit(strip_tags($product->description), 155))
-@section('meta_image', optional($product->mainImage())->url())
+@section('meta_image', optional($product->mainImage())->url() ?: ($product->image ? asset($product->image) : ''))
 
 @push('jsonld')
 <script type="application/ld+json">
@@ -10,7 +10,7 @@
   "@type": "Product",
   "name": "{{ $product->name }}",
   "image": [
-    "{{ optional($product->mainImage())->url() ?? asset('images/setting/no-image.png') }}"
+    "{{ optional($product->mainImage())->url() ?: ($product->image ? asset($product->image) : asset('images/setting/no-image.png')) }}"
    ],
   "description": "{{ $product->meta_description ?? Str::limit(strip_tags($product->description), 155) }}",
   "sku": "{{ $product->code ?? '' }}",
@@ -56,6 +56,7 @@
                                         // 2. Nếu Gallery rỗng, thử lấy Main Image hoặc Banner
                                         if($images->isEmpty()){
                                             if($product->mainImage()) $images->push($product->mainImage());
+                                            elseif($product->image) $images->push($product->image);
                                             elseif($product->bannerImage()) $images->push($product->bannerImage());
                                         }
                                     @endphp
@@ -71,9 +72,9 @@
                                         {{-- TRƯỜNG HỢP 2: Có ảnh -> Chạy vòng lặp --}}
                                         @foreach ($images as $image)
                                             <div class="swiper-slide">
-                                                {{-- Logic: Nếu url() null thì lấy ảnh mặc định. Nếu link chết (404) thì onerror kích hoạt --}}
-                                                <img src="{{ optional($image)->url() ?? asset('images/setting/no-image.png') }}" 
-                                                     alt="{{ $image->alt ?? $product->name }}" 
+                                                {{-- Logic: Support both Object (mainImage) and String (legacy image column) --}}
+                                                <img src="{{ (is_string($image) ? asset($image) : optional($image)->url()) ?? asset('images/setting/no-image.png') }}" 
+                                                     alt="{{ (is_string($image) ? $product->name : ($image->alt ?? $product->name)) }}" 
                                                      loading="lazy"
                                                      onerror="this.onerror=null;this.src='{{ asset('images/setting/no-image.png') }}';">
                                             </div>
@@ -91,7 +92,7 @@
                             <div class="swiper-wrapper">
                                 @foreach ($images as $image)
                                     <div class="swiper-slide">
-                                        <img src="{{ optional($image)->url() ?? asset('images/setting/no-image.png') }}" 
+                                        <img src="{{ (is_string($image) ? asset($image) : optional($image)->url()) ?? asset('images/setting/no-image.png') }}" 
                                              alt="Thumb"
                                              onerror="this.onerror=null;this.src='{{ asset('images/setting/no-image.png') }}';">
                                     </div>

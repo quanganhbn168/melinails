@@ -1,7 +1,7 @@
 @extends('layouts.master')
 @section('title', $pageTitle)
 @section('meta_description', $project->description ?? '')
-@section('meta_image', optional($project->mainImage())->url() ?? '')
+@section('meta_image', optional($project->mainImage())->url() ?: ($project->image ? asset($project->image) : ''))
 
 @push('jsonld')
 <script type="application/ld+json">
@@ -13,12 +13,14 @@
     "@id": "{{ url()->current() }}"
   },
   "name": "{{ $project->name }}",
-  "image": "{{ optional($project->mainImage())->url() ?? '' }}",
+  "image": "{{ optional($project->mainImage())->url() ?: ($project->image ? asset($project->image) : '') }}",
   "dateCreated": "{{ $project->created_at->toIso8601String() }}",
   "dateModified": "{{ $project->updated_at->toIso8601String() }}",
   "creator": {
     "@type": "Organization",
-    "name": "{{ $setting->name ?? config('app.name') }}"
+    "name": "{{ $setting->name ?? config('app.name') }}",
+    "url": "{{ url('/') }}",
+    "image": "{{ asset($setting->logo) }}"
   },
   "description": "{{ Str::limit(strip_tags($project->description), 155) }}"
   @if($aggregateRating = $project->getAggregateRatingData())

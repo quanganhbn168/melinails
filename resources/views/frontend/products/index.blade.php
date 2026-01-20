@@ -1,7 +1,7 @@
 @extends('layouts.master')
 @section('title', 'Tất cả sản phẩm')
 @section('meta_description', $page->description)
-@section('meta_image', optional($page->mainImage())->url())
+@section('meta_image', optional($page->mainImage())->url() ?: (!empty($page->banner) ? asset($page->banner) : asset('images/setting/cover01.jpg')))
 @push('css')
     <style>
     /* CSS cho Slider danh mục */

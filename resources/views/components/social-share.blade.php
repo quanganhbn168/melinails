@@ -28,22 +28,7 @@
     </button>
 </div>
 
-@push('css')
-<style>
-    .social-share-box { display: flex; align-items: center; }
-    .btn-share {
-        display: inline-flex; align-items: center; justify-content: center;
-        width: 35px; height: 35px; border-radius: 50%; margin-right: 8px;
-        color: #fff; text-decoration: none; transition: transform 0.2s; border: none; cursor: pointer;
-    }
-    .btn-share:hover { transform: translateY(-3px); color: #fff; opacity: 0.9; }
-    
-    .btn-fb { background-color: #1877F2; }
-    .btn-x { background-color: #000; }
-    .btn-zalo { background-color: #0068FF; padding: 0; } /* Màu xanh Zalo */
-    .btn-copy { background-color: #6c757d; }
-</style>
-@endpush
+
 
 @push('js')
 <script>

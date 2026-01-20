@@ -1,7 +1,7 @@
 @extends('layouts.master')
 @section('title', $pageTitle)
 @section('meta_description', $field->meta_description ?? '')
-@section('meta_image', optional($field->mainImage())->url() ?? '')
+@section('meta_image', optional($field->mainImage())->url() ?: ($field->image ? asset($field->image) : ''))
 
 @push('jsonld')
 <script type="application/ld+json">
@@ -13,12 +13,14 @@
     "@id": "{{ url()->current() }}"
   },
   "headline": "{{ $field->name }}",
-  "image": "{{ optional($field->mainImage())->url() ?? '' }}",
+  "image": "{{ optional($field->mainImage())->url() ?: ($field->image ? asset($field->image) : '') }}",
   "datePublished": "{{ $field->created_at->toIso8601String() }}",
   "dateModified": "{{ $field->updated_at->toIso8601String() }}",
   "author": {
     "@type": "Organization",
-    "name": "{{ $setting->name ?? config('app.name') }}"
+    "name": "{{ $setting->name ?? config('app.name') }}",
+    "url": "{{ url('/') }}",
+    "image": "{{ asset($setting->logo) }}"
   },
   "publisher": {
     "@type": "Organization",

@@ -19,6 +19,8 @@
         "alternateName": "{{$setting->name}}",
         "url": "{{ url()->current() }}",
         "logo": "{{asset($setting->logo)}}",
+        "image": "{{ asset($setting->logo) }}",
+        "priceRange": "$$",
         "description": "{{$setting->meta_description}}",
         "address": {
             "@type": "PostalAddress",
@@ -70,7 +72,7 @@
         <div class="row align-items-center">
             <div class="col-12 col-md-6 intro-image-wrapper">
                 <a href="{{route('frontend.slug.handle',$introMain->slug)}}">
-                    <img src="{{ optional($introMain->mainImage())->url() }}" alt="{{$introMain->name}}" fetchpriority="high" width="600" height="400">
+                    <img src="{{ optional($introMain->mainImage())->url() ?: ($introMain->image ? asset($introMain->image) : asset('images/setting/no-image.png')) }}" alt="{{$introMain->name}}" fetchpriority="high" width="600" height="400">
                 </a>
             </div>
             <div class="col-12 col-md-6 intro-content">
@@ -236,7 +238,7 @@
                 <div class="partner-list">
                     @foreach($brands as $brand)
                     <a href="{{ $brand->link ?? '#' }}" class="partner-logo-item" target="_blank">
-                        <img src="{{ !empty($brand->image) ? asset($brand->image) : optional($brand->mainImage())->url() }}" alt="{{ $brand->name }}">
+                        <img src="{{ !empty($brand->image) ? asset($brand->image) : (optional($brand->mainImage())->url() ?: asset('images/setting/no-image.png')) }}" alt="{{ $brand->name }}">
                     </a>
                     @endforeach
                 </div>
@@ -250,7 +252,7 @@
 <section class="section section-core-values">
     @foreach ($slide_banners as $slide_banner)
     <div class="coreValueItem">
-        <img src="{{ optional($slide_banner->mainImage())->url() }}" alt="{{ $slide_banner->title }}">
+        <img src="{{ optional($slide_banner->mainImage())->url() ?: asset($slide_banner->image) }}" alt="{{ $slide_banner->title }}">
     </div>
     @endforeach
 </section>
@@ -426,7 +428,7 @@
                     <div class="career-item-img card-has-overlay">
                         <a href="{{ $careersSection->getSetting('card_1_link', '/tuyen-dung') }}">
                             @if($tuyendung)
-                                <img src="{{ optional($tuyendung->mainImage())->url() }}" alt="{{ $tuyendung->name }}">
+                                <img src="{{ optional($tuyendung->mainImage())->url() ?: asset('images/setting/no-image.png') }}" alt="{{ $tuyendung->name }}">
                             @endif
                         </a>
                         </a>
@@ -445,7 +447,7 @@
                     <div class="career-item-img card-has-overlay">
                         <a href="{{ $careersSection->getSetting('card_2_link', route('agency.index')) }}">
                             @if($daily)
-                                <img src="{{ optional($daily->mainImage())->url() }}" alt="{{ $daily->name }}">
+                                <img src="{{ optional($daily->mainImage())->url() ?: asset('images/setting/no-image.png') }}" alt="{{ $daily->name }}">
                             @else
                                 <img src="https://placehold.co/600x400?text=Dai+Ly" alt="Đại lý">
                             @endif
@@ -493,7 +495,7 @@
                     <div class="testimonial-item">
                         <div class="testimonial-author">
                             <div class="testimonial-logo">
-                                <img src="{{ optional($testimonial->mainImage())->url() }}" alt="{{ $testimonial->name }}">
+                                <img src="{{ optional($testimonial->mainImage())->url() ?: ($testimonial->image ? asset($testimonial->image) : asset('images/setting/no-image.png')) }}" alt="{{ $testimonial->name }}">
                             </div>
                             <div class="testimonial-info">
                                 <span class="author-name">{{ $testimonial->name }}</span>
