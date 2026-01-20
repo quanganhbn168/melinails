@@ -95,6 +95,14 @@ Route::middleware(['auth:admin'])->prefix('admin')->as('admin.')->group(function
     Route::resource('posts', PostController::class);
     Route::post('posts/bulk-action', [PostController::class, 'bulkAction'])
          ->name('posts.bulk_action');
+
+    // Bình luận (Comments)
+    Route::prefix('comments')->name('comments.')->controller(\App\Http\Controllers\Admin\CommentController::class)->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::post('/{id}/approve', 'approve')->name('approve');
+        Route::delete('/{id}', 'destroy')->name('destroy');
+        Route::post('/bulk-action', 'bulkAction')->name('bulk-action');
+    });
          
     Route::group(['prefix' => 'pages', 'as' => 'pages.'], function () {
         Route::get('/', [PageController::class, 'index'])->name('index');

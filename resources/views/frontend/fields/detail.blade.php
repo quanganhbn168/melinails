@@ -2,6 +2,40 @@
 @section('title', $pageTitle)
 @section('meta_description', $field->meta_description ?? '')
 @section('meta_image', optional($field->mainImage())->url() ?? '')
+
+@push('jsonld')
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "{{ url()->current() }}"
+  },
+  "headline": "{{ $field->name }}",
+  "image": "{{ optional($field->mainImage())->url() ?? '' }}",
+  "datePublished": "{{ $field->created_at->toIso8601String() }}",
+  "dateModified": "{{ $field->updated_at->toIso8601String() }}",
+  "author": {
+    "@type": "Organization",
+    "name": "{{ $setting->name ?? config('app.name') }}"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "{{ $setting->name ?? config('app.name') }}",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "{{ asset($setting->logo ?? '') }}"
+    }
+  },
+  "description": "{{ $field->meta_description ?? Str::limit(strip_tags($field->content), 155) }}"
+  @if($aggregateRating = $field->getAggregateRatingData())
+  ,"aggregateRating": @json($aggregateRating)
+  @endif
+}
+</script>
+@endpush
+
 @push('css')
 <style>
     /* ========================================================
@@ -137,6 +171,10 @@
                     <p class="font-weight-bold">Bạn thấy bài viết hữu ích? Chia sẻ ngay:</p>
                     <x-social-share :title="$field->name" />
                 </div>
+
+                {{-- Bình luận & Đánh giá --}}
+                <x-comment-list :comments="$field->approvedComments" />
+                <x-comment-form :commentable="$field" type="field" />
 
             </article>
         </div>

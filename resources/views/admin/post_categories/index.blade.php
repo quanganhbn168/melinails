@@ -85,7 +85,9 @@
                             <td>{{ $key + 1 }}</td>
                             <td>
                                 @if($category->mainImage())
-                                    <img src="{{ Storage::url($category->mainImage()->main_path) }}" alt="{{ $category->name }}" class="thumb">
+                                    <img src="{{ $category->mainImage()->url() }}" alt="{{ $category->name }}" class="thumb">
+                                @elseif($category->image)
+                                    <img src="{{ asset($category->image) }}" alt="{{ $category->name }}" class="thumb">
                                 @else
                                     <span class="text-muted">—</span>
                                 @endif

@@ -7,9 +7,11 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use App\Traits\HasImages;
 use App\Traits\HasSlug;
+use App\Traits\HasComments;
+
 class Field extends Model
 {
-    use HasFactory, HasImages, HasSlug;
+    use HasFactory, HasImages, HasSlug, HasComments;
 
     /**
      * Các thuộc tính có thể được gán hàng loạt.

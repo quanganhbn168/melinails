@@ -17,6 +17,14 @@ trait HasSlug
     }
 
     /**
+     * Alias cho slugData() để tương thích với SlugService
+     */
+    public function slug()
+    {
+        return $this->slugData();
+    }
+
+    /**
      * Accessor: Lấy URL chuẩn
      * Gọi: $item->slug_url
      */

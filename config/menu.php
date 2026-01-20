@@ -139,10 +139,11 @@ return [
         'title' => 'Quản lý bài viết',
         'icon' => 'bi bi-pencil-square',
         'permission' => 'view_posts',
-        'active_pattern' => ['admin.post-categories.*', 'admin.posts.*'],
+        'active_pattern' => ['admin.post-categories.*', 'admin.posts.*', 'admin.comments.*'],
         'submenu' => [
             ['title' => 'Danh mục bài viết', 'route' => 'admin.post-categories.index', 'active_pattern' => 'admin.post-categories.*', 'permission' => 'view_posts'],
             ['title' => 'Bài viết',          'route' => 'admin.posts.index',           'active_pattern' => 'admin.posts.*', 'permission' => 'view_posts'],
+            ['title' => 'Bình luận',         'route' => 'admin.comments.index',        'active_pattern' => 'admin.comments.*', 'permission' => 'view_posts'],
         ],
     ],
     [

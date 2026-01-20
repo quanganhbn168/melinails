@@ -1,5 +1,32 @@
 @extends('layouts.master')
 @section('title', $pageTitle)
+@section('meta_description', $project->description ?? '')
+@section('meta_image', optional($project->mainImage())->url() ?? '')
+
+@push('jsonld')
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "CreativeWork",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "{{ url()->current() }}"
+  },
+  "name": "{{ $project->name }}",
+  "image": "{{ optional($project->mainImage())->url() ?? '' }}",
+  "dateCreated": "{{ $project->created_at->toIso8601String() }}",
+  "dateModified": "{{ $project->updated_at->toIso8601String() }}",
+  "creator": {
+    "@type": "Organization",
+    "name": "{{ $setting->name ?? config('app.name') }}"
+  },
+  "description": "{{ Str::limit(strip_tags($project->description), 155) }}"
+  @if($aggregateRating = $project->getAggregateRatingData())
+  ,"aggregateRating": @json($aggregateRating)
+  @endif
+}
+</script>
+@endpush
 
 @push('css')
     @push('css')
@@ -351,6 +378,10 @@
             </div>
         </div>
         @endif
+
+        {{-- Bình luận & Đánh giá --}}
+        <x-comment-list :comments="$project->approvedComments" />
+        <x-comment-form :commentable="$project" type="project" />
     </div>
 </div>
 @endsection

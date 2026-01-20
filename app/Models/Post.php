@@ -7,11 +7,12 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 use App\Traits\HasImages;
 use App\Traits\HasSlug;
+use App\Traits\HasComments;
 
 class Post extends Model
 {
     /** @use HasFactory<\Database\Factories\PostFactory> */
-    use HasFactory, HasImages, HasSlug;
+    use HasFactory, HasImages, HasSlug, HasComments;
     protected $fillable = [
         'post_category_id',
         'title',

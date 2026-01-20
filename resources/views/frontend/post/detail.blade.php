@@ -30,6 +30,9 @@
     }
   },
   "description": "{{ $post->description ?? Str::limit(strip_tags($post->content), 155) }}"
+  @if($aggregateRating = $post->getAggregateRatingData())
+  ,"aggregateRating": @json($aggregateRating)
+  @endif
 }
 </script>
 @endpush
@@ -41,6 +44,47 @@
        1. STYLE NỘI DUNG BÀI VIẾT (CORE)
        Mobile First approach
        ========================================= */
+    
+    /* Banner Image */
+    .banner {
+        width: 100%;
+        max-height: 350px;
+        overflow: hidden;
+        margin-bottom: 0;
+    }
+    .banner img {
+        width: 100%;
+        height: 350px;
+        object-fit: cover;
+        object-position: center;
+    }
+    
+    /* Post Main Image */
+    .post-image {
+        margin: 15px 0 20px;
+        text-align: center;
+    }
+    .post-image img {
+        max-width: 100%;
+        max-height: 450px;
+        width: auto;
+        height: auto;
+        border-radius: 10px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    }
+    
+    /* Mobile: Smaller banner */
+    @media (max-width: 768px) {
+        .banner, .banner img {
+            height: 200px;
+            max-height: 200px;
+        }
+        .post-image img {
+            max-height: 300px;
+            border-radius: 8px;
+        }
+    }
+       
     .post-content {
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
         font-size: 16px;     /* Size chữ tiêu chuẩn cho Mobile dễ đọc */
@@ -201,11 +245,85 @@
     .swiper-pagination-bullet-active {
         background-color: #007bff !important;
     }
+
+    /* =========================================
+       3. SIDEBAR STYLES
+       ========================================= */
+    .post-sidebar {
+        position: sticky;
+        top: 100px;
+    }
+    
+    .sidebar-widget {
+        background: #fff;
+        border: 1px solid #e9ecef;
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    }
+    
+    .sidebar-title {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #333;
+        margin-bottom: 15px;
+        padding-bottom: 10px;
+        border-bottom: 2px solid #007bff;
+    }
+    
+    .sidebar-menu {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    
+    .sidebar-menu li {
+        border-bottom: 1px solid #f0f0f0;
+    }
+    
+    .sidebar-menu li:last-child {
+        border-bottom: none;
+    }
+    
+    .sidebar-menu a {
+        display: block;
+        padding: 10px 0;
+        color: #555;
+        text-decoration: none;
+        font-size: 0.95rem;
+        transition: all 0.2s;
+    }
+    
+    .sidebar-menu a:hover {
+        color: #007bff;
+        padding-left: 5px;
+    }
+    
+    .sidebar-menu a i {
+        color: #007bff;
+        font-size: 0.8rem;
+    }
+    
+    /* Mobile: Sidebar nằm dưới content */
+    @media (max-width: 768px) {
+        .post-sidebar {
+            position: static;
+            margin-top: 30px;
+        }
+        
+        .sidebar-widget {
+            padding: 15px;
+        }
+    }
 </style>
 @endpush
 @section('content')
 <div class="banner">
-	<img src="{{ optional($post->bannerImage())->url() }}" 
+	@php
+		$bannerUrl = optional($post->bannerImage())->url() ?: ($post->banner ? asset($post->banner) : asset($setting->banner ?? ''));
+	@endphp
+	<img src="{{ $bannerUrl }}" 
          alt="{{ $post->title }}" 
          class="img-fluid w-100" 
          style="max-height: 500px; object-fit: cover;" 
@@ -218,7 +336,12 @@
 				<article class="post-detail">
 					<h1 class="mb-2">{{ $post->title }}</h1>
 					<div class="post-image">
-						<img src="{{ optional($post->mainImage())->url() }}" alt="{{ $post->title }}">
+						@php
+							$mainUrl = optional($post->mainImage())->url() ?: ($post->image ? asset($post->image) : null);
+						@endphp
+						@if($mainUrl)
+							<img src="{{ $mainUrl }}" alt="{{ $post->title }}">
+						@endif
 					</div>
 					<p class="text-muted mb-3">
 						<i class="fa-regular fa-calendar"></i> {{ $post->updated_at->format('d/m/Y') }}
@@ -258,19 +381,25 @@
 					</div>
 				</div>
 				@endif
+
+				{{-- Bình luận & Đánh giá --}}
+				<x-comment-list :comments="$post->approvedComments" />
+				<x-comment-form :commentable="$post" type="post" />
 			</div>
 			<div class="col-12 col-md-3">
-				<aside class="">
-					<h2 class="custom-section-title">Danh mục bài viết</h2>
-					<ul class="list-group list-group-flush">
-						@foreach($allCategories as $category)
-						<li class="list-group-item">
-							<a href="{{ route('frontend.slug.handle', $category->slugValue) }}">
-								{{ $category->name }}
-							</a>
-						</li>
-						@endforeach
-					</ul>
+				<aside class="post-sidebar">
+					<div class="sidebar-widget">
+						<h2 class="sidebar-title">Danh mục bài viết</h2>
+						<ul class="sidebar-menu">
+							@foreach($allCategories as $category)
+							<li>
+								<a href="{{ route('frontend.slug.handle', $category->slugValue) }}">
+									<i class="fas fa-angle-right me-2"></i>{{ $category->name }}
+								</a>
+							</li>
+							@endforeach
+						</ul>
+					</div>
 				</aside>
 				
 				<x-toc :list="$tocList" />

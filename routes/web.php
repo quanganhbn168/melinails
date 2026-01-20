@@ -73,6 +73,10 @@ Route::middleware('auth')->prefix('cart')->name('cart.')->group(function () {
 Route::get('/tuyen-dung', [CareerController::class, 'index'])->name('frontend.careers.index');
 Route::get('/tuyen-dung/{career:slug}', [CareerController::class, 'show'])->name('frontend.careers.show');
 Route::post('/tuyen-dung/{id}/nop-don', [CareerController::class, 'apply'])->name('frontend.careers.apply');
+
+// Bình luận (Comments)
+Route::post('/binh-luan', [App\Http\Controllers\Frontend\CommentController::class, 'store'])->name('comments.store');
+
 Route::get('/cart', [CartController::class, 'showCartPage'])->name('cart.page');
 Route::post('/cart/buy-now', [CartController::class, 'buyNow'])->name('cart.buy_now');
 Route::post('/cart/merge', [CartController::class, 'merge']);

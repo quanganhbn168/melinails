@@ -13,6 +13,7 @@ use App\Services\PostService;
 use App\Services\PostCategoryService;
 use App\Http\Requests\PostRequest;
 use App\Traits\UploadImageTrait;
+use App\Models\PostCategory;
 
 class PostController extends Controller
 
