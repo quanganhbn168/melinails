@@ -1,66 +1,150 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# CNETPos — Hệ thống quản lý nội dung & bán hàng
 
 <p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
+  <img src="https://img.shields.io/badge/Laravel-11.x-red?style=for-the-badge&logo=laravel" alt="Laravel 11">
+  <img src="https://img.shields.io/badge/Filament-5.x-orange?style=for-the-badge&logo=filament" alt="Filament 5">
+  <img src="https://img.shields.io/badge/Livewire-4.x-blue?style=for-the-badge&logo=livewire" alt="Livewire 4">
+  <img src="https://img.shields.io/badge/PHP-8.2+-purple?style=for-the-badge&logo=php" alt="PHP 8.2+">
 </p>
 
-## About Laravel
+## Giới thiệu
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+**CNETPos** là hệ thống CMS + frontend thương mại điện tử được xây dựng trên nền tảng **Laravel 11**, tích hợp bảng quản trị hiện đại bằng **Filament v5**. Hệ thống hỗ trợ quản lý sản phẩm, dịch vụ, dự án, bài viết, banner quảng cáo, menu động, và nhiều module khác phục vụ vận hành website doanh nghiệp chuyên nghiệp.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+---
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## Tech Stack
 
-## Learning Laravel
+| Layer | Công nghệ |
+|---|---|
+| Backend Framework | Laravel 11 |
+| Admin Panel | Filament v5 |
+| Frontend Reactive | Livewire v4 |
+| Media Management | Curator (awcodes/filament-curator) |
+| Permission & Shield | Spatie Permission + Filament Shield |
+| Settings | Spatie Laravel Settings |
+| Sitemap | Spatie Laravel Sitemap |
+| Rich Text Editor | awcodes/richer-editor |
+| Database | MySQL |
+| Frontend Build | Vite + Tailwind CSS |
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+---
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+## Modules quản trị (Filament Resources)
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+| Module | Mô tả |
+|---|---|
+| **Slides** | Quản lý banner/slider trang chủ (Hero, Popup, Brand...) |
+| **Products** | Sản phẩm, danh mục, thuộc tính |
+| **Services** | Dịch vụ, danh mục dịch vụ |
+| **Projects** | Dự án, danh mục dự án |
+| **Posts** | Bài viết, danh mục bài viết |
+| **Fields** | Lĩnh vực hoạt động |
+| **Brands** | Thương hiệu đối tác |
+| **Teams** | Thành viên nội bộ |
+| **Testimonials** | Đánh giá & cảm nhận khách hàng |
+| **Sample Reviews** | Phản hồi mẫu |
+| **Videos** | Quản lý video giới thiệu |
+| **Partners** | Đối tác |
+| **Menus** | Menu động + Menu Builder (Livewire) |
+| **Contacts** | Liên hệ, tư vấn, đại lý |
+| **Tags / Attributes** | Nhãn dán & thuộc tính sản phẩm |
+| **Careers** | Tuyển dụng |
+| **Intros** | Giới thiệu công ty |
+| **Users** | Quản lý người dùng & phân quyền |
+| **Settings** | Cài đặt website (Spatie Settings) |
 
-## Laravel Sponsors
+---
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+## Cài đặt
 
-### Premium Partners
+### Yêu cầu hệ thống
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+- PHP >= 8.2
+- Composer >= 2.x
+- Node.js >= 18.x
+- MySQL >= 8.0
 
-## Contributing
+### Các bước cài đặt
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+```bash
+# 1. Clone repository
+git clone https://github.com/quanganhbn168/cnetpos.git
+cd cnetpos
 
-## Code of Conduct
+# 2. Cài đặt dependencies PHP
+composer install
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+# 3. Cài đặt dependencies Node
+npm install
 
-## Security Vulnerabilities
+# 4. Tạo file .env
+cp .env.example .env
+php artisan key:generate
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+# 5. Cấu hình database trong .env rồi chạy migration
+php artisan migrate --seed
+
+# 6. Tạo storage link
+php artisan storage:link
+
+# 7. Publish Filament Shield
+php artisan shield:install --fresh
+
+# 8. Build frontend assets
+npm run build
+```
+
+### Chạy môi trường dev
+
+```bash
+# Terminal 1 — Laravel
+php artisan serve
+
+# Terminal 2 — Vite
+npm run dev
+```
+
+---
+
+## Cấu trúc thư mục quan trọng
+
+```
+app/
+├── Filament/
+│   ├── Pages/          # ManageSettings, Dashboard
+│   └── Resources/      # 27 Filament Resources
+├── Models/             # Eloquent Models
+├── Enums/              # Enums (SliderType, ...)
+├── Settings/           # Spatie Settings classes
+├── Support/            # Helper classes
+└── Traits/             # HasSeo, HasSlug, HasCategoryTree
+
+resources/
+├── css/filament/       # Filament theme override
+├── views/
+│   ├── frontend/       # Frontend Blade templates
+│   ├── components/     # Blade Components
+│   ├── partials/       # Layout partials
+│   └── livewire/       # Livewire views
+```
+
+---
+
+## Phân quyền
+
+Hệ thống sử dụng **Spatie Laravel Permission** kết hợp **Filament Shield** để quản lý vai trò và quyền truy cập chi tiết cho từng Resource trong bảng quản trị.
+
+```bash
+# Tạo tài khoản Super Admin
+php artisan make:filament-user
+
+# Sync lại toàn bộ quyền
+php artisan shield:generate --all
+```
+
+---
 
 ## License
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+Dự án nội bộ — All rights reserved © CNETPos.
