@@ -18,3 +18,4 @@ return new class extends Migration {
         Schema::dropIfExists('attribute_values');
     }
 };
+

@@ -26,6 +26,7 @@ return new class extends Migration
             $table->boolean('is_footer')->default(1);
             $table->unsignedBigInteger('unit_id')->nullable();
             $table->unsignedInteger('price')->nullable();
+            $table->string('meta_title')->nullable();
             $table->text('meta_description')->nullable();
             $table->text('meta_keywords')->nullable();   
             $table->unsignedBigInteger('meta_image_id')->nullable();   
@@ -48,3 +49,6 @@ return new class extends Migration
         Schema::dropIfExists('services');
     }
 };
+
+
+

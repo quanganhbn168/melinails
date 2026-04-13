@@ -33,3 +33,5 @@ return new class extends Migration
         Schema::dropIfExists('agency_requests');
     }
 };
+
+

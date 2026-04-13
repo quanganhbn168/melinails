@@ -4,7 +4,7 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use App\Models\User;
-
+use Spatie\Permission\Models\Role;
 class DatabaseSeeder extends Seeder
 {
     public function run(): void
@@ -21,7 +21,7 @@ class DatabaseSeeder extends Seeder
         );
 
         // Gán role super_admin (dùng cho Filament Shield)
-        $role = \Spatie\Permission\Models\Role::firstOrCreate(['name' => 'super_admin', 'guard_name' => 'web']);
+        $role = Role::firstOrCreate(['name' => 'super_admin', 'guard_name' => 'web']);
         $user->assignRole($role);
 
         $this->call([

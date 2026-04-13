@@ -13,6 +13,7 @@ return new class extends SettingsMigration
         $this->migrator->add('general.banner', '');
         $this->migrator->add('general.phone', '0900.000.000');
         $this->migrator->add('general.phone_display', null);
+        $this->migrator->add('general.working_hours', 'T2 - T7: 08:00 - 17:30');
         $this->migrator->add('general.email', 'contact@cnetpos.com');
         $this->migrator->add('general.address', '123 ABC Street, Hanoi');
         $this->migrator->add('general.map', '');

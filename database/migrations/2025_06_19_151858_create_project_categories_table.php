@@ -24,6 +24,7 @@ return new class extends Migration
             $table->boolean('is_menu')->default(1);
             $table->boolean('is_footer')->default(1);
             $table->unsignedInteger('position')->default(0)->index();
+            $table->string('meta_title')->nullable();
             $table->text('meta_description')->nullable();
             $table->text('meta_keywords')->nullable();   
             $table->unsignedBigInteger('meta_image_id')->nullable();   
@@ -39,3 +40,6 @@ return new class extends Migration
         Schema::dropIfExists('project_categories');
     }
 };
+
+
+

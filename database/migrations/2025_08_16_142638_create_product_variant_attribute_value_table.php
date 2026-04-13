@@ -15,3 +15,4 @@ return new class extends Migration {
         Schema::dropIfExists('product_variant_attribute_value');
     }
 };
+
