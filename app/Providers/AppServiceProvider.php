@@ -19,10 +19,6 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
-        if (env('APP_ENV') !== 'local') {
-            \Illuminate\Support\Facades\URL::forceScheme('https');
-        }
-
         Gate::before(function ($user, $ability) {
             return $user->hasRole('super_admin') ? true : null;
         });
@@ -31,22 +27,22 @@ class AppServiceProvider extends ServiceProvider
             $builder->plugins([
                 SourceCodePlugin::make(),
             ])->toolbarButtons([
-                'attachFiles',
-                'blockquote',
-                'bold',
-                'bulletList',
-                'codeBlock',
-                'h2',
-                'h3',
-                'italic',
-                'link',
-                'orderedList',
-                'redo',
-                'strike',
-                'underline',
-                'undo',
-                'sourceCode',
-            ]);
+                        'attachFiles',
+                        'blockquote',
+                        'bold',
+                        'bulletList',
+                        'codeBlock',
+                        'h2',
+                        'h3',
+                        'italic',
+                        'link',
+                        'orderedList',
+                        'redo',
+                        'strike',
+                        'underline',
+                        'undo',
+                        'sourceCode',
+                    ]);
         });
     }
 }
