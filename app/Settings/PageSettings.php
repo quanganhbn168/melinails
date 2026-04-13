@@ -85,6 +85,25 @@ class PageSettings extends Settings
     public ?string $contact_cta_title;
     public ?string $contact_cta_description;
     public ?string $contact_cta_link;
+    // Trang Đại lý
+    public ?string $agency_title;
+    public ?string $agency_headline;
+    public ?string $agency_description;
+    public ?string $agency_content;
+    public ?string $agency_banner;
+    public ?string $agency_cta_title;
+    public ?string $agency_cta_description;
+    public ?string $agency_cta_link;
+
+    // Trang Tư vấn triển khai
+    public ?string $consulting_title;
+    public ?string $consulting_headline;
+    public ?string $consulting_description;
+    public ?string $consulting_content;
+    public ?string $consulting_banner;
+    public ?string $consulting_cta_title;
+    public ?string $consulting_cta_description;
+    public ?string $consulting_cta_link;
 
     public static function group(): string
     {

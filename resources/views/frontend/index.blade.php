@@ -420,8 +420,8 @@
                 <div class="text-brand-600 text-3xl mb-4 group-hover:text-brand-700">
                     <i class="fas fa-user-tie"></i>
                 </div>
-                <h3 class="text-xl font-bold text-gray-900 mb-3">Tuyển Dụng</h3>
-                <p class="text-gray-600 mb-6 font-sans text-sm">Gia nhập đội ngũ kỹ sư tài năng của chúng tôi để cùng phát triển các hệ thống đẳng cấp.</p>
+                <h3 class="text-xl font-bold text-gray-900 mb-3">{{ $pageSettings->careers_title ?? 'Tuyển Dụng' }}</h3>
+                <p class="text-gray-600 mb-6 font-sans text-sm">{{ $pageSettings->careers_description ?? 'Gia nhập đội ngũ kỹ sư tài năng của chúng tôi để cùng phát triển các hệ thống đẳng cấp.' }}</p>
                 <div class="flex items-center text-brand-600 font-bold uppercase tracking-wider text-xs">Xem vị trí <i class="fas fa-arrow-right ml-2"></i></div>
             </a>
             
@@ -429,8 +429,8 @@
                 <div class="text-brand-600 text-3xl mb-4 group-hover:text-brand-700">
                     <i class="fas fa-handshake"></i>
                 </div>
-                <h3 class="text-xl font-bold text-gray-900 mb-3">Hợp Tác Đại Lý</h3>
-                <p class="text-gray-600 mb-6 font-sans text-sm">Chính sách chiết khấu, hỗ trợ kỹ thuật và đào tạo bán hàng toàn diện từ A-Z.</p>
+                <h3 class="text-xl font-bold text-gray-900 mb-3">{{ $pageSettings->agency_title ?? 'Hợp Tác Đại Lý' }}</h3>
+                <p class="text-gray-600 mb-6 font-sans text-sm">{{ $pageSettings->agency_description ?? 'Chính sách chiết khấu, hỗ trợ kỹ thuật và đào tạo bán hàng toàn diện từ A-Z.' }}</p>
                 <div class="flex items-center text-brand-600 font-bold uppercase tracking-wider text-xs">Đăng ký ngay <i class="fas fa-arrow-right ml-2"></i></div>
             </a>
             
@@ -438,8 +438,8 @@
                 <div class="text-brand-600 text-3xl mb-4 group-hover:text-brand-700">
                     <i class="fas fa-file-signature"></i>
                 </div>
-                <h3 class="text-xl font-bold text-gray-900 mb-3">Nhận Báo Giá</h3>
-                <p class="text-gray-600 mb-6 font-sans text-sm">Cung cấp thông tin, chuyên gia sẽ thiết kế lộ trình chuyển đổi và báo giá chi tiết.</p>
+                <h3 class="text-xl font-bold text-gray-900 mb-3">{{ $pageSettings->consulting_title ?? 'Nhận Báo Giá' }}</h3>
+                <p class="text-gray-600 mb-6 font-sans text-sm">{{ $pageSettings->consulting_description ?? 'Cung cấp thông tin, chuyên gia sẽ thiết kế lộ trình chuyển đổi và báo giá chi tiết.' }}</p>
                 <div class="flex items-center text-brand-600 font-bold uppercase tracking-wider text-xs">Gửi yêu cầu <i class="fas fa-arrow-right ml-2"></i></div>
             </a>
         </div>
@@ -451,8 +451,8 @@
 <section class="py-20 bg-gray-50">
     <div class="container mx-auto px-4 max-w-7xl">
         <div class="text-center mb-16">
-            <h2 class="section-title center">Sản Phẩm & Thiết Bị</h2>
-            <p class="text-gray-600 max-w-2xl mx-auto mt-4">Phân phối thiết bị phần cứng, máy chủ và linh kiện mạng chuyên dụng.</p>
+            <h2 class="section-title center">{{ $setting->products_title ?? 'Sản Phẩm & Thiết Bị' }}</h2>
+            <p class="text-gray-600 max-w-2xl mx-auto mt-4">{{ $setting->products_description ?? 'Phân phối thiết bị phần cứng, máy chủ và linh kiện mạng chuyên dụng.' }}</p>
         </div>
         
         <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
@@ -496,10 +496,13 @@
     <div class="container mx-auto px-4 max-w-7xl">
         <div class="flex flex-col md:flex-row justify-between items-end mb-12">
             <div>
-                <h2 class="section-title">Tin Tức Mới Nhất</h2>
+                <h2 class="section-title">{{ $setting->posts_title ?? 'Tin Tức Mới Nhất' }}</h2>
+                @if(isset($setting->posts_description) && !empty($setting->posts_description))
+                <p class="text-gray-600 max-w-2xl mt-4">{{ $setting->posts_description }}</p>
+                @endif
             </div>
             <a href="{{ route('frontend.posts.index') }}" class="mt-6 md:mt-0 px-6 py-2 border border-gray-200 hover:border-brand-500 text-gray-600 hover:text-brand-700 rounded transition-colors text-sm font-medium">
-                Xem tất cả bài viết
+                Xem tất cả
             </a>
         </div>
         
@@ -528,16 +531,15 @@
 </section>
 @endif
 
-{{-- 8. SIMPLE CTA BLOCK --}}
-<section class="py-16 bg-gradient-to-r from-brand-900 to-brand-800 text-center">
-    <div class="container mx-auto px-4">
-        <h2 class="text-2xl md:text-3xl lg:text-4xl font-bold text-white mb-4">Sẵn Sàng Chuyển Đổi Số Cùng CNET?</h2>
-        <p class="text-brand-100 mb-8 max-w-2xl mx-auto">Liên hệ ngay để nhận giải pháp công nghệ được thiết kế riêng cho doanh nghiệp của bạn.</p>
-        <a href="{{ route('contact.show') }}" class="inline-flex items-center px-8 py-3 bg-white text-brand-900 font-bold rounded hover:bg-gray-50 transition-colors">
-            Nhận Báo Giá Tư Vấn <i class="fas fa-paper-plane ml-2"></i>
-        </a>
-    </div>
-</section>
+{{-- 8. DYNAMIC CTA BLOCK --}}
+@php
+    $pageSettings = app(\App\Settings\PageSettings::class);
+@endphp
+<x-frontend.page-cta 
+    :title="$pageSettings->intro_cta_title" 
+    :description="$pageSettings->intro_cta_description" 
+    :link="$pageSettings->intro_cta_link" 
+/>
 
 @endsection
 

@@ -37,6 +37,8 @@ class ManagePageSettings extends SettingsPage
                         $this->pageTab('Giới thiệu', 'heroicon-o-information-circle', 'intro'),
                         $this->pageTab('Tuyển dụng', 'heroicon-o-briefcase', 'careers'),
                         $this->pageTab('Liên hệ', 'heroicon-o-phone', 'contact'),
+                        $this->pageTab('Đại lý', 'heroicon-o-handshake', 'agency'),
+                        $this->pageTab('Tư vấn', 'heroicon-o-chat-bubble-bottom-center-text', 'consulting'),
                     ])
                     ->columnSpanFull()
             ]);

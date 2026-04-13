@@ -7,14 +7,6 @@ return new class extends SettingsMigration
     public function up(): void
     {
         $pages = [
-            'products' => 'Sản phẩm',
-            'projects' => 'Dự án',
-            'services' => 'Dịch vụ',
-            'fields' => 'Lĩnh vực',
-            'posts' => 'Tin tức',
-            'intro' => 'Giới thiệu',
-            'careers' => 'Tuyển dụng',
-            'contact' => 'Liên hệ',
             'agency' => 'Đại lý',
             'consulting' => 'Tư vấn triển khai'
         ];
