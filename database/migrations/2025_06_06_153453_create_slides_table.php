@@ -15,6 +15,9 @@ return new class extends Migration
             $table->id();
             $table->string('title')->nullable();
             $table->string('link')->nullable();
+            $table->string('subtitle')->nullable();
+            $table->text('description')->nullable();
+            $table->string('button_text')->nullable();
             $table->unsignedBigInteger('image_id')->nullable();
             $table->string('type')->default('home');
             $table->unsignedInteger('position')->default(0);

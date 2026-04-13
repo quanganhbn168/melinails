@@ -6,7 +6,7 @@ return [
     'table_name' => 'curator',
     'curation_formats' => Awcodes\Curator\Enums\PreviewableExtensions::toArray(),
     'default_disk' => env('CURATOR_DEFAULT_DISK', 'public'),
-    'default_directory' => null,
+    'default_directory' => 'media',
     'default_visibility' => 'public',
     'features' => [
         'curations' => true,
@@ -20,7 +20,7 @@ return [
     ],
     'glide_token' => env('CURATOR_GLIDE_TOKEN'),
     'model' => Awcodes\Curator\Models\Media::class,
-    'path_generator' => null,
+    'path_generator' => Awcodes\Curator\Generators\DatePathGenerator::class,
     'resource' => [
         'label' => 'Media',
         'plural_label' => 'Media',

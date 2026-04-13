@@ -13,7 +13,9 @@ return new class extends Migration
     {
         Schema::create('menu_items', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('menu_id')->nullable()->index();
             $table->string('title');
+            $table->string('icon')->nullable();
             
             // Loại menu: 'page', 'category', 'product', 'custom'
             $table->string('type')->default('custom'); 
@@ -23,6 +25,8 @@ return new class extends Migration
             
             // Link cứng (chỉ dùng khi type = custom)
             $table->string('url')->nullable(); 
+            $table->string('target')->default('_self');
+            $table->string('css_class')->nullable(); 
             
             $table->unsignedBigInteger('parent_id')->nullable()->default(0);
             $table->integer('position')->default(0);

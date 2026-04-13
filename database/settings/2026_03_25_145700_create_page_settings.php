@@ -23,6 +23,9 @@ return new class extends SettingsMigration
             $this->migrator->add("page.{$key}_description", '');
             $this->migrator->add("page.{$key}_content", null);
             $this->migrator->add("page.{$key}_banner", null);
+            $this->migrator->add("page.{$key}_cta_title", null);
+            $this->migrator->add("page.{$key}_cta_description", null);
+            $this->migrator->add("page.{$key}_cta_link", null);
         }
     }
 };

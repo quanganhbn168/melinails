@@ -64,5 +64,17 @@ return new class extends SettingsMigration
         $this->migrator->add('general.footer_col_2_menu_id', null);
         $this->migrator->add('general.footer_col_3_title', 'Chính sách & Hướng dẫn');
         $this->migrator->add('general.footer_col_3_menu_id', null);
+
+        // Titles & Descriptions (Home sections)
+        $this->migrator->add('general.services_title', 'Dịch vụ của chúng tôi');
+        $this->migrator->add('general.services_description', '');
+        $this->migrator->add('general.fields_title', 'Lĩnh vực hoạt động');
+        $this->migrator->add('general.fields_description', '');
+        $this->migrator->add('general.projects_title', 'Dự án tiêu biểu');
+        $this->migrator->add('general.projects_description', '');
+        $this->migrator->add('general.products_title', 'Sản phẩm phần mềm');
+        $this->migrator->add('general.products_description', '');
+        $this->migrator->add('general.posts_title', 'Tin tức sự kiện');
+        $this->migrator->add('general.posts_description', '');
     }
 };
