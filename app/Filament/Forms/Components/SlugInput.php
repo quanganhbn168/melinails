@@ -7,7 +7,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Unique;
 use Illuminate\Support\Facades\Schema;
-use Filament\Schemas\Components\Utilities\Set;
 
 class SlugInput extends TextInput
 {
@@ -21,7 +20,7 @@ class SlugInput extends TextInput
      */
     public static function autoSlug(string $slugField = 'slug'): \Closure
     {
-        return function (?string $state, Set $set) use ($slugField) {
+        return function (?string $state, $set) use ($slugField) {
             if ($state) {
                 $set($slugField, Str::slug($state));
             }
