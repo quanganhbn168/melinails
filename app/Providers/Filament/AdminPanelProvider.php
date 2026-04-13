@@ -26,6 +26,8 @@ use Awcodes\RicherEditor\Plugins\SourceCodePlugin;
 use Awcodes\Curator\Config\CurationManager;
 use Awcodes\Curator\Curations\CurationPreset;
 use Awcodes\Curator\Components\Forms\RichEditor\AttachCuratorMediaPlugin;
+use App\Settings\GeneralSettings;
+use Awcodes\Curator\Models\Media;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -56,6 +58,9 @@ class AdminPanelProvider extends PanelProvider
             ->pages([
                 Dashboard::class,
             ])
+            ->favicon(fn () => static::getSettingMediaUrl('favicon') ?? asset('favicon.ico'))
+            ->brandLogo(fn () => static::getSettingMediaUrl('logo') ?? asset('images/logo.png'))
+            ->brandLogoHeight('3rem')
             ->navigationGroups([
                 NavigationGroup::make('Quản lý Hàng hóa'),
                 NavigationGroup::make('Nội dung Trang chủ'),
@@ -93,5 +98,30 @@ class AdminPanelProvider extends PanelProvider
                 FilamentShieldPlugin::make()
                     ->navigationGroup('Hệ thống & Cấu hình'),
             ]);
+    }
+
+    protected static function getSettingMediaUrl(string $key): ?string
+    {
+        try {
+            $setting = app(GeneralSettings::class);
+            $val = $setting->{$key};
+            if (empty($val)) return null;
+
+            if (is_string($val) && str_starts_with($val, '[') && str_ends_with($val, ']')) {
+                $decoded = json_decode($val, true);
+                if (is_array($decoded)) {
+                    $val = $decoded;
+                }
+            }
+            $id = is_array($val) ? ($val[0] ?? null) : $val;
+            
+            if (is_numeric($id)) {
+                $media = Media::find((int) $id);
+                return $media ? url($media->url) : null;
+            }
+            return null;
+        } catch (\Exception $e) {
+            return null;
+        }
     }
 }
