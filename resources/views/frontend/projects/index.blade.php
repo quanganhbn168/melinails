@@ -32,7 +32,7 @@
                     <div class="flex flex-col lg:flex-row">
                         {{-- Cột hình ảnh --}}
                         <div class="w-full lg:w-3/5 relative aspect-video lg:aspect-auto">
-                            <img src="{{ $projectFeature->image ? $projectFeature->image->path : asset('images/setting/no-image.png') }}" alt="{{ $projectFeature->name ?? 'Dự án' }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
+                            <img src="{{ $projectFeature->image ? $projectFeature->image->url : asset('images/setting/no-image.png') }}" alt="{{ $projectFeature->name ?? 'Dự án' }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
                             <div class="absolute inset-0 bg-gradient-to-t from-gray-900/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                         </div>
 
@@ -93,7 +93,7 @@
                 @foreach($projects as $project)
                     <x-frontend.card 
                         :href="$project->slug_url"
-                        :image="$project->image ? $project->image->path : null"
+                        :image="$project->image ? $project->image->url : null"
                         :title="$project->name"
                         :description="$project->investor ? 'Chủ đầu tư: ' . $project->investor : ''"
                     />

@@ -20,15 +20,15 @@
     <meta property="og:description" content="@yield('meta_description', $setting->meta_description ?? '')" />
     <meta property="og:url"         content="{{ url()->current() }}" />
     <meta property="og:site_name"   content="{{ $setting->site_name ?? config('app.name') }}" />
-    <meta property="og:image"       content="@yield('meta_image', !empty($setting->meta_image) ? asset('storage/' . $setting->meta_image) : '')" />
+    <meta property="og:image"       content="@yield('meta_image', $globalMetaImageUrl)" />
     {{-- Twitter Card --}}
     <meta name="twitter:card"        content="summary_large_image" />
     <meta name="twitter:title"       content="@yield('title', config('app.name'))" />
     <meta name="twitter:description" content="@yield('meta_description', $setting->meta_description ?? '')" />
-    <meta name="twitter:image"       content="@yield('meta_image', !empty($setting->meta_image) ? asset('storage/' . $setting->meta_image) : '')" />
+    <meta name="twitter:image"       content="@yield('meta_image', $globalMetaImageUrl)" />
     {{-- Fonts, Favicons --}}
-    <link rel="icon" href="{{ asset($setting->favicon ?? '') }}" type="image/x-icon" />
-    <link rel="apple-touch-icon" sizes="180x180" href="{{ asset($setting->favicon ?? '') }}" />
+    <link rel="icon" href="{{ $globalFaviconUrl }}" type="image/x-icon" />
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ $globalFaviconUrl }}" />
     
     {{-- FontAwesome --}}
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" media="print" onload="this.media='all'">

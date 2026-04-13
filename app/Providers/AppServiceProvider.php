@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\Gate;
 use Filament\Forms\Components\RichEditor;
 use Awcodes\RicherEditor\Plugins\SourceCodePlugin;
 
@@ -18,15 +19,9 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
-        \Illuminate\Support\Facades\Gate::before(function ($user, $ability) {
+        Gate::before(function ($user, $ability) {
             return $user->hasRole('super_admin') ? true : null;
         });
-        // Share general settings globally to all views
-        try {
-            \Illuminate\Support\Facades\View::share('setting', app(\App\Settings\GeneralSettings::class));
-        } catch (\Exception $e) {
-            // Ignore during setup/migrations when table doesn't exist
-        }
 
         RichEditor::configureUsing(function (RichEditor $builder) {
             $builder->plugins([

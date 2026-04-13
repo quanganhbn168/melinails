@@ -22,7 +22,7 @@
                         @forelse($services as $service)
                             <x-frontend.card 
                                 :href="$service->slug_url"
-                                :image="$service->image ? $service->image->path : null"
+                                :image="$service->image ? $service->image->url : null"
                                 :title="$service->name"
                                 :description="$service->description"
                             >
@@ -61,7 +61,7 @@
                                 @forelse($cat->services as $service)
                                     <x-frontend.card 
                                         :href="$service->slug_url"
-                                        :image="$service->image ? $service->image->path : null"
+                                        :image="$service->image ? $service->image->url : null"
                                         :title="$service->name"
                                         :description="$service->description"
                                     >

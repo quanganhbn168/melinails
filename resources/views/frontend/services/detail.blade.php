@@ -16,7 +16,7 @@
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 mb-16 items-start">
             {{-- Cột hình ảnh --}}
             <div class="rounded-sm overflow-hidden shadow-2xl border border-gray-100 dark:border-gray-800">
-                <img src="{{ $service->image ? asset($service->image->path) : asset('images/setting/no-image.png') }}" 
+                <img src="{{ $service->image ? asset($service->image->url) : asset('images/setting/no-image.png') }}" 
                      alt="{{ $service->name }}" 
                      class="w-full h-auto object-cover aspect-[4/3] @if(!$service->image) grayscale @endif">
             </div>
@@ -86,7 +86,7 @@
             @foreach($service->projects as $project)
                 <x-frontend.card 
                     :href="$project->slug_url"
-                    :image="$project->image ? $project->image->path : null"
+                    :image="$project->image ? $project->image->url : null"
                     :title="$project->name"
                     :description="$project->description"
                 />
@@ -132,7 +132,7 @@
             @foreach($service->posts as $post)
                 <a href="{{ $post->slug_url }}" class="flex bg-gray-50 dark:bg-gray-800 rounded-sm overflow-hidden border border-gray-100 dark:border-gray-700 hover:border-brand-300 transition-all group">
                     @if($post->image)
-                        <img src="{{ asset($post->image->path) }}" alt="{{ $post->title }}" class="w-1/3 object-cover">
+                        <img src="{{ asset($post->image->url) }}" alt="{{ $post->title }}" class="w-1/3 object-cover">
                     @endif
                     <div class="w-2/3 p-4 flex flex-col justify-center">
                         <h4 class="font-bold text-gray-900 dark:text-white line-clamp-2 text-sm leading-snug group-hover:text-brand-600 transition-colors">{{ $post->title }}</h4>
@@ -154,7 +154,7 @@
             @foreach($relatedServices as $related)
                 <a href="{{ $related->slug_url }}" class="group block bg-white dark:bg-gray-900 rounded-sm border border-gray-100 dark:border-gray-700 overflow-hidden hover:border-brand-500 transition-colors">
                     <div class="aspect-video relative overflow-hidden bg-gray-200 dark:bg-gray-700">
-                        <img src="{{ asset($related->image->path ?? 'images/setting/no-image.png') }}" class="w-full h-full object-cover">
+                        <img src="{{ asset($related->image->url ?? 'images/setting/no-image.png') }}" class="w-full h-full object-cover">
                     </div>
                     <div class="p-3">
                         <h4 class="font-bold text-sm uppercase text-gray-800 dark:text-gray-200 group-hover:text-brand-600 transition-colors">

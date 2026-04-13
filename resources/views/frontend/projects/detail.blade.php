@@ -1,7 +1,7 @@
 @extends('layouts.master')
 @section('title', $pageTitle)
 @section('meta_description', Str::limit(strip_tags($project->description ?? ''), 155))
-@section('meta_image', $project->banner ? asset($project->banner->path) : ($project->image ? asset($project->image->path) : ''))
+@section('meta_image', $project->banner ? asset($project->banner->url) : ($project->image ? asset($project->image->url) : ''))
 
 @push('jsonld')
 <script type="application/ld+json">
@@ -13,7 +13,7 @@
     "@id": "{{ url()->current() }}"
   },
   "name": "{{ $project->name }}",
-  "image": "{{ $project->banner ? asset($project->banner->path) : ($project->image ? asset($project->image->path) : '') }}",
+  "image": "{{ $project->banner ? asset($project->banner->url) : ($project->image ? asset($project->image->url) : '') }}",
   "dateCreated": "{{ $project->created_at->toIso8601String() }}",
   "dateModified": "{{ $project->updated_at->toIso8601String() }}",
   "creator": {
@@ -105,7 +105,7 @@
             
             {{-- Ảnh nổi bật --}}
             <div class="flex items-center justify-center order-1 lg:order-2">
-                <img src="{{ !empty($project->image) ? asset($project->image->path) : asset('images/setting/no-image.png') }}" 
+                <img src="{{ !empty($project->image) ? asset($project->image->url) : asset('images/setting/no-image.png') }}" 
                      alt="{{$project->name}}" 
                      class="w-full h-auto max-h-[500px] object-cover rounded-sm shadow-md">
             </div>
@@ -216,7 +216,7 @@
                             <div class="swiper-slide h-auto">
                                 <x-frontend.card 
                                     :href="$other->slug_url"
-                                    :image="$other->image ? asset($other->image->path) : asset('images/setting/no-image.png')"
+                                    :image="$other->image ? asset($other->image->url) : asset('images/setting/no-image.png')"
                                     :title="$other->name"
                                     :description="$other->investor ? 'Chủ đầu tư: ' . $other->investor : ''"
                                 />

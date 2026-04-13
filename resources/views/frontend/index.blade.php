@@ -541,6 +541,48 @@
 
 @endsection
 
+@push('jsonld')
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebSite",
+      "@id": "{{ url('/') }}#website",
+      "url": "{{ url('/') }}",
+      "name": "{{ $setting->site_name ?? config('app.name') }}",
+      "description": "{{ $setting->meta_description ?? '' }}",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "{{ route('frontend.search') }}?q={search_term_string}",
+        "query-input": "required name=search_term_string"
+      }
+    },
+    {
+      "@type": "Organization",
+      "@id": "{{ url('/') }}#organization",
+      "name": "{{ $setting->site_name ?? config('app.name') }}",
+      "url": "{{ url('/') }}",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "{{ $globalLogoUrl ?? '' }}"
+      },
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "telephone": "{{ $setting->phone ?? '' }}",
+        "contactType": "customer service"
+      },
+      "sameAs": [
+        "{{ $setting->facebook ?? '' }}",
+        "{{ $setting->youtube ?? '' }}",
+        "{{ $setting->zalo ?? '' }}"
+      ]
+    }
+  ]
+}
+</script>
+@endpush
+
 @push('js')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
