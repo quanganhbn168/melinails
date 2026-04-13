@@ -27,17 +27,20 @@ class FieldController extends Controller
 
     public function index()
     {
-        $field_categories = FieldCategory::where("status",1)->whereNull("parent_id")->get();
         $pageSettings = app(PageSettings::class);
-        $pageTitle = $pageSettings->fields_title ?: 'Lĩnh vực hoạt động';
+        $setting      = app(\App\Settings\GeneralSettings::class);
 
-        $setting = app(\App\Settings\GeneralSettings::class);
-        $bannerUrl = !empty($setting->banner) ? $setting->banner : asset('images/setting/no-banner.png');
-        $breadcrumbs = [
-            ['label' => $pageTitle, 'url' => '']
-        ];
+        $pageTitle    = $pageSettings->fields_title    ?: 'Lĩnh vực hoạt động';
+        $pageSubtitle = $pageSettings->fields_headline ?: null;
+        $bannerUrl    = $setting->banner ?? asset('images/setting/no-banner.png');
+        $breadcrumbs  = [['label' => $pageTitle]];
 
-        return view('frontend.fields.index',compact("field_categories","pageTitle", "pageSettings", "setting", "bannerUrl", "breadcrumbs"));
+        $field_categories = FieldCategory::where("status", 1)->whereNull("parent_id")->get();
+
+        return view('frontend.fields.index', compact(
+            "field_categories", "setting", "pageSettings",
+            "pageTitle", "pageSubtitle", "bannerUrl", "breadcrumbs"
+        ));
     }
     public function byCategory(FieldCategory $fieldCategory): View
     {
@@ -46,7 +49,7 @@ class FieldController extends Controller
         $childCategories = $fieldCategory->children()->where('status', 1)->get();        
 
         $setting = app(\App\Settings\GeneralSettings::class);
-        $bannerUrl = $fieldCategory->image ? $fieldCategory->image->path : asset('images/setting/no-banner.png');
+        $bannerUrl = $fieldCategory->image ? $fieldCategory->image->url : asset('images/setting/no-banner.png');
         $breadcrumbs = [
             ['label' => 'Lĩnh vực', 'url' => route('frontend.fields.index')],
             ['label' => $pageTitle, 'url' => '']

@@ -7,6 +7,7 @@
 <x-frontend.page-hero 
     :image="$bannerUrl" 
     :title="$pageTitle" 
+    :subtitle="$pageSubtitle ?? null"
     :breadcrumb="$breadcrumbs" 
 />
 
@@ -14,10 +15,14 @@
     <div class="max-w-screen-xl mx-auto px-4">
         
         <div class="text-center max-w-3xl mx-auto mb-16">
-            <h2 class="text-2xl md:text-4xl lg:text-5xl font-black uppercase text-gray-900 dark:text-white tracking-tighter">{{ $pageTitle }}</h2>
-            <div class="w-16 h-1 bg-brand-600 mx-auto mt-6 mb-6"></div>
-            @if(!empty($setting->fields_description))
-                <p class="text-lg text-gray-600 dark:text-gray-400 font-medium">{{ $setting->fields_description }}</p>
+            @if(!empty($pageSettings->fields_description) || !empty($setting->fields_description))
+                <h2 class="text-2xl md:text-3xl font-black text-gray-900 dark:text-white mb-6 uppercase tracking-wider">
+                    Tổng quan lĩnh vực
+                </h2>
+                <div class="w-16 h-1 bg-brand-600 mx-auto mt-6 mb-6"></div>
+                <p class="text-lg text-gray-600 dark:text-gray-400 font-medium leading-relaxed">
+                    {{ $pageSettings->fields_description ?? $setting->fields_description }}
+                </p>
             @endif
         </div>
 
@@ -26,7 +31,7 @@
                 @foreach($field_categories as $field_category)
                     <x-frontend.card 
                         :href="$field_category->slug_url"
-                        :image="$field_category->image ? $field_category->image->path : null"
+                        :image="$field_category->image ? $field_category->image->url : null"
                         :title="$field_category->name"
                         :description="$field_category->description"
                     />
