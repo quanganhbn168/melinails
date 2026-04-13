@@ -46,9 +46,11 @@ class PostCategoryForm
                         SlugInput::make('slug'),
 
                         CuratorPicker::make('image_id')
-                            ->label('Ảnh đại diện'),
+                            ->label('Ảnh đại diện')
+                            ->directory('post-categories'),
                         CuratorPicker::make('banner_id')
-                            ->label('Banner'),
+                            ->label('Banner')
+                            ->directory('post-categories'),
 
                         Textarea::make('description')
                             ->label('Mô tả ngắn')
