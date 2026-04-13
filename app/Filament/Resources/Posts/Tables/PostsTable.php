@@ -5,12 +5,11 @@ namespace App\Filament\Resources\Posts\Tables;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
-use Filament\Tables\Columns\IconColumn;
-use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 
 use Filament\Tables\Columns\ToggleColumn;
+use Awcodes\Curator\Components\Tables\CuratorColumn;
 
 class PostsTable
 {
@@ -28,14 +27,10 @@ class PostsTable
                 TextColumn::make('slug')
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: true),
-                \Awcodes\Curator\Components\Tables\CuratorColumn::make('image')
-                    ->label('Ảnh')
-                    ->circular()
-                    ->size(40),
-                \Awcodes\Curator\Components\Tables\CuratorColumn::make('banner')
-                    ->label('Banner')
-                    ->size(40)
-                    ->toggleable(isToggledHiddenByDefault: true),
+                CuratorColumn::make('image')
+                    ->label('Ảnh'),
+                CuratorColumn::make('banner')
+                    ->label('Banner'),
                 ToggleColumn::make('status')
                     ->label('Kích hoạt'),
                 ToggleColumn::make('is_featured')
@@ -44,18 +39,6 @@ class PostsTable
                     ->label('Trang chủ'),
                 ToggleColumn::make('is_menu')
                     ->label('Menu')
-                    ->toggleable(isToggledHiddenByDefault: true),
-                ToggleColumn::make('is_footer')
-                    ->label('Footer')
-                    ->toggleable(isToggledHiddenByDefault: true),
-                
-                TextColumn::make('created_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('updated_at')
-                    ->dateTime()
-                    ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([

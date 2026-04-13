@@ -54,11 +54,13 @@ class PostForm
                     ->schema([
                         CuratorPicker::make('image_id')
                             ->label('Ảnh đại diện')
-                            ->image(),
+                            ->image()
+                            ->directory('posts'),
 
                         CuratorPicker::make('banner_id')
                             ->label('Ảnh Banner')
-                            ->image(),
+                            ->image()
+                            ->directory('posts'),
                     ]),
 
                 // ── Nội dung ─────────────────────────────────────
