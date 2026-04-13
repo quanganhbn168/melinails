@@ -15,8 +15,9 @@ class AppServiceProvider extends ServiceProvider
     public function register(): void
     {
         \Awcodes\Curator\Facades\Glide::serverConfig([
-            'driver' => extension_loaded('imagick') ? 'imagick' : 'gd',
+            'source' => storage_path('app/public'),
             'cache' => storage_path('app/public/.cache'),
+            'driver' => extension_loaded('imagick') ? 'imagick' : 'gd',
         ]);
     }
 
