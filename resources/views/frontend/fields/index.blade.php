@@ -62,16 +62,11 @@
             </div>
 
             {{-- Khối Kêu gọi hành động (CTA) --}}
-            <div class="mt-32 bg-gradient-to-br from-brand-900 via-brand-800 to-brand-900 rounded-sm p-10 md:p-16 text-center shadow-2xl relative overflow-hidden border-t-4 border-accent-500">
-                <div class="absolute inset-0 w-full h-full opacity-10"><svg class="absolute w-full h-full" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="dots" width="20" height="20" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r="2" fill="#ffffff"/></pattern></defs><rect width="100%" height="100%" fill="url(#dots)"/></svg></div>
-                <div class="relative z-10">
-                    <h3 class="text-2xl md:text-4xl font-black text-white mb-6 uppercase tracking-tight">Bạn chưa tìm thấy ngành nghề của mình?</h3>
-                    <p class="text-brand-100 text-lg mb-10 max-w-3xl mx-auto font-medium">Hệ thống của chúng tôi sở hữu lõi công nghệ linh hoạt <strong class="text-accent-400">Low-code/No-code</strong> cho phép Customize và thiết kế lại quy trình để vừa vặn với bất kỳ mô hình quản trị nào.</p>
-                    <a href="{{ route('contact.show') }}" class="inline-flex items-center px-10 py-4 bg-white text-brand-900 font-black uppercase tracking-wider text-sm rounded shadow-xl hover:shadow-2xl hover:bg-gray-50 hover:-translate-y-1 transition-all">
-                        Liên hệ tư vấn đo ni đóng giày <i class="fas fa-paper-plane ml-2 text-accent-500"></i>
-                    </a>
-                </div>
-            </div>
+            <x-frontend.page-cta 
+                :title="$pageSettings->fields_cta_title" 
+                :description="$pageSettings->fields_cta_description" 
+                :link="$pageSettings->fields_cta_link" 
+            />
         @else
             <div class="bg-white dark:bg-gray-800 rounded-sm p-16 text-center border border-dashed border-gray-200 dark:border-gray-700 shadow-sm max-w-4xl mx-auto">
                 <div class="w-24 h-24 bg-gray-50 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-6">

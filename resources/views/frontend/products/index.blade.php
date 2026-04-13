@@ -114,6 +114,13 @@
 
     </div>
 </div>
+
+<x-frontend.page-cta 
+    :title="$pageSettings->products_cta_title" 
+    :description="$pageSettings->products_cta_description" 
+    :link="$pageSettings->products_cta_link" 
+/>
+
 @endsection
 
 @push('js')

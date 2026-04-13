@@ -114,4 +114,11 @@
         @endif
     </div>
 </section>
+
+<x-frontend.page-cta 
+    :title="$pageSettings->projects_cta_title" 
+    :description="$pageSettings->projects_cta_description" 
+    :link="$pageSettings->projects_cta_link" 
+/>
+
 @endsection

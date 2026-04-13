@@ -87,9 +87,14 @@
                     <x-frontend.aside />
                 </div>
             </div>
-
         </div>
     </div>
 </section>
+
+<x-frontend.page-cta 
+    :title="$pageSettings->services_cta_title" 
+    :description="$pageSettings->services_cta_description" 
+    :link="$pageSettings->services_cta_link" 
+/>
 
 @endsection

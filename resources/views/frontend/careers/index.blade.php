@@ -94,4 +94,10 @@
     </div>
 </section>
 
+<x-frontend.page-cta 
+    :title="$pageSettings->careers_cta_title" 
+    :description="$pageSettings->careers_cta_description" 
+    :link="$pageSettings->careers_cta_link" 
+/>
+
 @endsection

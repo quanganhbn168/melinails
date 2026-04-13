@@ -60,6 +60,23 @@ class ManagePageSettings extends SettingsPage
                 CuratorPicker::make("{$prefix}_banner")
                     ->label('Banner trang')
                     ->acceptedFileTypes(['image/*']),
+                
+                \Filament\Forms\Components\Section::make('Khối Call-To-Action (CTA)')
+                    ->schema([
+                        TextInput::make("{$prefix}_cta_title")
+                            ->label('Tiêu đề CTA')
+                            ->placeholder('VD: Bạn chưa tìm thấy ngành nghề của mình?'),
+                        Textarea::make("{$prefix}_cta_description")
+                            ->label('Mô tả CTA')
+                            ->rows(3)
+                            ->placeholder('VD: Hệ thống của chúng tôi sở hữu lõi công nghệ linh hoạt...'),
+                        TextInput::make("{$prefix}_cta_link")
+                            ->label('Link Nút CTA')
+                            ->placeholder('URL khi click, để trống sẽ dùng mặc định'),
+                    ])
+                    ->collapsible()
+                    ->collapsed(true),
+
                 RichEditor::make("{$prefix}_content")
                     ->label('Nội dung trang')
                     ->columnSpanFull()
