@@ -36,26 +36,31 @@ class PostController extends Controller
             ->get();
 
         // 2. Xử lý lấy bài viết bao gồm cả danh mục con (Recursive)
-        // Vì 'with' mặc định của Laravel không lấy được bài của category con
         foreach ($postCategories as $category) {
-            // Lấy mảng ID bao gồm chính nó và con cháu (Hàm này đã có Cache ở Model)
             $childIds = PostCategory::getTreeIds($category->id);
-            // Query lấy bài viết theo danh sách ID này
             $posts = Post::whereIn('post_category_id', $childIds)
                 ->where("status", 1)
                 ->latest()
                 ->take(9)
                 ->get();
-
-            // [Quan trọng] Gán thủ công collection này vào relationship 'posts'
-            // Để bên View bạn vẫn gọi $category->posts như bình thường mà không cần sửa View
             $category->setRelation('posts', $posts);
         }
-        $posts = Post::where('status', 1)
-            ->latest()
-            ->paginate(12);
 
-        return view('frontend.post.index', compact('postCategories', 'pageSettings', 'posts'));
+        // 3. Bài viết nổi bật (hiển thị hero riêng)
+        $featuredPost = Post::where('status', 1)
+            ->where('is_featured', 1)
+            ->with(['image', 'category'])
+            ->latest('updated_at')
+            ->first();
+
+        // 4. Danh sách bài viết (loại trừ bài nổi bật đã hiển thị riêng)
+        $postsQuery = Post::where('status', 1)->with(['image', 'category'])->latest();
+        if ($featuredPost) {
+            $postsQuery->where('id', '!=', $featuredPost->id);
+        }
+        $posts = $postsQuery->paginate(12);
+
+        return view('frontend.post.index', compact('postCategories', 'pageSettings', 'posts', 'featuredPost'));
     }
 
     public function detail(Post $post)

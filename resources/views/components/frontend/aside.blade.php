@@ -48,7 +48,7 @@
             @foreach($latestPosts as $post)
                 <a href="{{ $post->slug_url }}" class="flex items-start gap-4 p-4 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors group">
                     @if($post->image)
-                        <img src="{{ $post->image->path }}" alt="{{ $post->title }}" loading="lazy"
+                        <img src="{{ $post->image->url }}" alt="{{ $post->title }}" loading="lazy"
                              class="w-16 h-16 rounded-sm object-cover flex-shrink-0 border border-gray-200">
                     @else
                         <div class="w-16 h-16 rounded-sm bg-gray-100 dark:bg-gray-700 flex items-center justify-center flex-shrink-0 border border-gray-200">
@@ -70,16 +70,16 @@
     @endif
 
     {{-- CTA Liên hệ --}}
-    <div class="bg-brand-900 border border-brand-800 rounded-sm p-8 text-center text-white relative overflow-hidden group">
+    <div class="bg-brand-900 border border-brand-800 rounded-sm p-5 text-center text-white relative overflow-hidden group">
         <div class="absolute inset-0 bg-brand-800 scale-x-0 group-hover:scale-x-100 origin-left transition-transform duration-500"></div>
         <div class="relative z-10 flex flex-col items-center">
-            <h3 class="text-lg font-black uppercase tracking-wider mb-3 relative inline-block">
+            <h3 class="text-base font-black uppercase tracking-wider mb-2 relative inline-block">
                 Bạn cần tư vấn?
-                <div class="w-12 h-1 bg-accent-500 mx-auto mt-2 rounded-sm"></div>
+                <div class="w-10 h-0.5 bg-accent-500 mx-auto mt-1.5 rounded-sm"></div>
             </h3>
-            <p class="text-sm text-brand-100 mb-6 px-2">Nhận giải pháp chuyển đổi số may đo riêng cho mô hình của bạn.</p>
+            <p class="text-xs text-brand-100 mb-4 leading-relaxed">Nhận giải pháp chuyển đổi số may đo riêng cho mô hình của bạn.</p>
             <a href="{{ route('contact.show') }}"
-               class="inline-block w-full text-center bg-accent-500 text-white font-bold uppercase tracking-wider px-6 py-4 rounded-sm hover:bg-white hover:text-accent-500 transition-colors border border-accent-500">
+               class="inline-block w-full text-center bg-accent-500 text-white font-bold uppercase tracking-wider text-xs px-4 py-2.5 rounded-sm hover:bg-white hover:text-accent-500 transition-colors border border-accent-500">
                 Gửi yêu cầu ngay
             </a>
         </div>
