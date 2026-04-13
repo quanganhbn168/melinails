@@ -11,10 +11,10 @@ class DatabaseSeeder extends Seeder
     {
         // Tạo tài khoản admin mặc định
         $user = User::firstOrCreate(
-            ['email' => 'admin@cnetpos.com'],
+            ['email' => 'admin@cnetpos.vn'],
             [
                 'name' => 'Super Admin',
-                'password' => bcrypt('admin123'),
+                'password' => 'admin123',
                 'phone' => '0123456789',
                 'address' => 'Vietnam',
             ]
