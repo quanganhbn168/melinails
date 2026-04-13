@@ -8,7 +8,10 @@
     {{-- CSRF --}}
     <meta name="csrf-token" content="{{ csrf_token() }}">
     {{-- Title & SEO --}}
-    <title>@yield('title', config('app.name'))</title>
+    @php
+        $siteName = $setting->site_name ?? config('app.name');
+    @endphp
+    <title>@hasSection('title') @yield('title') - {{ $siteName }} @else {{ $siteName }} @endif</title>
     <meta name="description" content="@yield('meta_description', $setting->meta_description ?? '')">
     <meta name="keywords" content="@yield('meta_keywords', $setting->meta_keywords ?? '')">
     <meta name="robots" content="@yield('meta_robots', 'index, follow')">
@@ -16,14 +19,14 @@
     <link rel="canonical" href="{{ url()->current() }}" />
     {{-- Open Graph --}}
     <meta property="og:type"        content="@yield('og_type','website')" />
-    <meta property="og:title"       content="@yield('title', config('app.name'))" />
+    <meta property="og:title"       content="@hasSection('title') @yield('title') - {{ $siteName }} @else {{ $siteName }} @endif" />
     <meta property="og:description" content="@yield('meta_description', $setting->meta_description ?? '')" />
     <meta property="og:url"         content="{{ url()->current() }}" />
     <meta property="og:site_name"   content="{{ $setting->site_name ?? config('app.name') }}" />
     <meta property="og:image"       content="@yield('meta_image', $globalMetaImageUrl)" />
     {{-- Twitter Card --}}
     <meta name="twitter:card"        content="summary_large_image" />
-    <meta name="twitter:title"       content="@yield('title', config('app.name'))" />
+    <meta name="twitter:title"       content="@hasSection('title') @yield('title') - {{ $siteName }} @else {{ $siteName }} @endif" />
     <meta name="twitter:description" content="@yield('meta_description', $setting->meta_description ?? '')" />
     <meta name="twitter:image"       content="@yield('meta_image', $globalMetaImageUrl)" />
     {{-- Fonts, Favicons --}}
