@@ -8,7 +8,7 @@ use Illuminate\Support\Carbon;
 
 class ContactChartWidget extends ChartWidget
 {
-    protected static ?string $heading = 'Biểu đồ liên hệ mới';
+    protected ?string $heading = 'Biểu đồ liên hệ mới';
     protected static ?int $sort = 2;
 
     protected function getData(): array
