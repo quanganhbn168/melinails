@@ -41,7 +41,7 @@
 
                 @if($post->image)
                 <div class="mb-4">
-                    <img src="{{ asset($post->image) }}" class="img-fluid w-100" alt="{{ $post->title }}">
+                    <img src="{{ $post->image?->url }}" class="img-fluid w-100" alt="{{ $post->title }}">
                 </div>
                 @endif
 

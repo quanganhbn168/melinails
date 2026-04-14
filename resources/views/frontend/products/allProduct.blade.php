@@ -94,7 +94,7 @@
                             <div class="product-action">
                                 <div class="product-thumbnail">
                                     <a href="{{ route('frontend.product.show', $product->slug) }}">
-                                        <img src="{{ asset($product->image) }}" alt="{{ $product->name }}" class="image_thumb">
+                                        <img src="{{ $product->image?->url }}" alt="{{ $product->name }}" class="image_thumb">
                                     </a>
                                 </div>
                                 <div class="product-info">

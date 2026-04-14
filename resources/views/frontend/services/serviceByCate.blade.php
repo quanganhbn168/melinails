@@ -42,7 +42,7 @@
 								<div class="services-list_item">
 									<a href="{{route('slug.resolve',$service->slug)}}">
 										<div class="item-image">
-											<img src="{{ asset($service->image) }}" alt="{{ $service->name }}">
+											<img src="{{ $service->image?->url }}" alt="{{ $service->name }}">
 										</div>
 										<div class="item-description">
 											{{ $service->name }}

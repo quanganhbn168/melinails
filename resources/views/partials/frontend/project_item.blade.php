@@ -1,6 +1,6 @@
 <div class="bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-lg dark:bg-gray-800 dark:border-gray-700 transition-shadow overflow-hidden group">
     <a href="{{ $project->slug_url }}" class="block relative aspect-w-16 aspect-h-10 overflow-hidden">
-        <img class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" src="{{ !empty($project->image) ? asset($project->image) : (optional($project->mainImage())->url() ?: asset('images/setting/no-image.png')) }}" alt="{{ $project->name }}" />
+        <img class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" src="{{ $project->image_id ? $project->image?->url : ($project->image?->url ?: asset('images/setting/no-image.png')) }}" alt="{{ $project->name }}" />
     </a>
     <div class="p-5">
         <a href="{{ $project->slug_url }}">

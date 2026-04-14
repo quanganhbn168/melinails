@@ -1,6 +1,6 @@
 <div class="group bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-lg dark:bg-gray-800 dark:border-gray-700 transition-all overflow-hidden flex flex-col h-full">
     <a href="{{ $product->slug_url }}" class="block relative aspect-square overflow-hidden bg-gray-50 dark:bg-gray-900">
-        <img src="{{ !empty($product->image) ? asset($product->image) : (optional($product->mainImage())->url() ?: asset('images/setting/no-image.png')) }}" 
+        <img src="{{ $product->image_id ? $product->image?->url : ($product->image?->url ?: asset('images/setting/no-image.png')) }}" 
              alt="{{ $product->name }}" 
              class="w-full h-full object-contain p-4 group-hover:scale-110 transition-transform duration-500">
         @if(isset($product->is_new) && $product->is_new)

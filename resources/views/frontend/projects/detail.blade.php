@@ -105,7 +105,7 @@
             
             {{-- Ảnh nổi bật --}}
             <div class="flex items-center justify-center order-1 lg:order-2">
-                <img src="{{ !empty($project->image) ? asset($project->image->url) : asset('images/setting/no-image.png') }}" 
+                <img src="{{ $project->image_id ? asset($project->image->url) : asset('images/setting/no-image.png') }}" 
                      alt="{{$project->name}}" 
                      class="w-full h-auto max-h-[500px] object-cover rounded-sm shadow-md">
             </div>

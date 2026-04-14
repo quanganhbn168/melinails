@@ -1,7 +1,7 @@
 @extends('layouts.master')
 @section('title', $product->meta_title ?? $product->name)
 @section('meta_description', $product->meta_description ?? Str::limit(strip_tags($product->description), 155))
-@section('meta_image', optional($product->mainImage())->url() ?: ($product->image ? asset($product->image) : ''))
+@section('meta_image', $product->image?->url ?: ($product->image ? $product->image?->url : ''))
 
 @push('jsonld')
 <script type="application/ld+json">
@@ -10,7 +10,7 @@
   "@type": "Product",
   "name": "{{ $product->name }}",
   "image": [
-    "{{ optional($product->mainImage())->url() ?: ($product->image ? asset($product->image) : asset('images/setting/no-image.png')) }}"
+    "{{ $product->image?->url ?: ($product->image ? $product->image?->url : asset('images/setting/no-image.png')) }}"
    ],
   "description": "{{ $product->meta_description ?? Str::limit(strip_tags($product->description), 155) }}",
   "sku": "{{ $product->code ?? '' }}",
@@ -90,7 +90,7 @@
                             @php
                                 $images = collect($product->gallery)->filter();
                                 if($images->isEmpty()){
-                                    if($product->mainImage()) $images->push($product->mainImage());
+                                    if($product->image) $images->push($product->image);
                                     elseif($product->image) $images->push($product->image);
                                     elseif($product->bannerImage()) $images->push($product->bannerImage());
                                 }

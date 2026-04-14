@@ -1,7 +1,7 @@
 @extends('layouts.master')
 @section('title', $post->title)
 @section('meta_description', $post->description ?? Str::limit(strip_tags($post->content), 155))
-@section('meta_image', optional($post->mainImage())->url() ?: ($post->image ? asset($post->image) : ''))
+@section('meta_image', $post->image?->url ?: ($post->image ? $post->image?->url : ''))
 
 @push('jsonld')
 <script type="application/ld+json">
@@ -14,7 +14,7 @@
   },
   "headline": "{{ $post->title }}",
   "image": [
-    "{{ optional($post->mainImage())->url() ?: ($post->image ? asset($post->image) : '') }}"
+    "{{ $post->image?->url ?: ($post->image ? $post->image?->url : '') }}"
   ],
   "datePublished": "{{ $post->created_at->toIso8601String() }}",
   "dateModified": "{{ $post->updated_at->toIso8601String() }}",
@@ -64,7 +64,7 @@
 @section('content')
 {{-- Header/Banner --}}
 @php
-    $bannerUrl = optional($post->bannerImage())->url() ?: ($post->banner ? asset($post->banner) : asset($setting->banner ?? ''));
+    $bannerUrl = $post->banner?->url ?: ($post->banner ? asset($post->banner) : asset($setting->banner ?? ''));
 @endphp
 @if($bannerUrl)
 <div class="w-full h-[20vh] md:h-[30vh] overflow-hidden bg-gray-900">
@@ -105,7 +105,7 @@
 
                     {{-- Ảnh Main nếu có --}}
                     @php
-                        $mainUrl = optional($post->mainImage())->url() ?: ($post->image ? asset($post->image) : null);
+                        $mainUrl = $post->image?->url ?: ($post->image ? $post->image?->url : null);
                     @endphp
                     @if($mainUrl)
                     <div class="mb-10 rounded-2xl overflow-hidden shadow-sm">
@@ -143,7 +143,7 @@
                                 <div class="swiper-slide">
                                     <div class="group bg-white dark:bg-gray-800 rounded-xl overflow-hidden border border-gray-100 dark:border-gray-700 shadow-sm hover:shadow-md transition-shadow h-full flex flex-col">
                                         <a href="{{ $related->slug_url }}" class="block relative aspect-video overflow-hidden">
-                                            <img src="{{ optional($related->mainImage())->url() ?? optional($related->bannerImage())->url() ?? ($related->image ? asset($related->image) : asset('images/setting/no-image.png')) }}"
+                                            <img src="{{ $related->image?->url ?? $related->banner?->url ?? ($related->image ? $related->image?->url : asset('images/setting/no-image.png')) }}"
                                                  class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
                                                  alt="{{ $related->title }}" loading="lazy">
                                         </a>

@@ -1,7 +1,7 @@
 @extends('layouts.master')
 @section('title', $pageTitle)
 @section('meta_description', $field->meta_description ?? '')
-@section('meta_image', optional($field->mainImage())->url() ?: ($field->image ? asset($field->image) : ''))
+@section('meta_image', $field->image?->url ?: ($field->image ? $field->image?->url : ''))
 
 @push('jsonld')
 <script type="application/ld+json">
@@ -13,7 +13,7 @@
     "@id": "{{ url()->current() }}"
   },
   "headline": "{{ $field->name }}",
-  "image": "{{ optional($field->mainImage())->url() ?: ($field->image ? asset($field->image) : '') }}",
+  "image": "{{ $field->image?->url ?: ($field->image ? $field->image?->url : '') }}",
   "datePublished": "{{ $field->created_at->toIso8601String() }}",
   "dateModified": "{{ $field->updated_at->toIso8601String() }}",
   "author": {
@@ -141,7 +141,7 @@
 
 @section('content')
 <div class="banner">
-    <img src="{{ optional($field->bannerImage())->url() ?? asset($setting->banner) }}" alt="{{ $field->name }}" class="w-100">
+    <img src="{{ $field->banner?->url ?? asset($setting->banner) }}" alt="{{ $field->name }}" class="w-100">
 </div>
 
 <div class="container py-4">

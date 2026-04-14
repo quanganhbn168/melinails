@@ -1,7 +1,7 @@
 @extends('layouts.master')
 @section('title', $service->name)
 @section('meta_description', Str::limit(strip_tags($service->content), 155))
-@section('meta_image', optional($service->image) ? asset($service->image) : '')
+@section('meta_image', optional($service->image) ? $service->image?->url : '')
 @section('content')
 <x-frontend.page-hero 
     :image="$bannerUrl" 

@@ -10,7 +10,7 @@
 
 @section('content')
     <div class="banner">
-        <img src="{{ optional($category->bannerImage())->url() }}" alt="{{ $category->name }}" class="w-100">
+        <img src="{{ $category->banner?->url }}" alt="{{ $category->name }}" class="w-100">
     </div>
     <div class="filter my-4">
         <div class="container">

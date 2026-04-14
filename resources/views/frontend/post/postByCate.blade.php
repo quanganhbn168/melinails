@@ -4,7 +4,7 @@
 @section('content')
 {{-- Hero Banner --}}
 <div class="relative w-full h-[25vh] md:h-[35vh] overflow-hidden">
-    <img src="{{ optional($category->bannerImage())->url() ?: ($category->banner ? asset($category->banner) : asset($setting->banner)) }}" 
+    <img src="{{ $category->banner?->url ?: ($category->banner ? asset($category->banner) : asset($setting->banner)) }}" 
          alt="{{ $category->name }}" class="w-full h-full object-cover">
     <div class="absolute inset-0 bg-gray-900/60 flex flex-col items-center justify-center">
         <h1 class="text-3xl md:text-5xl font-bold text-white uppercase tracking-wider mb-4 text-center px-4">{{ $category->name }}</h1>
@@ -59,7 +59,7 @@
                     @foreach($posts as $post)
                         <article class="post-card group flex flex-col bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm hover:shadow-xl overflow-hidden transition-all duration-300">
                             <a href="{{ $post->slug_url }}" class="block post-img-wrapper overflow-hidden relative aspect-[16/9]">
-                                <img src="{{ optional($post->mainImage())->url() ?? optional($post->bannerImage())->url() ?? ($post->image ? asset($post->image) : asset('images/setting/no-image.png')) }}"
+                                <img src="{{ $post->image?->url ?? $post->banner?->url ?? ($post->image ? $post->image?->url : asset('images/setting/no-image.png')) }}"
                                      alt="{{ $post->title }}"
                                      class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
                                 <div class="absolute inset-0 bg-gray-900/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>

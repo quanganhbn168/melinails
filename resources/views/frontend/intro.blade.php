@@ -235,7 +235,7 @@
                 @if($partner->url)
                 <a href="{{ $partner->url }}" target="_blank" rel="noopener">
                 @endif
-                    <img src="{{ $partner->image ? asset($partner->image) : '' }}"
+                    <img src="{{ $partner->image ? $partner->image?->url : '' }}"
                          alt="{{ $partner->name }}"
                          class="h-10 md:h-14 object-contain grayscale opacity-60 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-300">
                 @if($partner->url)

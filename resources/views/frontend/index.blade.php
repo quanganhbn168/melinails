@@ -253,7 +253,7 @@
                 @foreach($homeFields as $field)
                 <div class="swiper-slide">
                     <a href="{{ route('frontend.field.bySlug', $field->slug) }}" class="group block bg-brand-900 rounded-sm overflow-hidden shadow-sm hover:shadow-lg border border-brand-800 transition-all relative aspect-[3/4] flex flex-col justify-end text-left">
-                        <img src="{{ !empty($field->image) ? asset($field->image) : 'https://placehold.co/400x533/1e293b/ffffff?text=Industry' }}" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 opacity-50 group-hover:opacity-60">
+                        <img src="{{ $field->image_id ? $field->image?->url : 'https://placehold.co/400x533/1e293b/ffffff?text=Industry' }}" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 opacity-50 group-hover:opacity-60">
                         <div class="absolute inset-0 bg-gradient-to-t from-brand-950 via-brand-900/60 to-transparent"></div>
                         <div class="p-6 relative z-10 w-full transform translate-y-2 group-hover:translate-y-0 transition-transform duration-300">
                             <div class="w-12 h-12 bg-white/10 backdrop-blur text-white border border-white/20 rounded-sm flex items-center justify-center text-xl mb-4 group-hover:bg-accent-500 group-hover:border-accent-500 transition-colors shadow-lg">
@@ -310,7 +310,7 @@
                     @if($firstProject)
                     <a href="{{ route('frontend.project.bySlug', $firstProject->slug) }}" class="group relative border border-brand-700 bg-brand-800 shadow-lg rounded-sm overflow-hidden flex h-72 lg:h-full">
                         <div class="absolute inset-0">
-                            <img src="{{ !empty($firstProject->image) ? asset($firstProject->image) : 'https://placehold.co/800x600/1e293b/ffffff?text=Project' }}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105">
+                            <img src="{{ $firstProject->image_id ? $firstProject->image?->url : 'https://placehold.co/800x600/1e293b/ffffff?text=Project' }}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105">
                         </div>
                         {{-- Subtle always-visible gradient --}}
                         <div class="absolute inset-0 bg-gradient-to-t from-brand-950/70 via-transparent to-transparent"></div>
@@ -331,7 +331,7 @@
                         @foreach($restProjects as $project)
                         <a href="{{ route('frontend.project.bySlug', $project->slug) }}" class="group relative border border-brand-700 bg-brand-800 shadow-lg rounded-sm overflow-hidden flex h-full">
                             <div class="absolute inset-0">
-                                <img src="{{ !empty($project->image) ? asset($project->image) : 'https://placehold.co/600x450/1e293b/ffffff?text=Project' }}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
+                                <img src="{{ $project->image_id ? $project->image?->url : 'https://placehold.co/600x450/1e293b/ffffff?text=Project' }}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
                             </div>
                             <div class="absolute inset-0 bg-gradient-to-t from-brand-950/70 via-transparent to-transparent"></div>
                             {{-- Title always visible --}}
@@ -366,7 +366,7 @@
                     @if($catFirstProject)
                     <a href="{{ route('frontend.project.bySlug', $catFirstProject->slug) }}" class="group block relative border border-brand-700 bg-brand-800 shadow-lg animate__animated animate__fadeIn lg:row-span-2 flex flex-col h-full rounded-sm overflow-hidden aspect-[4/3] lg:aspect-auto">
                         <div class="w-full h-full absolute inset-0">
-                            <img src="{{ !empty($catFirstProject->image) ? asset($catFirstProject->image) : 'https://placehold.co/800x600/1e293b/ffffff?text=Project' }}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105">
+                            <img src="{{ $catFirstProject->image_id ? $catFirstProject->image?->url : 'https://placehold.co/800x600/1e293b/ffffff?text=Project' }}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105">
                         </div>
                         <div class="absolute inset-0 bg-gradient-to-t from-brand-950 via-brand-950/60 to-transparent"></div>
                         <div class="p-8 absolute bottom-0 left-0 w-full transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
@@ -387,7 +387,7 @@
                         @foreach($catRestProjects as $project)
                         <a href="{{ route('frontend.project.bySlug', $project->slug) }}" class="group block relative border border-brand-700 bg-brand-800 shadow-lg animate__animated animate__fadeIn rounded-sm overflow-hidden flex flex-col h-full aspect-[4/3]">
                             <div class="w-full h-full absolute inset-0">
-                                <img src="{{ !empty($project->image) ? asset($project->image) : 'https://placehold.co/600x450/1e293b/ffffff?text=Project' }}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
+                                <img src="{{ $project->image_id ? $project->image?->url : 'https://placehold.co/600x450/1e293b/ffffff?text=Project' }}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
                             </div>
                             <div class="absolute inset-0 bg-gradient-to-t from-brand-950 via-brand-950/50 to-transparent"></div>
                             <div class="p-5 absolute bottom-0 left-0 w-full transform translate-y-2 group-hover:translate-y-0 transition-transform duration-300">
@@ -456,7 +456,7 @@
             @foreach($homeProducts->take(4) as $product)
             <div class="corp-card flex flex-col h-full bg-white group overflow-hidden p-1">
                 <div class="relative aspect-square bg-gray-50 flex items-center justify-center p-4 rounded-t-[11px] overflow-hidden">
-                    <img src="{{ $product->image ? asset($product->image) : 'https://placehold.co/400x400/f8fafc/0e4a86?text=Product' }}" class="max-w-full max-h-full object-contain mix-blend-multiply group-hover:scale-105 transition-transform duration-500">
+                    <img src="{{ $product->image ? $product->image?->url : 'https://placehold.co/400x400/f8fafc/0e4a86?text=Product' }}" class="max-w-full max-h-full object-contain mix-blend-multiply group-hover:scale-105 transition-transform duration-500">
                     <div class="absolute inset-0 bg-brand-900/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                         <a href="{{ route('frontend.product.bySlug', $product->slug) }}" class="w-10 h-10 bg-white rounded-full flex items-center justify-center text-brand-900 hover:bg-accent-500 hover:text-white transition-colors">
                             <i class="fas fa-search"></i>
@@ -507,7 +507,7 @@
             @foreach($allPosts->take(3) as $post)
             <div class="corp-card overflow-hidden group">
                 <a href="{{ $post->slug_url }}" class="block aspect-[16/10] overflow-hidden relative">
-                    <img src="{{ $post->image ? asset($post->image) : 'https://placehold.co/600x400/e2e8f0/0e4a86?text=News' }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                    <img src="{{ $post->image ? $post->image?->url : 'https://placehold.co/600x400/e2e8f0/0e4a86?text=News' }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
                     <div class="absolute top-4 left-4 bg-white/90 backdrop-blur text-brand-900 px-3 py-1 rounded text-xs font-bold shadow-sm">
                         {{ $post->created_at->format('d/m/Y') }}
                     </div>

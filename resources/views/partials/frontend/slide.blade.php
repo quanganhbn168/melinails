@@ -3,7 +3,7 @@
     <div class="swiper-wrapper">
         @foreach($slideHeros as $slide)
         <div class="swiper-slide relative">
-            <img src="{{ optional($slide->mainImage())->url() ?: asset($slide->image) }}" alt="{{ $slide->title }}" class="w-full h-full object-cover" />
+            <img src="{{ $slide->image?->url ?: $slide->image?->url }}" alt="{{ $slide->title }}" class="w-full h-full object-cover" />
             <div class="absolute inset-0 bg-gray-900/40"></div>
             <div class="absolute inset-0 flex items-center justify-center p-4">
                 <div class="text-center text-white max-w-4xl">
