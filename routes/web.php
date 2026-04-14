@@ -44,11 +44,11 @@ Route::get('/ve-chung-toi', [IntroController::class, 'index'])->name('frontend.i
 Route::get('lien-he', [ContactController::class, 'show'])->name('contact.show');
 Route::post('lien-he', [ContactController::class, 'store'])->name('contact.store');
 
-// Tư vấn triển khai
+// T vn trin khai
 Route::get('tu-van-trien-khai', [ConsultingController::class, 'index'])->name('consulting.index');
 Route::post('tu-van-trien-khai', [ConsultingController::class, 'store'])->name('consulting.store');
 
-// Đại lý
+// i l
 Route::get('dai-ly', [AgencyController::class, 'index'])->name('agency.index');
 Route::post('dai-ly', [AgencyController::class, 'store'])->name('agency.store');
 Route::middleware('auth')->prefix('cart')->name('cart.')->group(function () {
@@ -62,7 +62,7 @@ Route::get('/tuyen-dung', [CareerController::class, 'index'])->name('frontend.ca
 Route::get('/tuyen-dung/{career:slug}', [CareerController::class, 'show'])->name('frontend.careers.show');
 Route::post('/tuyen-dung/{id}/nop-don', [CareerController::class, 'apply'])->name('frontend.careers.apply');
 
-// Bình luận (Comments)
+// Bnh lun (Comments)
 Route::post('/binh-luan', [CommentController::class, 'store'])->name('comments.store');
 
 Route::get('/gio-hang', [CartController::class, 'showCartPage'])->name('cart.page');
@@ -85,9 +85,9 @@ Route::middleware(['auth:web'])->prefix('user')->name('user.')->group(function (
 
     Route::get('/wishlist', [UserController::class, 'wishlist'])->name('wishlist');
 });
-// Route cho hành động thêm/xóa wishlist (có thể đặt ngoài group trên)
+// Route cho hnh ng thm/xa wishlist (c th t ngoi group trn)
 // Route::post('/wishlist/add/{product}', [WishlistController::class, 'add'])->name('wishlist.add');
 // Route::post('/wishlist/remove/{product}', [WishlistController::class, 'remove'])->name('wishlist.remove');
 
-// ===================== CATCH-ALL (301 redirect cho URL cũ) =====================
+// ===================== CATCH-ALL (301 redirect cho URL c) =====================
 Route::get('/{slug}', [SlugController::class, 'handle'])->where('slug', '.*')->name('frontend.slug.handle');
