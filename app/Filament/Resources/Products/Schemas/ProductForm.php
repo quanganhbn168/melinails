@@ -31,7 +31,7 @@ class ProductForm
                             ->label('Tên sản phẩm')
                             ->required()
                             ->maxLength(255)
-                            ->live(onBlur: true)
+                            ->live(debounce: 500)
                             ->afterStateUpdated(SlugInput::autoSlug())
                             ->columnSpanFull(),
                         SlugInput::make('slug'),

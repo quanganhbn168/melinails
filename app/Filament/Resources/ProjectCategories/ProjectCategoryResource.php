@@ -25,6 +25,11 @@ class ProjectCategoryResource extends Resource
         return 'Dự án & Đối tác';
     }
 
+    public static function getNavigationSort(): ?int
+    {
+        return 1;
+    }
+
     public static function getModelLabel(): string
     {
         return 'Nhóm Dự án';

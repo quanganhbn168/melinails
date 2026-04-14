@@ -16,6 +16,7 @@ class Page extends Model
         'title',
         'content',
         'status',
+        'meta_title',
         'meta_description',
         'meta_keywords',
         'meta_image_id',

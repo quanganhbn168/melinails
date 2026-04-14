@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Unique;
 use Illuminate\Support\Facades\Schema;
-
+use Filament\Schemas\Components\Utilities\Set;
 class SlugInput extends TextInput
 {
     /**
@@ -15,15 +15,39 @@ class SlugInput extends TextInput
      * 
      * Dùng trong form:
      *   TextInput::make('name')        // hoặc 'title', 'label', bất kỳ field nào
-     *       ->live(onBlur: true)
+     *       ->live(debounce: 500)      // KHÔNG dùng live(onBlur: true) — blur không fire trong Filament 5
      *       ->afterStateUpdated(SlugInput::autoSlug())
      */
     public static function autoSlug(string $slugField = 'slug'): \Closure
     {
-        return function (?string $state, $set) use ($slugField) {
-            if ($state) {
-                $set($slugField, Str::slug($state));
+        return function (Set $set, ?string $state, ?Model $record) use ($slugField) {
+            if (! filled($state)) {
+                $set($slugField, null);
+                return;
             }
+
+            $baseSlug = Str::slug($state);
+            $slug     = $baseSlug;
+            $counter  = 1;
+
+            // Lấy ID slug hiện tại của record (khi Edit) để loại trừ khỏi check
+            $excludeId = $record && method_exists($record, 'slugData')
+                ? optional($record->slugData)->id
+                : null;
+
+            while (true) {
+                $exists = \DB::table('slugs')
+                    ->where('slug', $slug)
+                    ->when($excludeId, fn ($q) => $q->where('id', '!=', $excludeId))
+                    ->exists();
+
+                if (! $exists) break;
+
+                $slug = $baseSlug . '-' . $counter;
+                $counter++;
+            }
+
+            $set($slugField, $slug);
         };
     }
 
@@ -31,13 +55,16 @@ class SlugInput extends TextInput
     {
         parent::setUp();
 
-        $this->label('Đường dẫn SEO (Slug)')
+        $this->label('Đường dẫn')
             ->required()
             ->maxLength(255)
             ->prefix('/')
             ->helperText('Tự động tạo từ tên. Có thể chỉnh sửa thủ công.')
             // Tự load giá trị khi Edit từ relation hoặc cột local
             ->afterStateHydrated(function (SlugInput $component, $state, ?Model $record) {
+                if (filled($state)) {
+                    return;
+                }
                 if ($record && method_exists($record, 'getSlugValueAttribute') && $record->slug_value) {
                     $component->state($record->slug_value);
                 } elseif ($record && $record->slug) {
@@ -48,7 +75,6 @@ class SlugInput extends TextInput
             ->unique(
                 table: 'slugs',
                 column: 'slug',
-                ignoreRecord: true,
                 modifyRuleUsing: function (Unique $rule, ?Model $record) {
                     if ($record && method_exists($record, 'slugData') && $record->slugData) {
                         return $rule->ignore($record->slugData->id);
@@ -56,8 +82,8 @@ class SlugInput extends TextInput
                     return $rule;
                 }
             )
-            // Ngăn chặn Filament insert tự động vào mảng Attributes
-            ->dehydrated(false)
+            // Filament cần dehydrate state để $set() hoạt động reactive trên UI
+            // saveRelationshipsUsing xử lý việc lưu xuống DB, Model::$fillable không có 'slug' nên sẽ không bị mass-assign
             // Can thiệp sau khi Model được Save
             ->saveRelationshipsUsing(function ($state, ?Model $record) {
                 if ($record && method_exists($record, 'slugData')) {

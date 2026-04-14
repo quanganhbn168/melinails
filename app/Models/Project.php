@@ -8,14 +8,14 @@ use Illuminate\Database\Eloquent\Model;
 
 use App\Traits\HasSlug;
 use App\Traits\HasComments;
+use App\Traits\HasTags;
 
 class Project extends Model
 {
-    use HasFactory, HasSlug, HasComments;
+    use HasFactory, HasSlug, HasComments, HasTags;
 
     protected $fillable = [
         'name',
-        'slug',
         'image_id',
         'gallery',
         'project_category_id',

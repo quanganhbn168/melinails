@@ -27,7 +27,7 @@ class PostCategoryForm
                             ->placeholder('-- Danh mục gốc --')
                             ->options(fn (?PostCategory $record) => PostCategory::getTreeOptions($record?->id))
                             ->searchable()
-                            ->default(0),
+                            ->nullable(),
 
                         TextInput::make('name')
                             ->label('Tên danh mục')

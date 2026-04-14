@@ -26,6 +26,8 @@ class ProjectCategory extends Model
         'position',
         'meta_description',
         'meta_keywords',
+        'image_id',
+        'banner_id',
     ];
 
     protected $casts = [

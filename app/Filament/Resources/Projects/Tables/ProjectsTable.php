@@ -5,10 +5,11 @@ namespace App\Filament\Resources\Projects\Tables;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
-use Filament\Tables\Columns\IconColumn;
+use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Awcodes\Curator\Components\Tables\CuratorColumn;
 
 class ProjectsTable
 {
@@ -17,22 +18,19 @@ class ProjectsTable
         return $table
             ->columns([
                 TextColumn::make('name')
+                    ->label('Tên dự án')
                     ->searchable(),
-                TextColumn::make('slug')
-                    ->searchable(),
-                TextColumn::make('project_category_id')
-                    ->numeric()
+                TextColumn::make('category.name')
+                    ->label('Danh mục')
+                    ->searchable()
                     ->sortable(),
-                IconColumn::make('status')
-                    ->boolean(),
-                IconColumn::make('is_home')
-                    ->boolean(),
-                \Awcodes\Curator\Components\Tables\CuratorColumn::make('image')
-                    ->label('Ảnh')
+                ToggleColumn::make('status')
+                    ->label('Trạng thái'),
+                ToggleColumn::make('is_home')
+                    ->label('Trang chủ'),
+                CuratorColumn::make('image')
+                    ->label('Ảnh đại diện')
                     ->circular()
-                    ->size(40),
-                \Awcodes\Curator\Components\Tables\CuratorColumn::make('banner')
-                    ->label('Banner')
                     ->size(40),
                 TextColumn::make('created_at')
                     ->dateTime()

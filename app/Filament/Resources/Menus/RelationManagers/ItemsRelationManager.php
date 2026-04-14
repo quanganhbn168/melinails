@@ -35,6 +35,7 @@ class ItemsRelationManager extends RelationManager
                     ->required()
                     ->options([
                         'system_route' => 'Trang hệ thống',
+                        'page' => 'Trang đơn lẻ',
                         'category' => 'Danh mục Hàng hóa',
                         'product' => 'Sản phẩm',
                         'post_category' => 'Chuyên mục Tin tức',
@@ -57,6 +58,7 @@ class ItemsRelationManager extends RelationManager
                     ->label('Liên kết chỉ định (Data Source)')
                     ->options(function (callable $get) {
                         return match ($get('type')) {
+                            'page' => \App\Models\Page::pluck('title', 'id'),
                             'category' => \App\Models\Category::pluck('name', 'id'),
                             'product' => \App\Models\Product::pluck('name', 'id'),
                             'post_category' => \App\Models\PostCategory::pluck('name', 'id'),

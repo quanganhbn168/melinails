@@ -25,6 +25,11 @@ class TestimonialResource extends Resource
         return 'Dự án & Đối tác';
     }
 
+    public static function getNavigationSort(): ?int
+    {
+        return 4;
+    }
+
     public static function getModelLabel(): string
     {
         return 'Đánh giá Khách hàng';

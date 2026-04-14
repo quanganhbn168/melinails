@@ -8,30 +8,32 @@ use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\Toggle;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\RichEditor;
+use Filament\Forms\Components\ColorPicker;
 use Awcodes\Curator\Components\Forms\CuratorPicker;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Group;
 use Filament\Schemas\Schema;
 use App\Traits\HasSeo;
+use App\Filament\Forms\Components\SlugInput;
+use Illuminate\Support\Str;
 
 class ProjectForm
 {
     public static function configure(Schema $schema): Schema
     {
         return $schema
+            ->columns(1)
             ->components([
-                Grid::make(3)->schema([
-                    // Cột chính (2 phần)
-                    Group::make()->schema([
-                        Section::make('Thông tin cơ bản')
+                    Section::make('Thông tin cơ bản')
                             ->schema([
                                 TextInput::make('name')
                                     ->label('Tên dự án')
                                     ->required()
+                                    ->live(onBlur: true)
+                                    ->afterStateUpdated(SlugInput::autoSlug('slug'))
                                     ->columnSpanFull(),
-                                TextInput::make('slug')
-                                    ->required()
+                                SlugInput::make('slug')
                                     ->columnSpanFull(),
                                 Select::make('project_category_id')
                                     ->label('Danh mục')
@@ -39,18 +41,16 @@ class ProjectForm
                                     ->searchable()
                                     ->required()
                                     ->columnSpanFull(),
-                                Grid::make(2)->schema([
                                     TextInput::make('investor')->label('Chủ đầu tư'),
                                     TextInput::make('address')->label('Địa chỉ/Địa điểm'),
                                     TextInput::make('year')->label('Năm thực hiện'),
                                     TextInput::make('value')->label('Giá trị dự án'),
-                                ]),
                                 Textarea::make('description')
                                     ->label('Mô tả ngắn')
                                     ->rows(3)
                                     ->required()
                                     ->columnSpanFull(),
-                            ]),
+                            ])->columns(2),
                         Section::make('Nội dung chi tiết')
                             ->schema([
                                 RichEditor::make('content')
@@ -64,11 +64,7 @@ class ProjectForm
                                     ->multiple()
                                     ->columnSpanFull(),
                             ]),
-                        HasSeo::seoSection(),
-                    ])->columnSpan(2),
-
-                    // Cột phụ (1 phần)
-                    Group::make()->schema([
+                            
                         Section::make('Cài đặt & Trạng thái')
                             ->schema([
                                 Toggle::make('status')
@@ -79,6 +75,11 @@ class ProjectForm
                                     ->label('Hiển thị Nổi bật (Trang chủ)')
                                     ->default(false)
                                     ->required(),
+                                Select::make('tags')
+                                    ->label('Gắn Thẻ (Tags)')
+                                    ->relationship('tags', 'name')
+                                    ->multiple()
+                                    ->preload(),
                             ]),
                         Section::make('Ảnh đại diện & Bìa')
                             ->schema([
@@ -86,9 +87,9 @@ class ProjectForm
                                     ->label('Ảnh đại diện (Thumbnail)'),
                                 CuratorPicker::make('banner_id')
                                     ->label('Ảnh Bìa / Banner'),
-                            ]),
-                    ])->columnSpan(1),
-                ]),
+                            ])->columns(2),
+
+                        HasSeo::seoSection(),
             ]);
     }
 }

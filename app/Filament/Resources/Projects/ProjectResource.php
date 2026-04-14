@@ -25,14 +25,19 @@ class ProjectResource extends Resource
         return 'Dự án & Đối tác';
     }
 
+    public static function getNavigationSort(): ?int
+    {
+        return 2;
+    }
+
     public static function getModelLabel(): string
     {
-        return 'Dự án Tiêu biểu';
+        return 'Dự án';
     }
 
     public static function getPluralModelLabel(): string
     {
-        return 'Dự án Tiêu biểu';
+        return 'Dự án';
     }
 
     public static function form(Schema $schema): Schema

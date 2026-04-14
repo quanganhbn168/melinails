@@ -25,6 +25,11 @@ class PartnerResource extends Resource
         return 'Dự án & Đối tác';
     }
 
+    public static function getNavigationSort(): ?int
+    {
+        return 3;
+    }
+
     public static function getModelLabel(): string
     {
         return 'Đối tác';

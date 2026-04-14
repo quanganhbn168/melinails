@@ -12,39 +12,32 @@ use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
+use App\Traits\HasSeo;
 
 class ProjectCategoryForm
 {
     public static function configure(Schema $schema): Schema
     {
         return $schema
+            ->columns(1)
             ->components([
 
                 Section::make('Thông tin danh mục')
                     ->schema([
                         Select::make('parent_id')
                             ->label('Danh mục cha')
-                            ->placeholder('-- Danh mục gốc --')
                             ->options(function (?ProjectCategory $record) {
-                                $query = ProjectCategory::query()->where('status', 1);
-                                if ($record) {
-                                    $excludeIds = [$record->id];
-                                    foreach ($record->children as $child) {
-                                        $excludeIds[] = $child->id;
-                                    }
-                                    $query->whereNotIn('id', $excludeIds);
-                                }
-                                return $query->orderBy('name')->pluck('name', 'id');
+                                return [0 => '-- Danh mục gốc --'] + ProjectCategory::getTreeOptions(optional($record)->id);
                             })
                             ->searchable()
-                            ->nullable(),
+                            ->default(0),
 
                         TextInput::make('name')
                             ->label('Tên danh mục')
                             ->required()
                             ->maxLength(255)
-                            ->live(onBlur: true)
-                            ->afterStateUpdated(SlugInput::autoSlug()),
+                            ->live(debounce: 500)
+                            ->afterStateUpdated(SlugInput::autoSlug('slug')),
 
                         SlugInput::make('slug'),
 
@@ -65,9 +58,9 @@ class ProjectCategoryForm
                         Toggle::make('status')
                             ->label('Kích hoạt')
                             ->default(true),
-                    ]),
+                    ])->columns(2),
 
-                \App\Traits\HasSeo::seoSection(),
+                HasSeo::seoSection(),
             ]);
     }
 }

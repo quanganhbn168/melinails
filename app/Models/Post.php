@@ -9,10 +9,11 @@ use Illuminate\Database\Eloquent\Model;
 use App\Traits\HasSlug;
 use App\Traits\HasComments;
 use App\Traits\HasSeo;
+use App\Traits\HasTags;
 
 class Post extends Model
 {
-    use HasFactory, HasSlug, HasComments, HasSeo;
+    use HasFactory, HasSlug, HasComments, HasSeo, HasTags;
 
     protected $fillable = [
         'post_category_id',

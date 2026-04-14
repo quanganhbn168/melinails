@@ -13,6 +13,7 @@ return new class extends Migration
             $table->string('title');
             $table->longText('content')->nullable();
             $table->boolean('status')->default(true);
+            $table->string('meta_title', 255)->nullable();
             $table->string('meta_description', 500)->nullable();
             $table->string('meta_keywords', 500)->nullable();
             $table->unsignedBigInteger('meta_image_id')->nullable();
