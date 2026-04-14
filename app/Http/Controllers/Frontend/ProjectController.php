@@ -27,16 +27,8 @@ class ProjectController extends Controller
         };
     }
 
-    /**
-     * Hiển thị trang danh mục dự án.
-     */
     public function byCategory(ProjectCategory $category)
     {
-        $projects = Project::where('status', 1)
-            ->where('project_category_id', $category->id)
-            ->latest()
-            ->paginate(10);
-            
         $setting = app(\App\Settings\GeneralSettings::class);
         $pageTitle = $category->name;
         $bannerUrl = $category->image ? $category->image->path : ($setting->banner ?? asset('images/setting/no-banner.png'));
@@ -45,9 +37,29 @@ class ProjectController extends Controller
             ['label' => $pageTitle, 'url' => '']
         ];
 
+        $projectFeature = Project::where('status', 1)
+            ->where('project_category_id', $category->id)
+            ->where('is_home', 1)
+            ->first() 
+            ?? 
+            Project::where('status', 1)
+            ->where('project_category_id', $category->id)
+            ->latest()
+            ->first();
+
+        $query = Project::where('status', 1)
+            ->where('project_category_id', $category->id)
+            ->latest();
+
+        if ($projectFeature) {
+            $query->where('id', '!=', $projectFeature->id);
+        }
+
+        $projects = $query->paginate(10);
+
         return view('frontend.projects.index', [
             'projects'       => $projects,
-            'projectFeature' => $projects->first(),
+            'projectFeature' => $projectFeature,
             'category'       => $category,
             'setting'        => $setting,
             'pageTitle'      => $pageTitle,
@@ -56,9 +68,6 @@ class ProjectController extends Controller
         ]);
     }
 
-    /**
-     * Hiển thị trang danh sách TẤT CẢ dự án.
-     */
     public function index()
     {
         $pageSettings = app(PageSettings::class);
@@ -72,7 +81,11 @@ class ProjectController extends Controller
         $projectFeature = Project::where('is_home', 1)->where('status', 1)->first()
             ?? Project::where('status', 1)->first();
 
-        $projects = Project::where('status', 1)->latest()->paginate(10);
+        $query = Project::where('status', 1)->latest();
+        if ($projectFeature) {
+            $query->where('id', '!=', $projectFeature->id);
+        }
+        $projects = $query->paginate(10);
 
         return view('frontend.projects.index', compact(
             'projectFeature', 'projects', 'setting',
