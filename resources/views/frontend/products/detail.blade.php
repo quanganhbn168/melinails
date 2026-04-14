@@ -91,8 +91,7 @@
                                 $images = collect($product->gallery)->filter();
                                 if($images->isEmpty()){
                                     if($product->image) $images->push($product->image);
-                                    elseif($product->image) $images->push($product->image);
-                                    elseif($product->bannerImage()) $images->push($product->bannerImage());
+                                    elseif($product->banner) $images->push($product->banner);
                                 }
                             @endphp
 
