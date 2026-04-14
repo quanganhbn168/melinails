@@ -23,7 +23,7 @@ class ManageIntroSettings extends SettingsPage
     protected static string|UnitEnum|null $navigationGroup = 'Hệ thống & Cấu hình';
     protected static ?string $navigationLabel = 'Về chúng tôi';
     protected static ?string $title = 'Cài đặt trang Về chúng tôi';
-    protected static ?int $navigationSort = 3;
+    protected static ?int $navigationSort = 11;
 
     protected static string $settings = IntroSettings::class;
 

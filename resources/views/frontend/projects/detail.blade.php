@@ -1,6 +1,6 @@
 @extends('layouts.master')
 @section('title', $pageTitle)
-@section('meta_description', Str::limit(strip_tags($project->description ?? ''), 155))
+@section('meta_description', $metaDescription ?? '')
 @section('meta_image', $project->banner ? asset($project->banner->url) : ($project->image ? asset($project->image->url) : ''))
 
 @push('jsonld')
@@ -22,7 +22,7 @@
     "url": "{{ url('/') }}",
     "image": "{{ asset($setting->logo) }}"
   },
-  "description": "{{ Str::limit(strip_tags($project->description), 155) }}"
+  "description": "{{ $metaDescription ?? '' }}"
   @if($aggregateRating = $project->getAggregateRatingData())
   ,"aggregateRating": @json($aggregateRating)
   @endif
@@ -112,21 +112,7 @@
         </div>
 
         {{-- GALLERY THƯ VIỆN ẢNH --}}
-        @php
-            $hasGallery = false;
-            $images = collect();
-            if ($project->gallery && is_array($project->gallery)) {
-                foreach ($project->gallery as $galImg) {
-                    $url = is_string($galImg) ? $galImg : ($galImg['url'] ?? null);
-                    if ($url) {
-                        $images->push($url);
-                    }
-                }
-            }
-            $images = $images->filter()->values();
-        @endphp
-
-        @if($images->count() > 0)
+        @if(isset($images) && $images->count() > 0)
         <div class="mb-16">
             <div class="text-center mb-10">
                 <h2 class="text-2xl font-black text-gray-900 dark:text-white uppercase tracking-tight">

@@ -37,7 +37,8 @@ class ProjectController extends Controller
             ['label' => $pageTitle, 'url' => '']
         ];
 
-        $projectFeature = Project::where('status', 1)
+        $projectFeature = Project::with(['image', 'banner', 'slugData'])
+            ->where('status', 1)
             ->where('project_category_id', $category->id)
             ->where('is_home', 1)
             ->first() 
@@ -47,7 +48,8 @@ class ProjectController extends Controller
             ->latest()
             ->first();
 
-        $query = Project::where('status', 1)
+        $query = Project::with(['image', 'slugData'])
+            ->where('status', 1)
             ->where('project_category_id', $category->id)
             ->latest();
 
@@ -57,6 +59,8 @@ class ProjectController extends Controller
 
         $projects = $query->paginate(10);
 
+        $metaDescription = isset($setting->projects_description) ? \Illuminate\Support\Str::limit(strip_tags($setting->projects_description), 155) : '';
+
         return view('frontend.projects.index', [
             'projects'       => $projects,
             'projectFeature' => $projectFeature,
@@ -64,7 +68,8 @@ class ProjectController extends Controller
             'setting'        => $setting,
             'pageTitle'      => $pageTitle,
             'bannerUrl'      => $bannerUrl,
-            'breadcrumbs'    => $breadcrumbs
+            'breadcrumbs'    => $breadcrumbs,
+            'metaDescription'=> $metaDescription
         ]);
     }
 
@@ -78,18 +83,19 @@ class ProjectController extends Controller
         $bannerUrl    = $setting->banner ?? asset('images/setting/no-banner.png');
         $breadcrumbs  = [['label' => $pageTitle]];
 
-        $projectFeature = Project::where('is_home', 1)->where('status', 1)->first()
-            ?? Project::where('status', 1)->first();
+        $projectFeature = Project::with(['image', 'banner', 'slugData'])->where('is_home', 1)->where('status', 1)->first()
+            ?? Project::with(['image', 'banner', 'slugData'])->where('status', 1)->first();
 
-        $query = Project::where('status', 1)->latest();
+        $query = Project::with(['image', 'slugData'])->where('status', 1)->latest();
         if ($projectFeature) {
             $query->where('id', '!=', $projectFeature->id);
         }
         $projects = $query->paginate(10);
+        $metaDescription = isset($setting->projects_description) ? \Illuminate\Support\Str::limit(strip_tags($setting->projects_description), 155) : '';
 
         return view('frontend.projects.index', compact(
             'projectFeature', 'projects', 'setting',
-            'pageTitle', 'pageSubtitle', 'bannerUrl', 'breadcrumbs'
+            'pageTitle', 'pageSubtitle', 'bannerUrl', 'breadcrumbs', 'metaDescription'
         ));
     }
 
@@ -102,7 +108,8 @@ class ProjectController extends Controller
     public function detail(Project $project)
     {
         // Lấy các dự án liên quan (trừ dự án đang xem)
-        $relatedProjects = Project::where("status", 1)
+        $relatedProjects = Project::with(['image', 'slugData'])
+            ->where("status", 1)
             ->where("id", '!=', $project->id)
             ->latest()
             ->limit(6)
@@ -116,13 +123,35 @@ class ProjectController extends Controller
             ['label' => $project->name, 'url' => ''],
         ];
 
+        $images = collect();
+        if ($project->gallery && is_array($project->gallery)) {
+            $first = reset($project->gallery);
+            if (is_numeric($first)) {
+                $medias = \Awcodes\Curator\Models\Media::whereIn('id', $project->gallery)->get();
+                foreach ($medias as $media) {
+                    $images->push($media->path);
+                }
+            } else {
+                foreach ($project->gallery as $galImg) {
+                    $url = is_string($galImg) ? $galImg : ($galImg['url'] ?? $galImg['path'] ?? null);
+                    if ($url) {
+                        $images->push($url);
+                    }
+                }
+            }
+        }
+        $images = $images->filter()->values();
+        $metaDescription = \Illuminate\Support\Str::limit(strip_tags($project->description ?? ''), 155);
+
         return view("frontend.projects.detail", compact(
             "project",
             "relatedProjects",
             "pageTitle",
             "bannerUrl",
             "breadcrumbs",
-            "setting"
+            "setting",
+            "images",
+            "metaDescription"
         ));
     }
 }

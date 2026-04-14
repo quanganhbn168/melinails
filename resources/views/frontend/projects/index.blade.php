@@ -1,6 +1,6 @@
 @extends('layouts.master')
 @section('title', $pageTitle)
-@section('meta_description', isset($setting->projects_description) ? \Illuminate\Support\Str::limit(strip_tags($setting->projects_description), 155) : '')
+@section('meta_description', $metaDescription ?? '')
 @section('meta_image', $bannerUrl ?? '')
 
 @section('content')
@@ -89,7 +89,7 @@
                 @foreach($projects as $project)
                     <x-frontend.card 
                         :href="$project->slug_url"
-                        :image="$project->image ? $project->image->url : null"
+                        :image="$project->image ? $project->image->url : asset('images/setting/no-image.png')"
                         :title="$project->name"
                         :description="$project->investor ? 'Chủ đầu tư: ' . $project->investor : ''"
                     />

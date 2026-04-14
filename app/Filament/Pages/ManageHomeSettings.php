@@ -23,7 +23,7 @@ class ManageHomeSettings extends SettingsPage
     protected static string|UnitEnum|null $navigationGroup = 'Hệ thống & Cấu hình';
     protected static ?string $navigationLabel = 'Trang chủ';
     protected static ?string $title = 'Cài đặt Trang chủ';
-    protected static ?int $navigationSort = 4;
+    protected static ?int $navigationSort = 13;
 
     protected static string $settings = HomeSettings::class;
 

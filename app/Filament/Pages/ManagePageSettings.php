@@ -21,7 +21,7 @@ class ManagePageSettings extends SettingsPage
     protected static string|UnitEnum|null $navigationGroup = 'Hệ thống & Cấu hình';
     protected static ?string $navigationLabel = 'Cài đặt trang';
     protected static ?string $title = 'Cài đặt trang danh mục';
-    protected static ?int $navigationSort = 2;
+    protected static ?int $navigationSort = 12;
 
     protected static string $settings = PageSettings::class;
 

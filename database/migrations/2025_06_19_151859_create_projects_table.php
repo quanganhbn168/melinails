@@ -14,9 +14,14 @@ return new class extends Migration
         Schema::create('projects', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            $table->string('slug')->unique()->nullable();
             $table->unsignedBigInteger('project_category_id');
-            $table->text('description');
+            $table->text('description')->nullable();
             $table->text('content')->nullable();
+            $table->string('investor')->nullable();
+            $table->string('address')->nullable();
+            $table->string('year')->nullable();
+            $table->string('value')->nullable();
             $table->boolean('status')->default(0);
             $table->boolean('is_home')->default(0);
             $table->unsignedBigInteger('image_id')->nullable();

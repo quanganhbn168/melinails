@@ -24,6 +24,10 @@ class TeamResource extends Resource
     {
         return 'Hệ thống & Cấu hình';
     }
+    public static function getNavigationSort(): ?int
+    {
+        return 2;
+    }
 
     public static function getModelLabel(): string
     {

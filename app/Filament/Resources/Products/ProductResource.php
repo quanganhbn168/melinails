@@ -24,7 +24,7 @@ class ProductResource extends Resource
     protected static ?string $navigationLabel = 'Sản phẩm';
     protected static ?string $modelLabel = 'Sản phẩm';
     protected static ?string $pluralModelLabel = 'Quản lý sản phẩm';
-    protected static string|UnitEnum|null $navigationGroup = 'Sản phẩm';
+    protected static string|UnitEnum|null $navigationGroup = 'Quản lý Hàng hóa';
     protected static ?int $navigationSort = 1;
 
     public static function form(Schema $schema): Schema

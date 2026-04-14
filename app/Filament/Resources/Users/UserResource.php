@@ -24,6 +24,10 @@ class UserResource extends Resource
     {
         return 'Hệ thống & Cấu hình';
     }
+    public static function getNavigationSort(): ?int
+    {
+        return 1;
+    }
 
     public static function getModelLabel(): string
     {

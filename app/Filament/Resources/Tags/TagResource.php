@@ -22,7 +22,11 @@ class TagResource extends Resource
 
     public static function getNavigationGroup(): ?string
     {
-        return 'Quản lý Hàng hóa';
+        return 'Hệ thống & Cấu hình';
+    }
+    public static function getNavigationSort(): ?int
+    {
+        return 5;
     }
 
     public static function getModelLabel(): string

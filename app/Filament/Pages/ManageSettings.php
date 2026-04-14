@@ -22,7 +22,7 @@ class ManageSettings extends SettingsPage
     protected static string|UnitEnum|null $navigationGroup = 'Hệ thống & Cấu hình';
     protected static ?string $navigationLabel = 'Cài đặt chung';
     protected static ?string $title = 'Cài đặt chung';
-    protected static ?int $navigationSort = 1;
+    protected static ?int $navigationSort = 10;
 
     protected static string $settings = GeneralSettings::class;
 

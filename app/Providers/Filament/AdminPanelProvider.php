@@ -93,7 +93,8 @@ class AdminPanelProvider extends PanelProvider
                     ->label('Media')
                     ->pluralLabel('Media')
                     ->navigationGroup('Hệ thống & Cấu hình')
-                    ->navigationIcon('heroicon-o-photo'),
+                    ->navigationIcon('heroicon-o-photo')
+                    ->navigationSort(3),
                 FilamentShieldPlugin::make()
                     ->navigationGroup('Hệ thống & Cấu hình'),
             ]);

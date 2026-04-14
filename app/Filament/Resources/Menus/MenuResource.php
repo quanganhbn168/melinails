@@ -24,6 +24,10 @@ class MenuResource extends Resource
     {
         return 'Hệ thống & Cấu hình';
     }
+    public static function getNavigationSort(): ?int
+    {
+        return 4;
+    }
 
     public static function getModelLabel(): string
     {

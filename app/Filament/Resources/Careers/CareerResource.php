@@ -22,7 +22,7 @@ class CareerResource extends Resource
 
     public static function getNavigationGroup(): ?string
     {
-        return 'Giao tiếp Khách hàng';
+        return 'Tin tức & Sự kiện';
     }
 
     public static function getModelLabel(): string

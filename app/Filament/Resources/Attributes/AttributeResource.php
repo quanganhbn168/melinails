@@ -23,7 +23,7 @@ class AttributeResource extends Resource
     protected static ?string $navigationLabel = 'Thuộc tính';
     protected static ?string $modelLabel = 'Thuộc tính';
     protected static ?string $pluralModelLabel = 'Quản lý thuộc tính';
-    protected static string|UnitEnum|null $navigationGroup = 'Sản phẩm';
+    protected static string|UnitEnum|null $navigationGroup = 'Quản lý Hàng hóa';
     protected static ?int $navigationSort = 4;
 
     public static function form(Schema $schema): Schema

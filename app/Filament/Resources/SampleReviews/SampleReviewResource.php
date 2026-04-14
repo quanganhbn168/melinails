@@ -20,7 +20,8 @@ class SampleReviewResource extends Resource
     protected static ?string $model = SampleReview::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedChatBubbleBottomCenterText;
-    protected static string|UnitEnum|null $navigationGroup = 'Quản trị Web';
+    protected static string|UnitEnum|null $navigationGroup = 'Hệ thống & Cấu hình';
+    protected static ?int $navigationSort = 6;
     protected static ?string $modelLabel = 'Mẫu Đánh Giá';
     protected static ?string $pluralModelLabel = 'Mẫu Đánh Giá Khách Hàng';
 
