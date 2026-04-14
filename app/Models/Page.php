@@ -2,32 +2,32 @@
 
 namespace App\Models;
 
+use Awcodes\Curator\Models\Media;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use App\Traits\HasImages;
-
+use App\Traits\HasSlug;
+use App\Traits\HasSeo;
 
 class Page extends Model
 {
-    use HasFactory, HasImages;
+    use HasFactory, HasSlug, HasSeo;
 
     protected $fillable = [
-        'name ',
-        'slug ',
         'title',
-        'image',
-        'banner',
-        'description',
-        'features',
         'content',
+        'status',
+        'meta_description',
+        'meta_keywords',
+        'meta_image_id',
     ];
+
     protected $casts = [
-        'features' => 'array',
-        'content'  => 'array',
+        'status' => 'boolean',
     ];
-    
-    public function details()
+
+    /** Ảnh SEO (Curator) */
+    public function metaImage()
     {
-        return $this->hasMany(PageDetail::class, 'page_id');
+        return $this->belongsTo(Media::class, 'meta_image_id');
     }
 }

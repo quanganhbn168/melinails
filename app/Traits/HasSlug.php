@@ -38,6 +38,7 @@ trait HasSlug
             FieldCategory::class => 'linh-vuc',
             Intro::class => 'gioi-thieu',
             Career::class => 'tuyen-dung',
+            \App\Models\Page::class => '',
         ];
     }
 

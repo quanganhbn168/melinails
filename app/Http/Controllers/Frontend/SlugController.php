@@ -25,7 +25,23 @@ class SlugController extends Controller
         $model = $slugData->sluggable;
         $modelClass = get_class($model);
 
-        // Lấy prefix từ map tập trung trong HasSlug trait
+        // Nếu là Page (Trang đơn, có URL root-level), render trực tiếp giao diện thay vì redirect
+        if ($model instanceof \App\Models\Page) {
+            $page = $model;
+            // Get generic setting for Page (if needed) or pass the model directly
+            $setting = app(\App\Settings\GeneralSettings::class);
+            $pageTitle = $page->title;
+            // Optionally, page can have its own banner, wait Page currently doesn't have banner but meta_image
+            $bannerUrl = $page->meta_image_id ? optional($page->metaImage)->url : ($setting->banner ?? asset('images/setting/no-banner.png'));
+            
+            $breadcrumbs = [
+                ['label' => $pageTitle, 'url' => '']
+            ];
+
+            return view('frontend.pages.detail', compact('page', 'setting', 'pageTitle', 'bannerUrl', 'breadcrumbs'));
+        }
+
+        // Tự động tìm prefix
         $prefixMap = HasSlug::slugPrefixMap();
         $prefix = $prefixMap[$modelClass] ?? null;
 
