@@ -20,6 +20,7 @@ class ViewServiceProvider extends ServiceProvider
         // Share general settings globally to all views
         try {
             View::share('setting', app(GeneralSettings::class));
+            View::share('pageSettings', app(\App\Settings\PageSettings::class));
         } catch (Exception $e) {
             // Ignore during setup/migrations
         }

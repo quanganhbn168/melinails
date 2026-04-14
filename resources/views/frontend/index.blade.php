@@ -531,10 +531,6 @@
 </section>
 @endif
 
-{{-- 8. DYNAMIC CTA BLOCK --}}
-@php
-    $pageSettings = app(\App\Settings\PageSettings::class);
-@endphp
 <x-frontend.page-cta 
     :title="$pageSettings->intro_cta_title" 
     :description="$pageSettings->intro_cta_description" 

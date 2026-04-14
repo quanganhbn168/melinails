@@ -33,8 +33,8 @@ class ServiceController extends Controller
      */
     public function index()
     {
-        $pageSettings = app(PageSettings::class);
         $setting      = app(GeneralSettings::class);
+        $pageSettings = app(PageSettings::class);
 
         $pageTitle    = $pageSettings->services_title    ?: 'Dịch vụ';
         $pageSubtitle = $pageSettings->services_headline ?: null;
