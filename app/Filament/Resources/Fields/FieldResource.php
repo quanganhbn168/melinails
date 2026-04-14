@@ -25,6 +25,11 @@ class FieldResource extends Resource
         return 'Lĩnh vực & Dịch vụ';
     }
 
+    public static function getNavigationSort(): ?int
+    {
+        return 2;
+    }
+
     public static function getModelLabel(): string
     {
         return 'Lĩnh vực Kinh doanh';

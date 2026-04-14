@@ -16,7 +16,7 @@ class Partner extends Model
      */
     protected $fillable = [
         'name',
-        'image',
+        'image_id',
         'url',
         'sort_order',
         'status',
@@ -30,4 +30,9 @@ class Partner extends Model
     protected $casts = [
         'status' => 'boolean',
     ];
+
+    public function image(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(\Awcodes\Curator\Models\Media::class, 'image_id');
+    }
 }

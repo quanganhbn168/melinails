@@ -17,11 +17,20 @@ class Service extends Model
         'service_category_id',
         'name',
         'image_id',
+        'gallery',
         'banner_id',
         'description',
         'content',
-        'is_home',
         'status',
+        'is_home',
+        'is_menu',
+        'is_footer',
+        'unit_id',
+        'price',
+        'meta_title',
+        'meta_description',
+        'meta_keywords',
+        'meta_image_id',
     ];
 
     protected $casts = [

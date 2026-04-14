@@ -22,12 +22,10 @@ class FieldCategoriesTable
                     ->sortable(),
                 TextColumn::make('parent.name')
                     ->searchable(),
-                TextColumn::make('description')
-                    ->searchable(),
-                TextColumn::make('content')
-                    ->searchable(),
-                TextColumn::make('image.name')
-                    ->searchable(),
+                \Awcodes\Curator\Components\Tables\CuratorColumn::make('image')
+                    ->label('Ảnh / Icon')
+                    ->circular()
+                    ->size(40),
                 IconColumn::make('status')
                     ->boolean(),
                 TextColumn::make('order')

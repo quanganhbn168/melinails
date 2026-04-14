@@ -21,6 +21,8 @@ class FieldCategory extends Model
         'content',
         'status',
         'position',
+        'order',
+        'image_id',
     ];
 
     protected $casts = [

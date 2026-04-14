@@ -17,6 +17,8 @@ class Field extends Model
     protected $fillable = [
         'field_category_id',
         'name',
+        'image_id',
+        'gallery',
         'summary',
         'content',
         'status',

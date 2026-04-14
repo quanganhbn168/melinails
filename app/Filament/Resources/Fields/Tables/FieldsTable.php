@@ -16,27 +16,23 @@ class FieldsTable
     {
         return $table
             ->columns([
-                TextColumn::make('field_category_id')
-                    ->numeric()
-                    ->sortable(),
-                TextColumn::make('name')
-                    ->searchable(),
-                TextColumn::make('slug')
-                    ->searchable(),
                 \Awcodes\Curator\Components\Tables\CuratorColumn::make('image')
                     ->label('Ảnh')
                     ->circular()
                     ->size(40),
+                TextColumn::make('name')
+                    ->label('Tên lĩnh vực')
+                    ->searchable(),
+                TextColumn::make('category.name')
+                    ->label('Danh mục')
+                    ->searchable()
+                    ->sortable(),
                 IconColumn::make('status')
+                    ->label('Kích hoạt')
                     ->boolean(),
                 IconColumn::make('is_featured')
+                    ->label('Nổi bật')
                     ->boolean(),
-                TextColumn::make('meta_title')
-                    ->searchable(),
-                TextColumn::make('meta_description')
-                    ->searchable(),
-                TextColumn::make('meta_keywords')
-                    ->searchable(),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
