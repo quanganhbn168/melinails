@@ -4,8 +4,8 @@ namespace App\Filament\Pages;
 
 use App\Settings\IntroSettings;
 use Awcodes\Curator\Components\Forms\CuratorPicker;
-use Awcodes\Richer\RicherEditor;
 use BackedEnum;
+use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -20,32 +20,33 @@ use UnitEnum;
 class ManageIntroSettings extends SettingsPage
 {
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-information-circle';
-    protected static string|UnitEnum|null $navigationGroup = 'Nội dung & Trang';
+    protected static string|UnitEnum|null $navigationGroup = 'Hệ thống & Cấu hình';
     protected static ?string $navigationLabel = 'Về chúng tôi';
     protected static ?string $title = 'Cài đặt trang Về chúng tôi';
+    protected static ?int $navigationSort = 3;
 
     protected static string $settings = IntroSettings::class;
 
     public function form(Schema $schema): Schema
     {
         $iconOptions = [
-            'shield-check' => 'Uy tín / Bảo mật',
-            'heart' => 'Tận tâm / Yêu thương',
-            'rocket-launch' => 'Đổi mới / Tốc độ',
-            'light-bulb' => 'Sáng tạo',
-            'star' => 'Nổi bật',
-            'trophy' => 'Thành tích',
-            'users' => 'Đội ngũ / Khách hàng',
-            'globe-alt' => 'Toàn cầu',
-            'clock' => 'Kinh nghiệm / Thời gian',
-            'briefcase' => 'Dự án / Kinh doanh',
+            'shield-check'   => 'Uy tín / Bảo mật',
+            'heart'          => 'Tận tâm / Yêu thương',
+            'rocket-launch'  => 'Đổi mới / Tốc độ',
+            'light-bulb'     => 'Sáng tạo',
+            'star'           => 'Nổi bật',
+            'trophy'         => 'Thành tích',
+            'users'          => 'Đội ngũ / Khách hàng',
+            'globe-alt'      => 'Toàn cầu',
+            'clock'          => 'Kinh nghiệm / Thời gian',
+            'briefcase'      => 'Dự án / Kinh doanh',
             'building-office' => 'Công ty',
-            'check-circle' => 'Hoàn thành',
-            'chart-bar' => 'Tăng trưởng',
+            'check-circle'   => 'Hoàn thành',
+            'chart-bar'      => 'Tăng trưởng',
             'currency-dollar' => 'Tiết kiệm',
-            'cog-6-tooth' => 'Công nghệ',
-            'academic-cap' => 'Chuyên môn',
-            'hand-thumb-up' => 'Chất lượng',
+            'cog-6-tooth'    => 'Công nghệ',
+            'academic-cap'   => 'Chuyên môn',
+            'hand-thumb-up'  => 'Chất lượng',
         ];
 
         return $schema->components([
@@ -71,7 +72,7 @@ class ManageIntroSettings extends SettingsPage
                                         ->placeholder('Đối tác chuyển đổi số tin cậy...'),
                                     CuratorPicker::make('page_banner_id')
                                         ->label('Ảnh banner đầu trang')
-                                        ->image(),
+                                        ->acceptedFileTypes(['image/*']),
                                 ]),
 
                             Section::make('CTA — Kêu gọi hành động cuối trang')
@@ -106,13 +107,10 @@ class ManageIntroSettings extends SettingsPage
                                         ->label('Tiêu đề section')
                                         ->placeholder('Câu chuyện của chúng tôi')
                                         ->columnSpanFull(),
-                                    TextInput::make('founded_year')
-                                        ->label('Năm thành lập')
-                                        ->placeholder('2014'),
                                     CuratorPicker::make('story_image_id')
                                         ->label('Ảnh minh họa')
-                                        ->image(),
-                                    RicherEditor::make('story_description')
+                                        ->acceptedFileTypes(['image/*']),
+                                    RichEditor::make('story_description')
                                         ->label('Nội dung câu chuyện')
                                         ->columnSpanFull(),
                                 ]),
@@ -137,7 +135,44 @@ class ManageIntroSettings extends SettingsPage
                         ]),
 
                     // ══════════════════════════════════════════════
-                    // TAB 3: SỐ LIỆU & GIÁ TRỊ
+                    // TAB 3: LỊCH SỬ PHÁT TRIỂN (TIMELINE)
+                    // ══════════════════════════════════════════════
+                    Tab::make('Lịch sử phát triển')
+                        ->icon('heroicon-o-clock')
+                        ->schema([
+                            Section::make('Các mốc lịch sử')
+                                ->description('Hiển thị dạng timeline dọc trên trang Về chúng tôi')
+                                ->schema([
+                                    Repeater::make('timeline')
+                                        ->label('')
+                                        ->schema([
+                                            TextInput::make('year')
+                                                ->label('Năm')
+                                                ->placeholder('2014')
+                                                ->required(),
+                                            TextInput::make('title')
+                                                ->label('Tiêu đề mốc')
+                                                ->placeholder('Thành lập công ty')
+                                                ->required(),
+                                            RichEditor::make('description')
+                                                ->label('Mô tả ngắn')
+                                                ->columnSpanFull(),
+                                            CuratorPicker::make('image_id')
+                                                ->label('Ảnh minh họa (tuỳ chọn)')
+                                                ->acceptedFileTypes(['image/*']),
+                                        ])
+                                        ->columns(2)
+                                        ->reorderable()
+                                        ->collapsible()
+                                        ->defaultItems(4)
+                                        ->maxItems(20)
+                                        ->columnSpanFull()
+                                        ->addActionLabel('+ Thêm mốc lịch sử'),
+                                ]),
+                        ]),
+
+                    // ══════════════════════════════════════════════
+                    // TAB 4: SỐ LIỆU & GIÁ TRỊ
                     // ══════════════════════════════════════════════
                     Tab::make('Số liệu & Giá trị')
                         ->icon('heroicon-o-chart-bar')
@@ -189,10 +224,9 @@ class ManageIntroSettings extends SettingsPage
                                                 ->label('Tên giá trị')
                                                 ->placeholder('Uy tín')
                                                 ->required(),
-                                            Textarea::make('description')
+                                            RichEditor::make('description')
                                                 ->label('Mô tả ngắn')
-                                                ->rows(2)
-                                                ->placeholder('Cam kết chất lượng trong mọi dự án'),
+                                                ->columnSpanFull(),
                                         ])
                                         ->columns(3)
                                         ->reorderable()
@@ -205,28 +239,79 @@ class ManageIntroSettings extends SettingsPage
                         ]),
 
                     // ══════════════════════════════════════════════
-                    // TAB 4: VIDEO
+                    // TAB 5: NỘI DUNG TÙY CHỈNH (BUILDER)
                     // ══════════════════════════════════════════════
-                    Tab::make('Video giới thiệu')
-                        ->icon('heroicon-o-play-circle')
+                    Tab::make('Nội dung tùy chỉnh')
+                        ->icon('heroicon-o-puzzle-piece')
                         ->schema([
-                            Section::make('Video')
-                                ->description('Hiển thị dạng lightbox khi click vào nút Play trên ảnh thumbnail')
-                                ->columns(2)
+                            Section::make('Khối nội dung linh hoạt')
+                                ->description('Kéo thả các khối nội dung để xây dựng phần bổ sung cho trang Về chúng tôi.')
                                 ->schema([
-                                    TextInput::make('video_title')
-                                        ->label('Tiêu đề video')
-                                        ->placeholder('Xem video giới thiệu công ty')
-                                        ->columnSpanFull(),
-                                    TextInput::make('video_url')
-                                        ->label('Link YouTube / Vimeo')
-                                        ->url()
-                                        ->placeholder('https://www.youtube.com/watch?v=...')
-                                        ->helperText('Dán link YouTube hoặc Vimeo. Hệ thống sẽ tự chuyển sang embed URL.'),
-                                    CuratorPicker::make('video_thumbnail_id')
-                                        ->label('Ảnh thumbnail (nền video)')
-                                        ->image()
-                                        ->helperText('Ảnh hiển thị trước khi người dùng click Play'),
+                                    Repeater::make('custom_blocks')
+                                        ->label('')
+                                        ->schema([
+                                            Select::make('type')
+                                                ->label('Loại khối')
+                                                ->options([
+                                                    'text_block'       => 'Đoạn văn bản',
+                                                    'image_text_block' => 'Ảnh kèm văn bản',
+                                                    'video_block'      => 'Video YouTube',
+                                                ])
+                                                ->required()
+                                                ->live()
+                                                ->columnSpanFull(),
+
+                                            // Trường cho text_block
+                                            RichEditor::make('content')
+                                                ->label('Nội dung')
+                                                ->columnSpanFull()
+                                                ->visible(fn ($get) => in_array($get('type'), ['text_block', 'image_text_block'])),
+
+                                            // Trường cho image_text_block
+                                            CuratorPicker::make('image_id')
+                                                ->label('Hình ảnh')
+                                                ->acceptedFileTypes(['image/*'])
+                                                ->visible(fn ($get) => $get('type') === 'image_text_block'),
+
+                                            Select::make('image_position')
+                                                ->label('Vị trí ảnh')
+                                                ->options([
+                                                    'left'  => '← Ảnh bên trái',
+                                                    'right' => 'Ảnh bên phải →',
+                                                ])
+                                                ->default('left')
+                                                ->visible(fn ($get) => $get('type') === 'image_text_block'),
+
+                                            // Trường cho video_block
+                                            TextInput::make('video_url')
+                                                ->label('Link YouTube')
+                                                ->url()
+                                                ->placeholder('https://www.youtube.com/watch?v=...')
+                                                ->visible(fn ($get) => $get('type') === 'video_block')
+                                                ->columnSpanFull(),
+
+                                            TextInput::make('title')
+                                                ->label('Tiêu đề khối (tuỳ chọn)')
+                                                ->visible(fn ($get) => in_array($get('type'), ['image_text_block', 'video_block']))
+                                                ->columnSpanFull(),
+
+                                            Textarea::make('description')
+                                                ->label('Mô tả ngắn')
+                                                ->rows(2)
+                                                ->visible(fn ($get) => $get('type') === 'video_block')
+                                                ->columnSpanFull(),
+                                        ])
+                                        ->columns(2)
+                                        ->reorderable()
+                                        ->collapsible()
+                                        ->columnSpanFull()
+                                        ->addActionLabel('+ Thêm khối nội dung')
+                                        ->itemLabel(fn (array $state): ?string => match($state['type'] ?? null) {
+                                            'text_block'       => 'Đoạn văn bản',
+                                            'image_text_block' => 'Ảnh kèm văn bản',
+                                            'video_block'      => 'Video YouTube',
+                                            default            => 'Khối mới',
+                                        }),
                                 ]),
                         ]),
 

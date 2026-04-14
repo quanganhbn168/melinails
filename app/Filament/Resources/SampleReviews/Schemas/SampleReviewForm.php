@@ -2,9 +2,12 @@
 
 namespace App\Filament\Resources\SampleReviews\Schemas;
 
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Schema;
+use Filament\Schemas\Components\Section;
 
 class SampleReviewForm
 {
@@ -12,9 +15,9 @@ class SampleReviewForm
     {
         return $schema
             ->components([
-                \Filament\Forms\Components\Section::make('Nội dung Mẫu Đánh Giá')
+                Section::make('Nội dung Mẫu Đánh Giá')
                     ->schema([
-                        \Filament\Forms\Components\Select::make('rating')
+                        Select::make('rating')
                             ->label('Mức sao tương ứng')
                             ->options([
                                 5 => '5 Sao (Rất tốt)',
@@ -26,12 +29,12 @@ class SampleReviewForm
                             ->required()
                             ->default(5)
                             ->columnSpanFull(),
-                        \Filament\Forms\Components\Textarea::make('content')
+                        Textarea::make('content')
                             ->label('Nội dung mẫu')
                             ->required()
                             ->rows(3)
                             ->columnSpanFull(),
-                        \Filament\Forms\Components\Toggle::make('is_active')
+                        Toggle::make('is_active')
                             ->label('Trạng thái Kích hoạt')
                             ->default(true)
                             ->required(),

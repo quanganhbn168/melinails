@@ -9,6 +9,7 @@ use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Schema;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Pages\SettingsPage;
@@ -20,6 +21,7 @@ class ManagePageSettings extends SettingsPage
     protected static string|UnitEnum|null $navigationGroup = 'Hệ thống & Cấu hình';
     protected static ?string $navigationLabel = 'Cài đặt trang';
     protected static ?string $title = 'Cài đặt trang danh mục';
+    protected static ?int $navigationSort = 2;
 
     protected static string $settings = PageSettings::class;
 
@@ -34,10 +36,9 @@ class ManagePageSettings extends SettingsPage
                         $this->pageTab('Dịch vụ', 'heroicon-o-wrench-screwdriver', 'services'),
                         $this->pageTab('Lĩnh vực', 'heroicon-o-squares-2x2', 'fields'),
                         $this->pageTab('Tin tức', 'heroicon-o-newspaper', 'posts'),
-                        $this->pageTab('Giới thiệu', 'heroicon-o-information-circle', 'intro'),
                         $this->pageTab('Tuyển dụng', 'heroicon-o-briefcase', 'careers'),
                         $this->pageTab('Liên hệ', 'heroicon-o-phone', 'contact'),
-                        $this->pageTab('Đại lý', 'heroicon-o-handshake', 'agency'),
+                        $this->pageTab('Đại lý', 'heroicon-o-users', 'agency'),
                         $this->pageTab('Tư vấn', 'heroicon-o-chat-bubble-bottom-center-text', 'consulting'),
                     ])
                     ->columnSpanFull()
@@ -63,7 +64,7 @@ class ManagePageSettings extends SettingsPage
                     ->label('Banner trang')
                     ->acceptedFileTypes(['image/*']),
                 
-                \Filament\Forms\Components\Section::make('Khối Call-To-Action (CTA)')
+                Section::make('Khối Call-To-Action (CTA)')
                     ->schema([
                         TextInput::make("{$prefix}_cta_title")
                             ->label('Tiêu đề CTA')
@@ -75,9 +76,7 @@ class ManagePageSettings extends SettingsPage
                         TextInput::make("{$prefix}_cta_link")
                             ->label('Link Nút CTA')
                             ->placeholder('URL khi click, để trống sẽ dùng mặc định'),
-                    ])
-                    ->collapsible()
-                    ->collapsed(true),
+                    ]),
 
                 RichEditor::make("{$prefix}_content")
                     ->label('Nội dung trang')

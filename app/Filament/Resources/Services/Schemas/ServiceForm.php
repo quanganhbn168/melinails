@@ -6,7 +6,10 @@ use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\Toggle;
+use Filament\Forms\Components\Select;
+use Awcodes\Curator\Components\Forms\CuratorPicker;
 use Filament\Schemas\Schema;
+use Filament\Schemas\Components\Section;
 
 class ServiceForm
 {
@@ -21,10 +24,10 @@ class ServiceForm
                     ->required(),
                 TextInput::make('slug')
                     ->required(),
-                \Awcodes\Curator\Components\Forms\CuratorPicker::make('image_id')
-                    ->image()
+                CuratorPicker::make('image_id')
+                    ->acceptedFileTypes(['image/*'])
                     ->required(),
-                \Awcodes\Curator\Components\Forms\CuratorPicker::make('gallery')->label('Thư viện ảnh')->multiple(),
+                CuratorPicker::make('gallery')->label('Thư viện ảnh')->multiple(),
                 TextInput::make('banner'),
                 Textarea::make('description')
                     ->columnSpanFull(),
@@ -49,20 +52,20 @@ class ServiceForm
                     ->columnSpanFull(),
                 FileUpload::make('meta_image')
                     ->image(),
-                \Filament\Forms\Components\Section::make('Liên kết Landing Page')
+                Section::make('Liên kết Landing Page')
                     ->description('Chọn các thực thể liên quan để hiển thị ở đáy trang (dạng Mini-landing page).')
                     ->schema([
-                        \Filament\Forms\Components\Select::make('projects')
+                        Select::make('projects')
                             ->label('Dự án đã triển khai')
                             ->multiple()
                             ->relationship('projects', 'name')
                             ->preload(),
-                        \Filament\Forms\Components\Select::make('products')
+                        Select::make('products')
                             ->label('Sản phẩm / Phân hệ')
                             ->multiple()
                             ->relationship('products', 'name')
                             ->preload(),
-                        \Filament\Forms\Components\Select::make('posts')
+                        Select::make('posts')
                             ->label('Bài viết tham khảo')
                             ->multiple()
                             ->relationship('posts', 'title')

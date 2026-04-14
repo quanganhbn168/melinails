@@ -19,36 +19,55 @@ use App\Models\ProjectCategory;
 use App\Models\Partner;
 use App\Models\Brand;
 use App\Enums\SliderType;
-
+use App\Settings\GeneralSettings;
+use App\Settings\HomeSettings;
 class HomeController extends Controller
 {
     public function index()
     {
-        $slides         = Slide::where("status", 1)->where("type", SliderType::HOME)->with('image')->orderBy('position')->get();
-        $slide_banners  = Slide::where("status", 1)->where("type", SliderType::BANNER_AD)->with('image')->get();
-        $homeProducts   = Product::where("status", 1)->where("is_home", 1)->get();
+        $slides = Slide::where("status", 1)->where("type", SliderType::HOME)->with('image')->orderBy('position')->get();
+        $slide_banners = Slide::where("status", 1)->where("type", SliderType::BANNER_AD)->with('image')->get();
+        $homeProducts = Product::where("status", 1)->where("is_home", 1)->get();
         $homeCategories = Category::where("status", 1)->where("is_home", 1)->get();
-        $homeServices   = Service::where("status", 1)->where("is_home", 1)->get();
-        $homeProjectCategories = ProjectCategory::where("status", 1)->where("is_home", 1)->with(["projects" => function ($query) {
-            $query->where("status", 1);
-        }])->get();
+        $homeServices = Service::where("status", 1)->where("is_home", 1)->get();
+        $homeProjectCategories = ProjectCategory::where("status", 1)->where("is_home", 1)->with([
+            "projects" => function ($query) {
+                $query->where("status", 1);
+            }
+        ])->get();
         $homeFields = FieldCategory::whereNull("parent_id")
             ->where("status", 1)
-            ->with(['fields' => function ($query) {
-                $query->where('status', 1);
-            }])
+            ->with([
+                'fields' => function ($query) {
+                    $query->where('status', 1);
+                }
+            ])
             ->get();
         $homeProjects = $homeProjectCategories->pluck('projects')->flatten();
         $allPosts = Post::where('status', 1)->latest()->take(3)->get();
         $homePostCategories = PostCategory::where('status', 1)
             ->where('is_home', 1)
-            ->with(['posts' => function ($query) {
-                $query->where('status', 1)->latest()->take(3);
-            }])
+            ->with([
+                'posts' => function ($query) {
+                    $query->where('status', 1)->latest()->take(3);
+                }
+            ])
             ->get();
         $careers = Career::get();
         $brands = Brand::where('status', 1)->with('image')->orderBy('id')->get();
-        $setting = app(\App\Settings\GeneralSettings::class);
+        $setting = app(GeneralSettings::class);
+        $homeSettings = app(HomeSettings::class);
+
+        // Resolve Curator media IDs → URLs
+        if (!empty($homeSettings->intro_image)) {
+            $media = \Awcodes\Curator\Models\Media::find($homeSettings->intro_image);
+            $homeSettings->intro_image = $media ? $media->url : null;
+        }
+        if (!empty($homeSettings->video_file)) {
+            $media = \Awcodes\Curator\Models\Media::find($homeSettings->video_file);
+            $homeSettings->video_file = $media ? $media->url : null;
+        }
+
         $testimonials = Testimonial::where('status', 1)->get();
 
         return view('frontend.index', compact(
@@ -65,7 +84,8 @@ class HomeController extends Controller
             "careers",
             "testimonials",
             "brands",
-            "setting"
+            "setting",
+            "homeSettings"
         ));
     }
 

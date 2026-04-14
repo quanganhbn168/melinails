@@ -138,38 +138,35 @@
     <div class="container mx-auto px-4 max-w-7xl overflow-hidden md:overflow-visible">
         <div class="grid md:grid-cols-2 gap-10 md:gap-12 items-center">
             <div>
-                <h2 class="section-title mb-6">{!! $setting->intro_title ?? 'Kiến Trúc Đột Phá<br><span class="text-brand-700">Vận Hành Bền Vững</span>' !!}</h2>
+                <h2 class="section-title mb-6">{!! $homeSettings->intro_title ?? 'Kiến Trúc Đột Phá<br><span class="text-brand-700">Vận Hành Bền Vững</span>' !!}</h2>
                 <div class="text-gray-600 text-lg mb-8 leading-relaxed prose max-w-none">
-                    {!! $setting->intro_description ?? 'Chúng tôi cung cấp hệ thống quản trị ERP toàn diện, được thiết kế theo chuẩn Enterprise khắt khe nhất. Tối ưu hóa dòng chảy kinh doanh, tự động hóa quy trình và bảo mật dữ liệu tuyệt đối.' !!}
+                    {!! $homeSettings->intro_description ?? 'Chúng tôi cung cấp hệ thống quản trị ERP toàn diện, được thiết kế theo chuẩn Enterprise khắt khe nhất. Tối ưu hóa dòng chảy kinh doanh, tự động hóa quy trình và bảo mật dữ liệu tuyệt đối.' !!}
                 </div>
                 
+                @if(!empty($homeSettings->intro_features))
                 <div class="space-y-6">
+                    @foreach($homeSettings->intro_features as $feature)
                     <div class="flex gap-4">
-                        <div class="text-brand-600 pt-1 text-2xl"><i class="fas fa-shield-alt"></i></div>
+                        <div class="text-brand-600 pt-1 text-2xl"><i class="{{ $feature['icon'] ?? 'fas fa-check' }}"></i></div>
                         <div>
-                            <h4 class="font-bold text-gray-900 text-lg mb-1">Bảo Mật Cấp Doanh Nghiệp</h4>
-                            <p class="text-gray-600 text-sm">Kiến trúc bảo mật đa lớp chuẩn quốc tế, mã hóa đầu cuối với khả năng sao lưu.</p>
+                            <h4 class="font-bold text-gray-900 text-lg mb-1">{{ $feature['title'] ?? '' }}</h4>
+                            <p class="text-gray-600 text-sm">{{ $feature['description'] ?? '' }}</p>
                         </div>
                     </div>
-                    <div class="flex gap-4">
-                        <div class="text-brand-600 pt-1 text-2xl"><i class="fas fa-bolt"></i></div>
-                        <div>
-                            <h4 class="font-bold text-gray-900 text-lg mb-1">Hiệu Suất Vượt Trội</h4>
-                            <p class="text-gray-600 text-sm">Xử lý hàng triệu bản ghi nhờ công nghệ tối ưu hóa truy vấn.</p>
-                        </div>
-                    </div>
+                    @endforeach
                 </div>
+                @endif
             </div>
             <div class="relative">
                 <div class="absolute -inset-4 bg-gray-200 z-0"></div>
                 
                 @php 
-                    $hasVideo = !empty($setting->video_url) || !empty($setting->video_file); 
-                    $videoLink = !empty($setting->video_url) ? $setting->video_url : (!empty($setting->video_file) ? asset($setting->video_file) : '#');
+                    $hasVideo = !empty($homeSettings->video_url) || !empty($homeSettings->video_file); 
+                    $videoLink = !empty($homeSettings->video_url) ? $homeSettings->video_url : (!empty($homeSettings->video_file) ? asset($homeSettings->video_file) : '#');
                 @endphp
                 
                 <div class="relative z-10 border border-gray-200 overflow-hidden shadow-sm aspect-[4/3] group block">
-                    <img src="{{ !empty($setting->intro_image) ? asset($setting->intro_image) : 'https://placehold.co/800x600/1e293b/ffffff?text=Về+Chúng+Tôi' }}" alt="{{ strip_tags($setting->intro_title ?? 'Về Chúng Tôi') }}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105">
+                    <img src="{{ !empty($homeSettings->intro_image) ? asset($homeSettings->intro_image) : 'https://placehold.co/800x600/1e293b/ffffff?text=Về+Chúng+Tôi' }}" alt="{{ strip_tags($homeSettings->intro_title ?? 'Về Chúng Tôi') }}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105">
                     
                     @if($hasVideo)
                     <div class="absolute inset-0 bg-black/20 flex items-center justify-center group-hover:bg-black/40 transition-colors duration-300">
@@ -180,7 +177,7 @@
                     @endif
                 </div>
 
-                @if(!$hasVideo && (!isset($setting->counters) || count($setting->counters) == 0))
+                @if(!$hasVideo && (!isset($homeSettings->counters) || count($homeSettings->counters) == 0))
                 <div class="absolute -bottom-4 left-4 md:-bottom-6 md:-left-6 bg-white p-4 md:p-6 rounded-lg shadow-xl z-20 flex items-center gap-3 md:gap-4 right-4 md:right-auto">
                     <div class="w-10 h-10 md:w-12 md:h-12 rounded-full bg-accent-100 text-accent-600 flex items-center justify-center text-lg md:text-xl font-bold">10+</div>
                     <div>
@@ -195,12 +192,12 @@
 </section>
 
 {{-- 3.5. STATS / COUNTERS --}}
-@if(isset($setting->counters) && is_array($setting->counters) && count($setting->counters) > 0)
+@if(isset($homeSettings->counters) && is_array($homeSettings->counters) && count($homeSettings->counters) > 0)
 <section class="py-12 bg-brand-900 relative overflow-hidden">
     <div class="absolute inset-0 w-full h-full opacity-10"><svg class="absolute w-full h-full" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="dots" width="20" height="20" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r="2" fill="#ffffff"/></pattern></defs><rect width="100%" height="100%" fill="url(#dots)"/></svg></div>
     <div class="container mx-auto px-4 max-w-7xl relative z-10">
         <div class="grid grid-cols-2 md:grid-cols-4 gap-8 divide-x divide-brand-700/50">
-            @foreach($setting->counters as $counter)
+            @foreach($homeSettings->counters as $counter)
             <div class="text-center px-4">
                 {{-- Corporate Style: Hidden Icons --}}
                 <div class="font-black text-5xl text-white mb-2 tracking-tighter">{{ $counter['value'] ?? '' }}</div>
@@ -217,8 +214,8 @@
 <section id="services" class="py-20 bg-white">
     <div class="container mx-auto px-4 max-w-7xl">
         <div class="text-center mb-16">
-            <h2 class="section-title center">{{ $setting->services_title ?? 'Dịch Vụ Cung Cấp' }}</h2>
-            <p class="text-gray-600 max-w-2xl mx-auto mt-4">{{ $setting->services_description ?? 'Hệ sinh thái phần mềm quản trị chuyên sâu, đáp ứng chuẩn mực nghiệp vụ cho đa dạng ngành nghề.' }}</p>
+            <h2 class="section-title center">{{ $homeSettings->services_title ?? 'Dịch Vụ Cung Cấp' }}</h2>
+            <p class="text-gray-600 max-w-2xl mx-auto mt-4">{{ $homeSettings->services_description ?? 'Hệ sinh thái phần mềm quản trị chuyên sâu, đáp ứng chuẩn mực nghiệp vụ cho đa dạng ngành nghề.' }}</p>
         </div>
         
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -248,8 +245,8 @@
 <section id="fields" class="py-20 bg-gray-50 border-b border-gray-100">
     <div class="container mx-auto px-4 max-w-7xl">
         <div class="text-center mb-16">
-            <h2 class="section-title center">{{ $setting->fields_title ?? 'Lĩnh Vực Hoạt Động' }}</h2>
-            <p class="text-gray-600 max-w-2xl mx-auto mt-4">{{ $setting->fields_description ?? 'Nền tảng ERP của chúng tôi được thiết kế linh hoạt, đáp ứng giải pháp chuyên sâu cho từng ngành nghề đặc thù.' }}</p>
+            <h2 class="section-title center">{{ $homeSettings->fields_title ?? 'Lĩnh Vực Hoạt Động' }}</h2>
+            <p class="text-gray-600 max-w-2xl mx-auto mt-4">{{ $homeSettings->fields_description ?? 'Nền tảng ERP của chúng tôi được thiết kế linh hoạt, đáp ứng giải pháp chuyên sâu cho từng ngành nghề đặc thù.' }}</p>
         </div>
         <div class="swiper field-swiper pb-12">
             <div class="swiper-wrapper">
@@ -282,8 +279,8 @@
 <section id="projects" class="py-20 bg-brand-900 border-t border-brand-800">
     <div class="container mx-auto px-4 max-w-7xl">
         <div class="text-center mb-12">
-            <h2 class="section-title !text-white center">{{ $setting->projects_title ?? 'Dự Án Tiêu Biểu' }}</h2>
-            <p class="text-brand-100 mt-4 max-w-2xl mx-auto">{{ $setting->projects_description ?? 'Những dự án công nghệ và công trình tiêu biểu được tín nhiệm bởi các đối tác.' }}</p>
+            <h2 class="section-title !text-white center">{{ $homeSettings->projects_title ?? 'Dự Án Tiêu Biểu' }}</h2>
+            <p class="text-brand-100 mt-4 max-w-2xl mx-auto">{{ $homeSettings->projects_description ?? 'Những dự án công nghệ và công trình tiêu biểu được tín nhiệm bởi các đối tác.' }}</p>
         </div>
         
         <div class="mb-10 w-full overflow-hidden">
@@ -451,8 +448,8 @@
 <section class="py-20 bg-gray-50">
     <div class="container mx-auto px-4 max-w-7xl">
         <div class="text-center mb-16">
-            <h2 class="section-title center">{{ $setting->products_title ?? 'Sản Phẩm & Thiết Bị' }}</h2>
-            <p class="text-gray-600 max-w-2xl mx-auto mt-4">{{ $setting->products_description ?? 'Phân phối thiết bị phần cứng, máy chủ và linh kiện mạng chuyên dụng.' }}</p>
+            <h2 class="section-title center">{{ $homeSettings->products_title ?? 'Sản Phẩm & Thiết Bị' }}</h2>
+            <p class="text-gray-600 max-w-2xl mx-auto mt-4">{{ $homeSettings->products_description ?? 'Phân phối thiết bị phần cứng, máy chủ và linh kiện mạng chuyên dụng.' }}</p>
         </div>
         
         <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
@@ -496,9 +493,9 @@
     <div class="container mx-auto px-4 max-w-7xl">
         <div class="flex flex-col md:flex-row justify-between items-end mb-12">
             <div>
-                <h2 class="section-title">{{ $setting->posts_title ?? 'Tin Tức Mới Nhất' }}</h2>
-                @if(isset($setting->posts_description) && !empty($setting->posts_description))
-                <p class="text-gray-600 max-w-2xl mt-4">{{ $setting->posts_description }}</p>
+                <h2 class="section-title">{{ $homeSettings->posts_title ?? 'Tin Tức Mới Nhất' }}</h2>
+                @if(isset($homeSettings->posts_description) && !empty($homeSettings->posts_description))
+                <p class="text-gray-600 max-w-2xl mt-4">{{ $homeSettings->posts_description }}</p>
                 @endif
             </div>
             <a href="{{ route('frontend.posts.index') }}" class="mt-6 md:mt-0 px-6 py-2 border border-gray-200 hover:border-brand-500 text-gray-600 hover:text-brand-700 rounded transition-colors text-sm font-medium">
@@ -532,9 +529,9 @@
 @endif
 
 <x-frontend.page-cta 
-    :title="$pageSettings->intro_cta_title" 
-    :description="$pageSettings->intro_cta_description" 
-    :link="$pageSettings->intro_cta_link" 
+    :title="$pageSettings->consulting_cta_title" 
+    :description="$pageSettings->consulting_cta_description" 
+    :link="$pageSettings->consulting_cta_link" 
 />
 
 @endsection

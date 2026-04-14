@@ -11,11 +11,10 @@ class IntroSettings extends Settings
     public ?string $page_subtitle;
     public ?int    $page_banner_id;
 
-    // ── Câu chuyện / Tầm nhìn ──────────────────────────────────
+    // ── Câu chuyện công ty ──────────────────────────────────────
     public ?string $story_title;
     public ?string $story_description;   // Rich text / HTML
     public ?int    $story_image_id;
-    public ?string $founded_year;
 
     // ── Sứ mệnh & Tầm nhìn ─────────────────────────────────────
     public ?string $mission_title;
@@ -23,10 +22,9 @@ class IntroSettings extends Settings
     public ?string $vision_title;
     public ?string $vision_description;
 
-    // ── Video giới thiệu ────────────────────────────────────────
-    public ?string $video_title;
-    public ?string $video_url;
-    public ?int    $video_thumbnail_id;
+    // ── Lịch sử phát triển (Timeline) ───────────────────────────
+    // [{year, title, description, image_id}]
+    public ?array $timeline;
 
     // ── Stats / Số liệu nổi bật — Repeater ─────────────────────
     // [{icon, value, label, suffix}]
@@ -35,6 +33,10 @@ class IntroSettings extends Settings
     // ── Giá trị cốt lõi — Repeater ─────────────────────────────
     // [{icon, title, description}]
     public ?array $core_values;
+
+    // ── Khối nội dung tùy chỉnh (Builder) ───────────────────────
+    // [{type, data}] — types: text_block, image_text_block, video_block
+    public ?array $custom_blocks;
 
     // ── CTA ─────────────────────────────────────────────────────
     public ?string $cta_title;

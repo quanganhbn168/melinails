@@ -111,6 +111,6 @@
         </div>
     </div>
     <div class="border-t border-gray-800 mt-12 pt-6 text-center text-sm text-gray-500">
-        <p>© Bản quyền thuộc về <b class="text-white">{{ $setting->site_name ?? 'CnetPOS' }}</b> | Thiết kế bởi <a href="https://webappbacninh.vn/" target="_blank" class="hover:text-blue-400">Web App Bắc Ninh</a></p>
+        <p>© Bản quyền thuộc về <b class="text-white">{{ $setting->company_name ?? ($setting->site_name ?? 'CNETPos') }}</b> | Thiết kế bởi <a href="https://webappbacninh.vn/" target="_blank" class="hover:text-blue-400">Web App Bắc Ninh</a></p>
     </div>
 </footer>

@@ -70,7 +70,7 @@
 
                 {{-- Ảnh Lãnh đạo/Hợp tác --}}
                 <div class="relative flex items-end justify-center lg:justify-end lg:-ml-12 lg:-mt-20 z-20">
-                    <img src="{{ asset($setting->intro_image ?? 'images/setting/lien-he-bg.jpg') }}" 
+                    <img src="{{ asset('images/setting/lien-he-bg.jpg') }}" 
                          onerror="this.src='https://placehold.co/400x420/png?text=Solutions'" alt="Tư vấn giải pháp" 
                          class="h-[400px] md:h-[500px] object-contain drop-shadow-2xl z-20">
                 </div>

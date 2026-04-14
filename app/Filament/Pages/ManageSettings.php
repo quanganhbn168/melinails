@@ -6,7 +6,6 @@ use App\Models\Menu;
 use App\Settings\GeneralSettings;
 use Awcodes\Curator\Components\Forms\CuratorPicker;
 use BackedEnum;
-use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -23,6 +22,7 @@ class ManageSettings extends SettingsPage
     protected static string|UnitEnum|null $navigationGroup = 'Hệ thống & Cấu hình';
     protected static ?string $navigationLabel = 'Cài đặt chung';
     protected static ?string $title = 'Cài đặt chung';
+    protected static ?int $navigationSort = 1;
 
     protected static string $settings = GeneralSettings::class;
 
@@ -39,8 +39,14 @@ class ManageSettings extends SettingsPage
                             ->icon('heroicon-o-building-storefront')
                             ->schema([
                                 TextInput::make('site_name')
-                                    ->label('Tên Website / Công ty')
-                                    ->required()
+                                    ->label('Tên thương hiệu ngắn (VD: CNETPos)')
+                                    ->required(),
+                                TextInput::make('company_name')
+                                    ->label('Tên pháp nhân công ty đầy đủ')
+                                    ->required(),
+                                Textarea::make('description')
+                                    ->label('Mô tả ngắn gọn về công ty (Hiển thị chân trang)')
+                                    ->rows(3)
                                     ->columnSpanFull(),
                                 CuratorPicker::make('logo')
                                     ->label('Logo thương hiệu')
@@ -51,7 +57,7 @@ class ManageSettings extends SettingsPage
                                     ->acceptedFileTypes(['image/*'])
                                     ->multiple(false),
                                 CuratorPicker::make('banner')
-                                    ->label('Banner trang chủ')
+                                    ->label('Banner chung')
                                     ->acceptedFileTypes(['image/*'])
                                     ->columnSpanFull(),
                                 CuratorPicker::make('catalog_file')
@@ -157,113 +163,7 @@ class ManageSettings extends SettingsPage
                                     ->columns(2),
                             ]),
 
-                        // ═══════════════════════════════════════
-                        // TAB 5: GIỚI THIỆU TRANG CHỦ
-                        // ═══════════════════════════════════════
-                        Tab::make('Giới thiệu trang chủ')
-                            ->icon('heroicon-o-sparkles')
-                            ->schema([
-                                Section::make('Nội dung giới thiệu')
-                                    ->schema([
-                                        TextInput::make('intro_title')
-                                            ->label('Tiêu đề')
-                                            ->columnSpanFull(),
-                                        Textarea::make('intro_description')
-                                            ->label('Mô tả ngắn')
-                                            ->rows(4)
-                                            ->columnSpanFull(),
-                                        CuratorPicker::make('intro_image')
-                                            ->label('Hình ảnh minh họa')
-                                            ->acceptedFileTypes(['image/*'])
-                                            ->columnSpanFull(),
-                                    ])->columns(1),
 
-                                Section::make('Video giới thiệu')
-                                    ->description('Nếu có video, nút Play sẽ hiển thị đè lên ảnh minh họa.')
-                                    ->icon('heroicon-o-play-circle')
-                                    ->schema([
-                                        TextInput::make('video_title')
-                                            ->label('Tiêu đề video')
-                                            ->columnSpanFull(),
-                                        TextInput::make('video_url')
-                                            ->label('Link YouTube')
-                                            ->helperText('VD: https://www.youtube.com/watch?v=xxxx'),
-                                        CuratorPicker::make('video_file')
-                                            ->label('Hoặc Upload video trực tiếp')
-                                            ->acceptedFileTypes(['video/mp4', 'video/webm', 'video/quicktime']),
-                                    ])->columns(2),
-
-                                Section::make('Tiêu đề & Mô tả các khối khác')
-                                    ->schema([
-                                        TextInput::make('services_title')
-                                            ->label('Tiêu đề: Dịch vụ cung cấp'),
-                                        Textarea::make('services_description')
-                                            ->label('Mô tả khối: Dịch vụ cung cấp')
-                                            ->rows(2),
-                                        TextInput::make('fields_title')
-                                            ->label('Tiêu đề: Lĩnh vực hoạt động'),
-                                        Textarea::make('fields_description')
-                                            ->label('Mô tả khối: Lĩnh vực hoạt động')
-                                            ->rows(2),
-                                        TextInput::make('projects_title')
-                                            ->label('Tiêu đề: Dự án tiêu biểu'),
-                                        Textarea::make('projects_description')
-                                            ->label('Mô tả khối: Dự án tiêu biểu')
-                                            ->rows(2),
-                                    ])->columns(2),
-                            ]),
-
-
-                        // ═══════════════════════════════════════
-                        // TAB 7: COUNTER THỐNG KÊ
-                        // ═══════════════════════════════════════
-                        Tab::make('Counter (Thống kê)')
-                            ->icon('heroicon-o-chart-bar')
-                            ->schema([
-                                Repeater::make('counters')
-                                    ->label('Các ô thống kê')
-                                    ->schema([
-                                        Select::make('icon')
-                                            ->label('Icon')
-                                            ->options([
-                                                'clock' => 'Đồng hồ',
-                                                'check-circle' => 'Hoàn thành',
-                                                'users' => 'Nhóm người',
-                                                'briefcase' => 'Cặp táp',
-                                                'building-office' => 'Tòa nhà',
-                                                'globe-alt' => 'Toàn cầu',
-                                                'trophy' => 'Cúp',
-                                                'star' => 'Ngôi sao',
-                                                'heart' => 'Trái tim',
-                                                'rocket-launch' => 'Tên lửa',
-                                            ])
-                                            ->required(),
-                                        TextInput::make('value')
-                                            ->label('Số liệu')
-                                            ->required(),
-                                        TextInput::make('label')
-                                            ->label('Nhãn hiển thị')
-                                            ->required(),
-                                        Select::make('color')
-                                            ->label('Màu sắc')
-                                            ->options([
-                                                'blue' => 'Xanh dương',
-                                                'emerald' => 'Xanh lá',
-                                                'amber' => 'Vàng',
-                                                'violet' => 'Tím',
-                                                'rose' => 'Đỏ hồng',
-                                                'cyan' => 'Xanh ngọc',
-                                                'orange' => 'Cam',
-                                            ])
-                                            ->required(),
-                                    ])
-                                    ->columns(4)
-                                    ->reorderable()
-                                    ->collapsible()
-                                    ->defaultItems(4)
-                                    ->maxItems(8)
-                                    ->columnSpanFull(),
-                            ]),
 
                         // ═══════════════════════════════════════
                         // TAB 8: SEO & SCRIPT

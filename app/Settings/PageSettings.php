@@ -56,16 +56,6 @@ class PageSettings extends Settings
     public ?string $posts_cta_description;
     public ?string $posts_cta_link;
 
-    // Trang Giới thiệu
-    public ?string $intro_title;
-    public ?string $intro_headline;
-    public ?string $intro_description;
-    public ?string $intro_content;
-    public ?string $intro_banner;
-    public ?string $intro_cta_title;
-    public ?string $intro_cta_description;
-    public ?string $intro_cta_link;
-
     // Trang Tuyển dụng
     public ?string $careers_title;
     public ?string $careers_headline;

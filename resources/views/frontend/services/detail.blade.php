@@ -76,11 +76,8 @@
 <section class="py-12 md:py-16 bg-white dark:bg-gray-900 border-t border-gray-100 dark:border-gray-800">
     <div class="max-w-screen-xl mx-auto px-4">
         <div class="mb-10 text-center">
-            <h2 class="text-2xl md:text-3xl font-black uppercase text-gray-900 dark:text-white tracking-tight">{{ $setting->projects_title ?? 'Dự Án Tiêu Biểu' }}</h2>
+            <h2 class="text-2xl md:text-3xl font-black uppercase text-gray-900 dark:text-white tracking-tight">Dự Án Tiêu Biểu</h2>
             <div class="w-16 h-1 bg-brand-600 mx-auto mt-4 mb-4"></div>
-            @if(!empty($setting->projects_description))
-                <p class="text-gray-600 dark:text-gray-400">{{ $setting->projects_description }}</p>
-            @endif
         </div>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             @foreach($service->projects as $project)
@@ -101,11 +98,8 @@
 <section class="py-12 md:py-16 bg-gray-50 dark:bg-gray-800">
     <div class="max-w-screen-xl mx-auto px-4">
         <div class="mb-10 text-center">
-            <h2 class="text-2xl md:text-3xl font-black uppercase text-gray-900 dark:text-white tracking-tight">{{ $setting->products_title ?? 'Gói Giải Pháp & Phân Hệ' }}</h2>
+            <h2 class="text-2xl md:text-3xl font-black uppercase text-gray-900 dark:text-white tracking-tight">Gói Giải Pháp & Phân Hệ</h2>
             <div class="w-16 h-1 bg-brand-600 mx-auto mt-4 mb-4"></div>
-            @if(!empty($setting->products_description))
-                <p class="text-gray-600 dark:text-gray-400 text-sm">{{ $setting->products_description }}</p>
-            @endif
         </div>
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             @foreach($service->products as $product)
@@ -125,7 +119,7 @@
 <section class="py-12 md:py-16 bg-white dark:bg-gray-900 border-t border-gray-100 dark:border-gray-800">
     <div class="max-w-screen-xl mx-auto px-4">
         <div class="mb-10 text-center">
-            <h2 class="text-2xl md:text-3xl font-black uppercase text-gray-900 dark:text-white tracking-tight">{{ $setting->posts_title ?? 'Kiến Thức & Tài Liệu' }}</h2>
+            <h2 class="text-2xl md:text-3xl font-black uppercase text-gray-900 dark:text-white tracking-tight">Kiến Thức & Tài Liệu</h2>
             <div class="w-16 h-1 bg-brand-600 mx-auto mt-4 mb-4"></div>
         </div>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
