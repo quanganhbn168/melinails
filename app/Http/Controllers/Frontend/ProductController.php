@@ -34,7 +34,13 @@ class ProductController extends Controller
     {
         $pageSettings = app(PageSettings::class);
         $perCategoryLimit = (int) $request->input('limit', 12);
-        $allCategories = Category::whereNull('parent_id')->where('status', 1)->orderBy('name')->get();
+        
+        $allCategories = Category::where(function($q) {
+                $q->whereNull('parent_id')->orWhere('parent_id', 0);
+            })
+            ->where('status', 1)
+            ->orderBy('name')
+            ->get();
         
         $categories = Category::where('status', 1)
             ->orderBy('name')
@@ -43,7 +49,7 @@ class ProductController extends Controller
         
         $childrenMap = [];
         foreach ($categories as $c) {
-            $parent = $c->parent_id ?? 0;
+            $parent = $c->parent_id ?: 0;
             $childrenMap[$parent][] = $c->id;
         }
 
@@ -58,7 +64,7 @@ class ProductController extends Controller
         };
 
         
-        $roots = $categories->whereNull('parent_id')->values();
+        $roots = $categories->filter(fn($c) => empty($c->parent_id))->values();
 
         
         $allProducts = Product::where('status', 1)
