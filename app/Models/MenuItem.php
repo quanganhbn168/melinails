@@ -68,6 +68,26 @@ class MenuItem extends Model
         return $this->belongsTo(PostCategory::class, 'reference_id');
     }
 
+    public function project()
+    {
+        return $this->belongsTo(Project::class, 'reference_id');
+    }
+
+    public function field()
+    {
+        return $this->belongsTo(Field::class, 'reference_id');
+    }
+
+    public function serviceCategory()
+    {
+        return $this->belongsTo(ServiceCategory::class, 'reference_id');
+    }
+
+    public function service()
+    {
+        return $this->belongsTo(Service::class, 'reference_id');
+    }
+
     // ==================== ACCESSORS ====================
 
     /**
@@ -78,11 +98,15 @@ class MenuItem extends Model
         return match ($this->type) {
             'system_route' => Route::has($this->url) ? route($this->url) : url('/'),
             'custom' => $this->url ?? '#',
-            'page' => $this->page ? url($this->page->slug) : '#',
-            'category' => $this->category ? url($this->category->slugValue) : '#',
-            'field_category' => $this->fieldCategory ? url($this->fieldCategory->slugValue) : '#',
+            'page' => $this->page ? url($this->page->slug_value) : '#',
+            'category' => $this->category ? url($this->category->slug_value) : '#',
+            'field_category' => $this->fieldCategory ? url($this->fieldCategory->slug_value) : '#',
             'project_category' => $this->projectCategory ? url($this->projectCategory->slugValue) : '#',
             'post_category' => $this->postCategory ? url($this->postCategory->slugValue) : '#',
+            'project' => $this->project ? url($this->project->slugValue) : '#',
+            'field' => $this->field ? url($this->field->slugValue) : '#',
+            'service_category' => $this->serviceCategory ? url($this->serviceCategory->slugValue) : '#',
+            'service' => $this->service ? url($this->service->slugValue) : '#',
             default => '#',
         };
     }

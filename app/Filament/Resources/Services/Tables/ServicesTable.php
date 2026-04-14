@@ -16,12 +16,12 @@ class ServicesTable
     {
         return $table
             ->columns([
-                TextColumn::make('service_category_id')
-                    ->numeric()
+                TextColumn::make('category.name')
+                    ->label('Danh mục')
+                    ->searchable()
                     ->sortable(),
                 TextColumn::make('name')
-                    ->searchable(),
-                TextColumn::make('slug')
+                    ->label('Tên dịch vụ')
                     ->searchable(),
                 \Awcodes\Curator\Components\Tables\CuratorColumn::make('image')
                     ->label('Ảnh')
@@ -31,18 +31,14 @@ class ServicesTable
                     ->label('Banner')
                     ->size(40),
                 IconColumn::make('status')
+                    ->label('Kích hoạt')
                     ->boolean(),
                 IconColumn::make('is_home')
+                    ->label('Hiển thị Trang chủ')
                     ->boolean(),
-                IconColumn::make('is_menu')
-                    ->boolean(),
-                IconColumn::make('is_footer')
-                    ->boolean(),
-                TextColumn::make('unit_id')
-                    ->numeric()
-                    ->sortable(),
                 TextColumn::make('price')
-                    ->money()
+                    ->label('Đơn giá')
+                    ->money('VND')
                     ->sortable(),
                 
                 TextColumn::make('created_at')

@@ -40,8 +40,12 @@ class ItemsRelationManager extends RelationManager
                         'product' => 'Sản phẩm',
                         'post_category' => 'Chuyên mục Tin tức',
                         'post' => 'Bài viết Đơn lẻ',
-                        'project_category' => 'Nhóm Dự án',
-                        'field_category' => 'Nhóm Lĩnh vực',
+                        'project_category' => 'Danh mục Dự án',
+                        'project' => 'Dự án Đơn lẻ',
+                        'field_category' => 'Danh mục Lĩnh vực',
+                        'field' => 'Lĩnh vực Đơn lẻ',
+                        'service_category' => 'Danh mục Dịch vụ',
+                        'service' => 'Dịch vụ Đơn lẻ',
                         'custom' => 'Link tự do',
                     ])
                     ->default('system_route')
@@ -64,7 +68,11 @@ class ItemsRelationManager extends RelationManager
                             'post_category' => \App\Models\PostCategory::pluck('name', 'id'),
                             'post' => \App\Models\Post::pluck('title', 'id'),
                             'project_category' => \App\Models\ProjectCategory::pluck('name', 'id'),
+                            'project' => \App\Models\Project::pluck('name', 'id'),
                             'field_category' => \App\Models\FieldCategory::pluck('name', 'id'),
+                            'field' => \App\Models\Field::pluck('name', 'id'),
+                            'service_category' => \App\Models\ServiceCategory::pluck('name', 'id'),
+                            'service' => \App\Models\Service::pluck('name', 'id'),
                             default => [],
                         };
                     })
