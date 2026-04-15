@@ -3,10 +3,10 @@
 namespace App\Filament\Resources\Services\Tables;
 
 use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
-use Filament\Tables\Columns\IconColumn;
-use Filament\Tables\Columns\ImageColumn;
+use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 
@@ -16,30 +16,23 @@ class ServicesTable
     {
         return $table
             ->columns([
+                TextColumn::make('name')
+                    ->label('Tên dịch vụ')
+                    ->searchable(),
                 TextColumn::make('category.name')
                     ->label('Danh mục')
                     ->searchable()
                     ->sortable(),
-                TextColumn::make('name')
-                    ->label('Tên dịch vụ')
-                    ->searchable(),
                 \Awcodes\Curator\Components\Tables\CuratorColumn::make('image')
                     ->label('Ảnh')
                     ->circular()
                     ->size(40),
-                \Awcodes\Curator\Components\Tables\CuratorColumn::make('banner')
-                    ->label('Banner')
-                    ->size(40),
-                IconColumn::make('status')
+                ToggleColumn::make('status')
                     ->label('Kích hoạt')
-                    ->boolean(),
-                IconColumn::make('is_home')
+                    ->alignCenter(),
+                ToggleColumn::make('is_home')
                     ->label('Hiển thị Trang chủ')
-                    ->boolean(),
-                TextColumn::make('price')
-                    ->label('Đơn giá')
-                    ->money('VND')
-                    ->sortable(),
+                    ->alignCenter(),
                 
                 TextColumn::make('created_at')
                     ->dateTime()
@@ -55,6 +48,7 @@ class ServicesTable
             ])
             ->recordActions([
                 EditAction::make(),
+                DeleteAction::make(),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

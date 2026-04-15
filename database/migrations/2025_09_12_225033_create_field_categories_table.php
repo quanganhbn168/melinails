@@ -13,7 +13,7 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->integer('position')->default(0);
-            $table->unsignedBigInteger('parent_id')->nullable(); 
+            $table->unsignedBigInteger('parent_id')->default(0);
             $table->string('description')->nullable();
             $table->string('content')->nullable();
             $table->unsignedBigInteger('image_id')->nullable();

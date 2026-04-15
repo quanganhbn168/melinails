@@ -155,7 +155,7 @@ class DemoHomepageSeeder extends Seeder
                 ['name' => $f],
                 [
                     'status' => 1,
-                    'parent_id' => null,
+                    'parent_id' => 0,
                 ]
             );
         }

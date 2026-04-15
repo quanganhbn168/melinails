@@ -162,6 +162,208 @@
 </section>
 @endif
 
+{{-- FORM BÁO GIÁ THEO DỊCH VỤ --}}
+<section class="py-12 bg-white dark:bg-gray-900 border-t border-gray-100 dark:border-gray-800">
+    <div class="max-w-screen-xl mx-auto px-4">
+        <div class="mb-10 text-center">
+            <h2 class="text-2xl font-black uppercase text-gray-900 dark:text-white tracking-tight">Yêu cầu báo giá</h2>
+            <div class="w-16 h-1 bg-brand-600 mx-auto mt-4"></div>
+            <p class="mt-4 text-gray-600 dark:text-gray-300">
+                Để lại thông tin cho dịch vụ <strong>{{ $service->name }}</strong>, đội ngũ CNETPos sẽ liên hệ báo giá sớm nhất.
+            </p>
+        </div>
+
+        <div class="max-w-4xl mx-auto bg-gray-50 dark:bg-gray-800 p-6 md:p-8 rounded-sm border border-gray-100 dark:border-gray-700">
+            <form
+                action="{{ route('consulting.store') }}"
+                method="POST"
+                enctype="multipart/form-data"
+                class="space-y-5"
+                x-ref="quoteForm"
+                @submit.prevent="submitQuote($event)"
+                x-data="{
+                    budget: @js(old('budget')),
+                    submitting: false,
+                    formatBudget(value) {
+                        const digits = String(value || '').replace(/\D/g, '');
+                        return digits ? Number(digits).toLocaleString('vi-VN') : '';
+                    },
+                    notify(options) {
+                        if (typeof Swal !== 'undefined') {
+                            Swal.fire(options);
+                            return;
+                        }
+                        alert(options.text || options.title || 'Đã xử lý.');
+                    },
+                    async submitQuote(event) {
+                        if (this.submitting) return;
+
+                        this.submitting = true;
+
+                        const form = event.target;
+                        const formData = new FormData(form);
+
+                        try {
+                            const response = await fetch(form.action, {
+                                method: 'POST',
+                                headers: {
+                                    'Accept': 'application/json',
+                                    'X-Requested-With': 'XMLHttpRequest',
+                                    'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]')?.getAttribute('content') || '',
+                                },
+                                body: formData,
+                            });
+
+                            const data = await response.json().catch(() => ({}));
+
+                            if (!response.ok) {
+                                const firstError = data?.errors ? Object.values(data.errors)[0]?.[0] : null;
+                                throw new Error(firstError || data?.message || 'Không thể gửi yêu cầu. Vui lòng thử lại.');
+                            }
+
+                            this.notify({
+                                icon: 'success',
+                                title: 'Gửi thành công',
+                                text: data?.message || 'Yêu cầu báo giá đã được gửi.',
+                                confirmButtonText: 'Đóng',
+                            });
+
+                            form.reset();
+                            this.budget = '';
+
+                            const details = form.querySelector('textarea[name=details]');
+                            if (details) {
+                                details.value = `Dịch vụ quan tâm: {{ $service->name }}\n`;
+                            }
+                        } catch (error) {
+                            this.notify({
+                                icon: 'error',
+                                title: 'Có lỗi xảy ra',
+                                text: error?.message || 'Không thể gửi yêu cầu. Vui lòng thử lại.',
+                                confirmButtonText: 'Đóng',
+                            });
+                        } finally {
+                            this.submitting = false;
+                        }
+                    },
+                    init() {
+                        this.budget = this.formatBudget(this.budget);
+                    }
+                }"
+            >
+                @csrf
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div>
+                        <label class="block mb-2 text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wide">
+                            Họ và tên <span class="text-red-500">*</span>
+                        </label>
+                        <input
+                            type="text"
+                            name="name"
+                            required
+                            value="{{ old('name') }}"
+                            placeholder="Ví dụ: Nguyễn Văn A"
+                            class="bg-white border border-gray-300 text-gray-900 text-sm rounded-sm focus:ring-brand-500 focus:border-brand-500 block w-full p-3 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
+                        >
+                    </div>
+                    <div>
+                        <label class="block mb-2 text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wide">
+                            Số điện thoại <span class="text-red-500">*</span>
+                        </label>
+                        <input
+                            type="tel"
+                            name="phone"
+                            required
+                            value="{{ old('phone') }}"
+                            placeholder="Ví dụ: 0987654321"
+                            class="bg-white border border-gray-300 text-gray-900 text-sm rounded-sm focus:ring-brand-500 focus:border-brand-500 block w-full p-3 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
+                        >
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div>
+                        <label class="block mb-2 text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wide">Email</label>
+                        <input
+                            type="email"
+                            name="email"
+                            value="{{ old('email') }}"
+                            placeholder="Ví dụ: abc@domain.com"
+                            class="bg-white border border-gray-300 text-gray-900 text-sm rounded-sm focus:ring-brand-500 focus:border-brand-500 block w-full p-3 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
+                        >
+                    </div>
+                    <div>
+                        <label class="block mb-2 text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wide">Công ty / Cửa hàng</label>
+                        <input
+                            type="text"
+                            name="company"
+                            value="{{ old('company') }}"
+                            placeholder="Ví dụ: Công ty TNHH ABC"
+                            class="bg-white border border-gray-300 text-gray-900 text-sm rounded-sm focus:ring-brand-500 focus:border-brand-500 block w-full p-3 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
+                        >
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block mb-2 text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wide">Địa chỉ triển khai</label>
+                    <input
+                        type="text"
+                        name="address"
+                        value="{{ old('address') }}"
+                        placeholder="Số nhà, Đường, Quận/Huyện..."
+                        class="bg-white border border-gray-300 text-gray-900 text-sm rounded-sm focus:ring-brand-500 focus:border-brand-500 block w-full p-3 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
+                    >
+                </div>
+
+                <div>
+                    <label class="block mb-2 text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wide">Nội dung yêu cầu</label>
+                    <textarea
+                        name="details"
+                        rows="5"
+                        class="bg-white border border-gray-300 text-gray-900 text-sm rounded-sm focus:ring-brand-500 focus:border-brand-500 block w-full p-3 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white resize-none"
+                        placeholder="Mô tả nhu cầu, quy mô triển khai, số lượng người dùng..."
+                    >{{ old('details', "Dịch vụ quan tâm: {$service->name}\n") }}</textarea>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div>
+                        <label class="block mb-2 text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wide">Ngân sách dự kiến</label>
+                        <input
+                            type="text"
+                            name="budget"
+                            x-model="budget"
+                            @input="budget = formatBudget($event.target.value)"
+                            placeholder="Ví dụ: 100.000.000"
+                            class="bg-white border border-gray-300 text-gray-900 text-sm rounded-sm focus:ring-brand-500 focus:border-brand-500 block w-full p-3 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
+                        >
+                    </div>
+                    <div>
+                        <label class="block mb-2 text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wide">File đính kèm (tùy chọn)</label>
+                        <input
+                            type="file"
+                            name="file"
+                            class="bg-white border border-gray-300 text-gray-900 text-sm rounded-sm focus:ring-brand-500 focus:border-brand-500 block w-full p-3 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                        >
+                        <p class="mt-2 text-xs text-gray-500 dark:text-gray-400">Hỗ trợ: jpeg, png, pdf, doc, docx, zip, cad, dwg (tối đa 10MB).</p>
+                    </div>
+                </div>
+
+                <div class="pt-2">
+                    <button
+                        type="submit"
+                        :disabled="submitting"
+                        :class="{ 'opacity-70 cursor-not-allowed': submitting }"
+                        class="inline-flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 text-white font-bold uppercase tracking-wider text-sm px-8 py-3 rounded-sm transition-colors"
+                    >
+                        <i class="fas fa-paper-plane"></i>
+                        <span x-text="submitting ? 'Đang gửi...' : 'Gửi yêu cầu báo giá'"></span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</section>
+
 {{-- BÌNH LUẬN & ĐÁNH GIÁ DỊCH VỤ --}}
 <section class="py-12 bg-white dark:bg-gray-900 border-t border-gray-100 dark:border-gray-800">
     <div class="max-w-screen-xl mx-auto px-4">
@@ -175,4 +377,9 @@
         </div>
     </div>
 </section>
+
+@push('js')
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+@endpush
+
 @endsection

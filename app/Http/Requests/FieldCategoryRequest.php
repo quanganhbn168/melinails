@@ -24,7 +24,20 @@ class FieldCategoryRequest extends FormRequest
                 'max:255',
                 Rule::unique('field_categories', 'slug')->ignore($categoryId)
             ],
-            'parent_id' => 'nullable|exists:field_categories,id',
+            'parent_id' => [
+                'required',
+                'integer',
+                'min:0',
+                function (string $attribute, mixed $value, \Closure $fail) {
+                    if ((int) $value === 0) {
+                        return;
+                    }
+
+                    if (! \App\Models\FieldCategory::whereKey((int) $value)->exists()) {
+                        $fail('Danh mục cha không tồn tại');
+                    }
+                },
+            ],
             'description' => 'nullable|string',
             'content' => 'nullable|string',
             'status' => 'boolean',
@@ -59,6 +72,7 @@ class FieldCategoryRequest extends FormRequest
         $this->merge([
             'status' => (bool) $this->status,
             'order' => $this->order ? (int) $this->order : 0,
+            'parent_id' => (int) ($this->parent_id ?? 0),
         ]);
     }
 }

@@ -11,7 +11,6 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Section;
-use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Schema;
 use App\Traits\HasSeo;
 
@@ -21,100 +20,95 @@ class ServiceForm
     {
         return $schema
             ->components([
-                Tabs::make('ServiceTabs')
-                    ->tabs([
-                        Tabs\Tab::make('Thông tin chung')
-                            ->schema([
-                                Select::make('service_category_id')
-                                    ->label('Danh mục dịch vụ')
-                                    ->options(function () {
-                                        return ServiceCategory::getLeafOptions();
-                                    })
-                                    ->searchable()
-                                    ->required(),
+                Section::make('Thông tin chính')
+                    ->schema([
+                        Select::make('service_category_id')
+                            ->label('Danh mục dịch vụ')
+                            ->options(function () {
+                                return ServiceCategory::getLeafOptions();
+                            })
+                            ->searchable()
+                            ->required(),
 
-                                TextInput::make('name')
-                                    ->label('Tên dịch vụ')
-                                    ->required()
-                                    ->maxLength(255)
-                                    ->live(debounce: 500)
-                                    ->afterStateUpdated(SlugInput::autoSlug('slug')),
+                        TextInput::make('name')
+                            ->label('Tên dịch vụ')
+                            ->required()
+                            ->maxLength(255)
+                            ->live(debounce: 500)
+                            ->afterStateUpdated(SlugInput::autoSlug('slug')),
 
-                                SlugInput::make('slug'),
+                        SlugInput::make('slug'),
 
-                                TextInput::make('price')
-                                    ->label('Đơn giá (VNĐ)')
-                                    ->numeric()
-                                    ->prefix('₫'),
+                        CuratorPicker::make('image_id')
+                            ->label('Ảnh đại diện / Icon')
+                            ->columnSpanFull(),
+                    ])
+                    ->columns(1)
+                    ->columnSpanFull(),
 
-                                TextInput::make('unit_id')
-                                    ->label('Đơn vị tính')
-                                    ->numeric(),
+                Section::make('Nội dung dịch vụ')
+                    ->schema([
+                        CuratorPicker::make('banner_id')
+                            ->label('Banner')
+                            ->columnSpanFull(),
 
-                                CuratorPicker::make('image_id')
-                                    ->label('Ảnh đại diện / Icon')
-                                    ->columnSpanFull(),
+                        Textarea::make('description')
+                            ->label('Mô tả ngắn')
+                            ->rows(3)
+                            ->columnSpanFull(),
 
-                                CuratorPicker::make('banner_id')
-                                    ->label('Banner')
-                                    ->columnSpanFull(),
+                        RichEditor::make('content')
+                            ->label('Nội dung chi tiết')
+                            ->columnSpanFull(),
 
-                                Textarea::make('description')
-                                    ->label('Mô tả ngắn')
-                                    ->rows(3)
-                                    ->columnSpanFull(),
+                        CuratorPicker::make('gallery')
+                            ->label('Thư viện ảnh')
+                            ->multiple()
+                            ->columnSpanFull(),
+                    ])
+                    ->columns(1)
+                    ->columnSpanFull(),
 
-                                RichEditor::make('content')
-                                    ->label('Nội dung chi tiết')
-                                    ->columnSpanFull(),
-                            ])->columns(2),
+                Section::make('Liên kết Landing Page')
+                    ->description('Chọn các thực thể liên quan để hiển thị ở đáy trang (dạng Mini-landing page).')
+                    ->schema([
+                        Select::make('projects')
+                            ->label('Dự án đã triển khai')
+                            ->multiple()
+                            ->relationship('projects', 'name')
+                            ->preload(),
+                        Select::make('products')
+                            ->label('Sản phẩm / Phân hệ')
+                            ->multiple()
+                            ->relationship('products', 'name')
+                            ->preload(),
+                        Select::make('posts')
+                            ->label('Bài viết tham khảo')
+                            ->multiple()
+                            ->relationship('posts', 'title')
+                            ->preload(),
+                    ])
+                    ->columns(1)
+                    ->columnSpanFull(),
 
-                        Tabs\Tab::make('Thư viện & Liên kết')
-                            ->schema([
-                                CuratorPicker::make('gallery')
-                                    ->label('Thư viện ảnh')
-                                    ->multiple()
-                                    ->columnSpanFull(),
-
-                                Section::make('Liên kết Landing Page')
-                                    ->description('Chọn các thực thể liên quan để hiển thị ở đáy trang (dạng Mini-landing page).')
-                                    ->schema([
-                                        Select::make('projects')
-                                            ->label('Dự án đã triển khai')
-                                            ->multiple()
-                                            ->relationship('projects', 'name')
-                                            ->preload(),
-                                        Select::make('products')
-                                            ->label('Sản phẩm / Phân hệ')
-                                            ->multiple()
-                                            ->relationship('products', 'name')
-                                            ->preload(),
-                                        Select::make('posts')
-                                            ->label('Bài viết tham khảo')
-                                            ->multiple()
-                                            ->relationship('posts', 'title')
-                                            ->preload(),
-                                    ])->columns(2),
-                            ]),
-
-                        Tabs\Tab::make('Cài đặt hiển thị')
-                            ->schema([
-                                Toggle::make('status')
-                                    ->label('Kích hoạt')
-                                    ->default(true),
-                                Toggle::make('is_home')
-                                    ->label('Hiển thị Trang chủ')
-                                    ->default(false),
-                                Toggle::make('is_menu')
-                                    ->label('Hiển thị Menu')
-                                    ->default(false),
-                                Toggle::make('is_footer')
-                                    ->label('Hiển thị Footer')
-                                    ->default(false),
-                            ])->columns(2),
-                    ])->columnSpanFull(),
-
-                HasSeo::seoSection(),
+                Section::make('Hiển thị & SEO')
+                    ->schema([
+                        Toggle::make('status')
+                            ->label('Kích hoạt')
+                            ->default(true),
+                        Toggle::make('is_home')
+                            ->label('Hiển thị Trang chủ')
+                            ->default(false),
+                        Toggle::make('is_menu')
+                            ->label('Hiển thị Menu')
+                            ->default(false),
+                        Toggle::make('is_footer')
+                            ->label('Hiển thị Footer')
+                            ->default(false),
+                        HasSeo::seoSection(),
+                    ])
+                    ->columns(1)
+                    ->columnSpanFull(),
             ]);
     }
 }

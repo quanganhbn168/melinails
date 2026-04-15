@@ -35,7 +35,7 @@ class FieldController extends Controller
         $bannerUrl    = $setting->banner ?? asset('images/setting/no-banner.png');
         $breadcrumbs  = [['label' => $pageTitle]];
 
-        $field_categories = FieldCategory::where("status", 1)->whereNull("parent_id")->get();
+        $field_categories = FieldCategory::where("status", 1)->where("parent_id", 0)->get();
 
         return view('frontend.fields.index', compact(
             "field_categories", "setting", "pageSettings",

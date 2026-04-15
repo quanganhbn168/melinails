@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\ConsultingRequests\Schemas;
 
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
 use Filament\Schemas\Schema;
@@ -13,21 +14,35 @@ class ConsultingRequestForm
         return $schema
             ->components([
                 TextInput::make('name')
+                    ->label('Họ và tên')
                     ->required(),
                 TextInput::make('phone')
+                    ->label('Số điện thoại')
                     ->tel()
                     ->required(),
                 TextInput::make('email')
-                    ->label('Email address')
+                    ->label('Email')
                     ->email(),
-                TextInput::make('company'),
-                TextInput::make('address'),
+                TextInput::make('company')
+                    ->label('Công ty / Cửa hàng'),
+                TextInput::make('address')
+                    ->label('Địa chỉ'),
                 Textarea::make('details')
+                    ->label('Nội dung yêu cầu')
                     ->columnSpanFull(),
-                TextInput::make('file_path'),
-                TextInput::make('budget'),
-                TextInput::make('status')
+                TextInput::make('file_path')
+                    ->label('Đường dẫn file đính kèm')
+                    ->readOnly(),
+                TextInput::make('budget')
+                    ->label('Ngân sách dự kiến'),
+                Select::make('status')
+                    ->label('Trạng thái')
                     ->required()
+                    ->options([
+                        'new' => 'Mới',
+                        'in_progress' => 'Đang xử lý',
+                        'done' => 'Đã xử lý',
+                    ])
                     ->default('new'),
             ]);
     }

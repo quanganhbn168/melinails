@@ -52,6 +52,15 @@ class ConsultingController extends Controller
             \Log::error("Consulting Email Error: " . $e->getMessage());
         }
 
-        return redirect()->route('thank-you')->with('success', 'Yêu cầu tư vấn của bạn đã được gửi thành công!');
+        $successMessage = 'Yêu cầu tư vấn của bạn đã được gửi thành công!';
+
+        if ($request->expectsJson() || $request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => $successMessage,
+            ]);
+        }
+
+        return redirect()->route('thank-you')->with('success', $successMessage);
     }
 }

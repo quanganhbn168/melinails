@@ -26,6 +26,7 @@ class FieldCategory extends Model
     ];
 
     protected $casts = [
+        'parent_id' => 'integer',
         'status' => 'boolean',
     ];
 

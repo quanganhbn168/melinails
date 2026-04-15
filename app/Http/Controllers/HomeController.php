@@ -35,7 +35,7 @@ class HomeController extends Controller
                 $query->where("status", 1);
             }
         ])->get();
-        $homeFields = FieldCategory::whereNull("parent_id")
+        $homeFields = FieldCategory::where("parent_id", 0)
             ->where("status", 1)
             ->with([
                 'fields' => function ($query) {

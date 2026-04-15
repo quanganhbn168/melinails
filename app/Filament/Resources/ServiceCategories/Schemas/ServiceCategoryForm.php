@@ -24,7 +24,6 @@ class ServiceCategoryForm
                     ->schema([
                         Select::make('parent_id')
                             ->label('Danh mục cha')
-                            ->placeholder('-- Danh mục gốc --')
                             ->options(function (?ServiceCategory $record) {
                                 $query = ServiceCategory::query()->where('status', 1);
                                 if ($record) {
@@ -34,20 +33,27 @@ class ServiceCategoryForm
                                     }
                                     $query->whereNotIn('id', $excludeIds);
                                 }
-                                return $query->orderBy('name')->pluck('name', 'id');
+                                return [0 => '-- Danh mục gốc --'] + $query->orderBy('name')->pluck('name', 'id')->toArray();
                             })
-                            ->searchable()
-                            ->nullable(),
+                            ->default(0)
+                            ->required()
+                            ->dehydrateStateUsing(fn ($state) => (int) ($state ?? 0))
+                            ->searchable(),
 
                         TextInput::make('name')
                             ->label('Tên danh mục')
                             ->required()
                             ->maxLength(255)
-                            ->live(onBlur: true)
+                            ->live(debounce: 500)
                             ->afterStateUpdated(SlugInput::autoSlug()),
 
                         SlugInput::make('slug'),
+                    ])
+                    ->columns(1)
+                    ->columnSpanFull(),
 
+                Section::make('Nội dung danh mục')
+                    ->schema([
                         CuratorPicker::make('image_id')
                             ->label('Ảnh đại diện'),
                         CuratorPicker::make('banner_id')
@@ -61,13 +67,20 @@ class ServiceCategoryForm
                         RichEditor::make('content')
                             ->label('Nội dung chi tiết')
                             ->columnSpanFull(),
+                    ])
+                    ->columns(1)
+                    ->columnSpanFull(),
 
+                Section::make('Hiển thị & SEO')
+                    ->schema([
                         Toggle::make('status')
                             ->label('Kích hoạt')
                             ->default(true),
-                    ]),
 
-                \App\Traits\HasSeo::seoSection(),
+                        \App\Traits\HasSeo::seoSection(),
+                    ])
+                    ->columns(1)
+                    ->columnSpanFull(),
             ]);
     }
 }

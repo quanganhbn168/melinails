@@ -83,10 +83,6 @@ trait HasSeo
                     ->label('Meta Description')
                     ->rows(2)
                     ->columnSpanFull(),
-                Textarea::make('meta_keywords')
-                    ->label('Meta Keywords')
-                    ->rows(2)
-                    ->columnSpanFull(),
                 CuratorPicker::make('meta_image_id')
                     ->label('Meta Image')
                     ->helperText('Ảnh chuẩn để chia sẻ Facebook/Zalo (1200x630 px).')

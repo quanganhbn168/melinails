@@ -89,7 +89,9 @@ class MenuComposer
 
     // 4) Xây mới rồi lưu cache (đảm bảo trả về array)
     $q = $modelClass::query()
-        ->whereNull('parent_id')
+        ->where(function ($query) {
+            $query->where('parent_id', 0)->orWhereNull('parent_id');
+        })
         ->where('status', 1);
 
     if (\Illuminate\Support\Facades\Schema::hasColumn($table, 'is_menu')) {

@@ -29,6 +29,14 @@ class ServiceCategory extends Model
         'content',
     ];
 
+    protected $casts = [
+        'parent_id' => 'integer',
+        'status' => 'boolean',
+        'is_home' => 'boolean',
+        'is_menu' => 'boolean',
+        'is_footer' => 'boolean',
+    ];
+
     // ─── Relationships riêng ───
 
     public function services(): HasMany
