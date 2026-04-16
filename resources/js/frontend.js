@@ -8,10 +8,13 @@ import './frontend/counter.js';
 import './frontend/TabbedSwiperHandler.js';
 
 // Npm libraries
+import Swal from 'sweetalert2';
+import 'sweetalert2/dist/sweetalert2.min.css';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import 'swiper/css/bundle';
 import Swiper from 'swiper/bundle';
 
+window.Swal = Swal;
 window.Swiper = Swiper;
 
 // Import Alpine.js

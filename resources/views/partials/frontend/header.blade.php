@@ -34,7 +34,7 @@
     <nav class="max-w-screen-xl mx-auto flex flex-wrap items-center justify-between p-4">
         <!-- Logo -->
         <a href="{{ url('/') }}" class="flex items-center space-x-3 rtl:space-x-reverse">
-            <img src="{{ !empty($globalLogoUrl) ? $globalLogoUrl : asset('images/logo.png') }}" class="h-12 md:h-14 object-contain"
+            <img src="{{ !empty($globalLogoUrl) ? $globalLogoUrl : asset('images/setting/no-image.png') }}" class="h-12 md:h-14 object-contain"
                 alt="{{ $setting->site_name ?? 'Logo' }}" />
         </a>
 

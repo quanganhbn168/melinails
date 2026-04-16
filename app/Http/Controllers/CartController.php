@@ -6,6 +6,7 @@ use App\Models\Product;
 use App\Models\CartItem;
 use App\Models\ProductVariant;
 use App\Models\Attribute;
+use Illuminate\Database\QueryException;
 class CartController extends Controller
 {
     public function index()
@@ -49,12 +50,29 @@ class CartController extends Controller
                 $cartItem->quantity += $quantity;
                 $cartItem->save();
             } else {
-                CartItem::create([
-                    'user_id' => $user->id,
-                    'product_id' => $productId,
-                    'product_variant_id' => $variantId,
-                    'quantity' => $quantity,
-                ]);
+                try {
+                    CartItem::create([
+                        'user_id' => $user->id,
+                        'product_id' => $productId,
+                        'product_variant_id' => $variantId,
+                        'quantity' => $quantity,
+                    ]);
+                } catch (QueryException $e) {
+                    // Compatibility fallback for old unique key (user_id, product_id).
+                    $fallbackItem = CartItem::where('user_id', $user->id)
+                        ->where('product_id', $productId)
+                        ->first();
+
+                    if (! $fallbackItem) {
+                        throw $e;
+                    }
+
+                    $fallbackItem->quantity += $quantity;
+                    if ($fallbackItem->product_variant_id === null) {
+                        $fallbackItem->product_variant_id = $variantId;
+                    }
+                    $fallbackItem->save();
+                }
             }
         } else {
             $cart = session()->get('guest_cart', []);
@@ -315,7 +333,7 @@ class CartController extends Controller
 
             $imagePath = $variant && $variant->image
                 ? $variant->image
-                : ($product->image_id ? $product->image?->url : ($product->image?->url ?: 'images/setting/no-image.png'));
+                : ($product->image_id ? $product->image : ($product->image ?? null));
 
             return [
                 'id' => (string) $item->id,
@@ -324,7 +342,7 @@ class CartController extends Controller
                 'name' => (string) $product->name,
                 'price' => $price,
                 'quantity' => (int) $item->quantity,
-                'image' => $imagePath ? asset($imagePath) : asset('images/setting/no-image.png'),
+                'image' => $this->resolveImageUrl($imagePath),
                 'slug' => $product->slug?->slug,
                 'variant_text' => $variantText,
             ];
@@ -367,7 +385,7 @@ class CartController extends Controller
                 'name' => (string) $product->name,
                 'price' => $price,
                 'quantity' => $quantity,
-                'image' => asset($product->image?->url ?: 'images/setting/no-image.png'),
+                'image' => $this->resolveImageUrl($product->image ?? null),
                 'slug' => $product->slug?->slug,
                 'variant_text' => $variantText,
             ];
@@ -428,5 +446,27 @@ class CartController extends Controller
         }
 
         return null;
+    }
+
+    private function resolveImageUrl(mixed $image): string
+    {
+        $fallback = asset('images/setting/no-image.png');
+
+        if (is_string($image) && $image !== '') {
+            return asset($image);
+        }
+
+        if (is_object($image)) {
+            if (method_exists($image, 'url')) {
+                $url = $image->url();
+                return filled($url) ? $url : $fallback;
+            }
+
+            if (isset($image->url) && filled($image->url)) {
+                return (string) $image->url;
+            }
+        }
+
+        return $fallback;
     }
 }

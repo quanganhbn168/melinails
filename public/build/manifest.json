@@ -22,12 +22,12 @@
     "isEntry": true
   },
   "resources/css/filament/admin/theme.css": {
-    "file": "assets/theme-DLx9AFNk.css",
+    "file": "assets/theme-C_eu6XTA.css",
     "src": "resources/css/filament/admin/theme.css",
     "isEntry": true
   },
   "resources/css/frontend.css": {
-    "file": "assets/frontend-CwAIQ9BW.css",
+    "file": "assets/frontend-DNJ_JIPX.css",
     "src": "resources/css/frontend.css",
     "isEntry": true
   },
@@ -38,12 +38,12 @@
     "isEntry": true
   },
   "resources/js/frontend.js": {
-    "file": "assets/frontend-YrObETGM.js",
+    "file": "assets/frontend-SmXLnnz9.js",
     "name": "frontend",
     "src": "resources/js/frontend.js",
     "isEntry": true,
     "css": [
-      "assets/frontend-B4ExCK_U.css"
+      "assets/frontend-3GcsHIza.css"
     ],
     "assets": [
       "assets/fa-brands-400-BP5tdqmh.woff2",

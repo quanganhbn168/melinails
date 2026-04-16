@@ -49,12 +49,16 @@ document.addEventListener('DOMContentLoaded', function() {
             const quantity  = parseInt(el.dataset.quantity || '1', 10) || 1;
             const productId = el.dataset.id;
             const variantId = el.dataset.variantId || null;
+            const originalText = el.innerHTML;
+            el.disabled = true;
             cartState
                 .addItem({ productId, variantId, quantity })
-                .then(() => {
-                    document.body.classList.add('show-cart-offcanvas');
-                })
-                .catch((error) => cartState.handleError(error));
+                .then(() => {})
+                .catch((error) => cartState.handleError(error))
+                .finally(() => {
+                    el.disabled = false;
+                    el.innerHTML = originalText;
+                });
         }
 
         const btnRemove = e.target.closest('.cart-offcanvas-wrapper .item-remove');

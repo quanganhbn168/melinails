@@ -19,9 +19,10 @@ use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Support\RawJs;
-use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Table;
+use Illuminate\Support\Str;
 
 class ProductVariantsRelationManager extends RelationManager
 {
@@ -64,14 +65,23 @@ class ProductVariantsRelationManager extends RelationManager
             ->components([
                 Section::make('Thuộc tính')
                     ->schema($attributeFields)
-                    ->columns(count($attributeFields) >= 2 ? 2 : 1),
+                    ->columns(1),
 
                 Section::make('Giá & Kho')
                     ->schema([
                         TextInput::make('sku')
                             ->label('Mã SKU')
                             ->unique(ignoreRecord: true)
-                            ->maxLength(100),
+                            ->maxLength(100)
+                            ->placeholder('Để trống sẽ tự sinh khi lưu')
+                            ->suffixAction(
+                                Action::make('generateSku')
+                                    ->icon('heroicon-o-sparkles')
+                                    ->tooltip('Tạo SKU ngẫu nhiên')
+                                    ->action(function ($record, callable $set): void {
+                                        $set('sku', ProductVariant::generateUniqueSku($record?->product_id));
+                                    })
+                            ),
                         TextInput::make('price')
                             ->label('Giá bán')
                             ->prefix('₫')
@@ -108,32 +118,17 @@ class ProductVariantsRelationManager extends RelationManager
     {
         return $table
             ->columns([
+                TextColumn::make('variant_name')
+                    ->label('Tên biến thể')
+                    ->getStateUsing(fn (ProductVariant $record) => $this->buildVariantName($record->options ?? []))
+                    ->weight('bold')
+                    ->description(fn (ProductVariant $record) => filled($record->sku) ? 'SKU: ' . $record->sku : 'SKU: (tự sinh)')
+                    ->wrap(),
                 TextColumn::make('options')
                     ->label('Thuộc tính')
-                    ->getStateUsing(function ($record) {
-                        $options = $record->options;
-                        if (empty($options) || ! is_array($options)) {
-                            return '—';
-                        }
-
-                        $attributes = Attribute::query()
-                            ->whereIn('id', collect($options)->keys()->filter(fn ($k) => is_numeric($k))->map(fn ($k) => (int) $k)->values())
-                            ->pluck('name', 'id');
-
-                        return collect($options)
-                            ->map(function ($v, $k) use ($attributes) {
-                                $label = is_numeric($k) ? ($attributes[(int) $k] ?? "Attr #{$k}") : $k;
-                                return "{$label}: {$v}";
-                            })
-                            ->join(' · ');
-                    })
-                    ->badge()
-                    ->separator(' · ')
-                    ->color('info'),
-                TextColumn::make('sku')
-                    ->label('SKU')
-                    ->badge()
-                    ->color('gray'),
+                    ->getStateUsing(fn (ProductVariant $record) => $this->buildOptionSummary($record->options ?? []))
+                    ->html()
+                    ->wrap(),
                 TextColumn::make('price')
                     ->label('Giá bán')
                     ->money('VND')
@@ -146,9 +141,35 @@ class ProductVariantsRelationManager extends RelationManager
                     ->label('Kho')
                     ->numeric()
                     ->alignCenter(),
-                IconColumn::make('is_default')
+                ToggleColumn::make('is_default')
                     ->label('Mặc định')
-                    ->boolean()
+                    ->updateStateUsing(function (ProductVariant $record, bool $state): bool {
+                        if (! $state) {
+                            $hasOtherDefault = ProductVariant::query()
+                                ->where('product_id', $record->product_id)
+                                ->whereKeyNot($record->id)
+                                ->where('is_default', true)
+                                ->exists();
+
+                            if (! $hasOtherDefault) {
+                                Notification::make()
+                                    ->title('Sản phẩm phải có ít nhất 1 biến thể mặc định.')
+                                    ->warning()
+                                    ->send();
+
+                                return true;
+                            }
+                        }
+
+                        if ($state) {
+                            ProductVariant::query()
+                                ->where('product_id', $record->product_id)
+                                ->whereKeyNot($record->id)
+                                ->update(['is_default' => false]);
+                        }
+
+                        return $state;
+                    })
                     ->alignCenter(),
             ])
             ->headerActions([
@@ -248,7 +269,7 @@ class ProductVariantsRelationManager extends RelationManager
             return CheckboxList::make("attr_{$attr->id}")
                 ->label($attr->name)
                 ->options($attr->values->pluck('value', 'value')->toArray())
-                ->columns(3)
+                ->columns(1)
                 ->required();
         })->toArray();
 
@@ -284,6 +305,12 @@ class ProductVariantsRelationManager extends RelationManager
                             ->stripCharacters('.')
                             ->numeric()
                             ->required(),
+                        TextInput::make('default_compare_at_price')
+                            ->label('Giá gốc mặc định')
+                            ->prefix('₫')
+                            ->mask(RawJs::make('$money($input, \',\', \'.\', 0)'))
+                            ->stripCharacters('.')
+                            ->numeric(),
                         TextInput::make('default_stock')
                             ->label('Tồn kho mặc định')
                             ->numeric()
@@ -328,10 +355,12 @@ class ProductVariantsRelationManager extends RelationManager
 
                     if (! $exists) {
                         $product->variants()->create([
+                            'sku'              => ProductVariant::generateUniqueSku($product->id),
                             'options'          => $normalizedCombo,
                             'price'            => $data['default_price'] ?? 0,
+                            'compare_at_price' => $data['default_compare_at_price'] ?? null,
                             'stock'            => $data['default_stock'] ?? 0,
-                            'is_default'       => $created === 0,
+                            'is_default'       => $created === 0 && $product->variants()->doesntExist(),
                         ]);
                         $existingSignatures[] = $signature;
                         $created++;
@@ -395,6 +424,42 @@ class ProductVariantsRelationManager extends RelationManager
         return collect($normalized)
             ->map(fn ($value, $key) => "{$key}={$value}")
             ->join('|');
+    }
+
+    protected function buildOptionSummary(array $options): string
+    {
+        if (empty($options) || ! is_array($options)) {
+            return '—';
+        }
+
+        $attributes = Attribute::query()
+            ->whereIn('id', collect($options)->keys()->filter(fn ($k) => is_numeric($k))->map(fn ($k) => (int) $k)->values())
+            ->pluck('name', 'id');
+
+        return collect($options)
+            ->map(function ($value, $key) use ($attributes) {
+                $label = is_numeric($key) ? ($attributes[(int) $key] ?? ("Thuộc tính #" . $key)) : (string) $key;
+                return '<div class="text-xs leading-5">' . e($label . ': ' . $value) . '</div>';
+            })
+            ->join('');
+    }
+
+    protected function buildVariantName(array $options): string
+    {
+        if (empty($options) || ! is_array($options)) {
+            return 'Biến thể';
+        }
+
+        $attributes = Attribute::query()
+            ->whereIn('id', collect($options)->keys()->filter(fn ($k) => is_numeric($k))->map(fn ($k) => (int) $k)->values())
+            ->pluck('name', 'id');
+
+        $parts = collect($options)->map(function ($value, $key) use ($attributes) {
+            $label = is_numeric($key) ? ($attributes[(int) $key] ?? ("Attr " . $key)) : (string) $key;
+            return Str::headline($label) . ' ' . $value;
+        })->values();
+
+        return $parts->isEmpty() ? 'Biến thể' : $parts->join(' / ');
     }
 
     /**

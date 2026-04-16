@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\Category;
 use App\Models\Product;
 use App\Models\Slug;
+use App\Models\Attribute;
 use App\Settings\PageSettings;
 
 class ProductController extends Controller
@@ -173,12 +174,86 @@ class ProductController extends Controller
      */
     public function show(Product $product)
     {
+        $product->load(['variants']);
+
+        $variantOptions = [];
+        $variantMatrix = [];
+        $defaultVariantId = null;
+
+        if ($product->has_variants) {
+            $variants = $product->variants
+                ->filter(fn ($variant) => is_array($variant->options) && ! empty($variant->options))
+                ->values();
+
+            $attributeIds = $variants
+                ->flatMap(fn ($variant) => array_keys($variant->options ?? []))
+                ->filter(fn ($key) => is_numeric($key))
+                ->map(fn ($id) => (int) $id)
+                ->unique()
+                ->values();
+
+            $attributeNames = Attribute::query()
+                ->whereIn('id', $attributeIds)
+                ->pluck('name', 'id');
+
+            foreach ($variants as $variant) {
+                $normalizedOptions = [];
+                foreach (($variant->options ?? []) as $key => $value) {
+                    if (! is_numeric($key) || ! filled($value)) {
+                        continue;
+                    }
+
+                    $attributeId = (int) $key;
+                    $normalizedOptions[(string) $attributeId] = (string) $value;
+                }
+
+                if (empty($normalizedOptions)) {
+                    continue;
+                }
+
+                ksort($normalizedOptions, SORT_NATURAL);
+                $signature = collect($normalizedOptions)->map(fn ($value, $key) => "{$key}={$value}")->join('|');
+                $variantMatrix[$signature] = [
+                    'id' => $variant->id,
+                    'price' => (float) $variant->price,
+                    'compare_at_price' => $variant->compare_at_price !== null ? (float) $variant->compare_at_price : null,
+                    'stock' => (int) $variant->stock,
+                    'sku' => $variant->sku,
+                ];
+
+                if ($variant->is_default && $defaultVariantId === null) {
+                    $defaultVariantId = $variant->id;
+                }
+
+                foreach ($normalizedOptions as $attributeId => $optionValue) {
+                    $attributeName = $attributeNames[(int) $attributeId] ?? ('Thuộc tính ' . $attributeId);
+                    $variantOptions[$attributeId]['name'] = $attributeName;
+                    $variantOptions[$attributeId]['values'][] = $optionValue;
+                }
+            }
+
+            foreach ($variantOptions as $attributeId => $meta) {
+                $variantOptions[$attributeId]['values'] = collect($meta['values'] ?? [])
+                    ->filter()
+                    ->unique()
+                    ->values()
+                    ->all();
+            }
+        }
+
         $relatedProducts = Product::where('id', '!=', $product->id)
             ->where('category_id', $product->category_id)
             ->inRandomOrder()
             ->take(4)
             ->get();
-        return view('frontend.products.detail', compact('product', 'relatedProducts'));
+
+        return view('frontend.products.detail', compact(
+            'product',
+            'relatedProducts',
+            'variantOptions',
+            'variantMatrix',
+            'defaultVariantId',
+        ));
     }
 
     public function search(Request $request)

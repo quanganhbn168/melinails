@@ -46,15 +46,37 @@ function createCartState() {
     };
 
     const notifySuccess = (message) => {
-        if (typeof Swal !== 'undefined') {
-            Swal.fire({ icon: 'success', title: 'Thành công!', text: message });
+        if (typeof Swal === 'undefined') {
+            return;
         }
+
+        Swal.mixin({
+            toast: true,
+            position: 'bottom-end',
+            showConfirmButton: false,
+            timer: 1800,
+            timerProgressBar: true,
+        }).fire({
+            icon: 'success',
+            title: message,
+        });
     };
 
     const notifyError = (message) => {
-        if (typeof Swal !== 'undefined') {
-            Swal.fire({ icon: 'error', title: 'Lỗi!', text: message });
+        if (typeof Swal === 'undefined') {
+            return;
         }
+
+        Swal.mixin({
+            toast: true,
+            position: 'bottom-end',
+            showConfirmButton: false,
+            timer: 2200,
+            timerProgressBar: true,
+        }).fire({
+            icon: 'error',
+            title: message,
+        });
     };
 
     return {

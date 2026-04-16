@@ -145,15 +145,39 @@
                     </span>
                 </div>
 
-                <div class="text-4xl font-bold text-blue-700 dark:text-blue-500 mb-8">
+                <div id="product-price-box" class="text-4xl font-bold text-blue-700 dark:text-blue-500 mb-8">
                     @if($product->price > 0)
-                        {{ number_format($product->price) }} <span class="text-2xl font-normal underline">đ</span>
+                        <span id="product-current-price">{{ number_format($product->price) }}</span> <span class="text-2xl font-normal underline">đ</span>
                     @else
-                        <span class="text-red-500">Liên hệ báo giá</span>
+                        <span id="product-current-price" class="text-red-500">Liên hệ báo giá</span>
                     @endif
+                    <div id="product-compare-price" class="text-base font-normal text-gray-500 line-through mt-1 hidden"></div>
                 </div>
 
                 <div class="mb-8">
+                    @if($product->has_variants && ! empty($variantOptions))
+                        <div class="space-y-4 mb-5">
+                            @foreach($variantOptions as $attributeId => $meta)
+                                <div>
+                                    <div class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">{{ $meta['name'] }}</div>
+                                    <div class="flex flex-wrap gap-2">
+                                        @foreach($meta['values'] as $value)
+                                            <button
+                                                type="button"
+                                                class="variant-option px-3 py-1.5 rounded-lg border border-gray-300 text-sm text-gray-700 hover:border-blue-500 hover:text-blue-600 transition-colors"
+                                                data-attribute-id="{{ $attributeId }}"
+                                                data-value="{{ $value }}"
+                                            >
+                                                {{ $value }}
+                                            </button>
+                                        @endforeach
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                        <div id="variant-status" class="text-sm text-gray-500 mb-4">Vui lòng chọn biến thể phù hợp.</div>
+                    @endif
+
                     <div class="flex items-center gap-3 mb-4">
                         <label for="product-qty" class="text-sm font-semibold text-gray-700 dark:text-gray-300">Số lượng</label>
                         <div class="inline-flex items-center border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
@@ -167,6 +191,7 @@
                         class="btn-add-to-cart inline-flex items-center justify-center px-6 py-3 text-base font-bold text-white bg-brand-600 hover:bg-brand-700 rounded-xl transition-colors shadow-md"
                         data-id="{{ $product->id }}"
                         data-quantity="1"
+                        data-variant-id=""
                     >
                         <i class="fas fa-cart-plus mr-2"></i>
                         Thêm vào giỏ hàng
@@ -286,6 +311,9 @@
 @push('js')
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        const variantMatrix = @json($variantMatrix ?? []);
+        const hasVariants = @json((bool) ($product->has_variants ?? false));
+        const defaultVariantId = @json($defaultVariantId);
         // 1. Slider Main & Thumbs cho Gallery SP
         const thumbsEl = document.querySelector('.gallery-thumbs');
         const mainEl = document.querySelector('.main-slider');
@@ -334,6 +362,11 @@
         const qtyPlus = document.getElementById('product-qty-plus');
         const qtyMinus = document.getElementById('product-qty-minus');
         const addToCartBtn = document.querySelector('.btn-add-to-cart[data-id="{{ $product->id }}"]');
+        const variantButtons = Array.from(document.querySelectorAll('.variant-option'));
+        const variantStatus = document.getElementById('variant-status');
+        const priceEl = document.getElementById('product-current-price');
+        const comparePriceEl = document.getElementById('product-compare-price');
+        const selectedOptions = {};
 
         const syncQuantity = () => {
             if (!qtyInput || !addToCartBtn) return;
@@ -357,6 +390,89 @@
 
         qtyInput?.addEventListener('change', syncQuantity);
         syncQuantity();
+
+        const formatMoney = (value) => Number(value || 0).toLocaleString('vi-VN');
+
+        const updateVariantSelectionUI = () => {
+            variantButtons.forEach((button) => {
+                const attributeId = button.dataset.attributeId;
+                const isSelected = selectedOptions[attributeId] === button.dataset.value;
+
+                button.classList.toggle('bg-blue-600', isSelected);
+                button.classList.toggle('text-white', isSelected);
+                button.classList.toggle('border-blue-600', isSelected);
+                button.classList.toggle('text-gray-700', !isSelected);
+            });
+        };
+
+        const resolveVariant = () => {
+            const signature = Object.keys(selectedOptions)
+                .sort((a, b) => Number(a) - Number(b))
+                .map((key) => `${key}=${selectedOptions[key]}`)
+                .join('|');
+
+            return variantMatrix[signature] ?? null;
+        };
+
+        const applyVariantData = (variant) => {
+            if (!hasVariants || !addToCartBtn) return;
+
+            if (!variant) {
+                addToCartBtn.dataset.variantId = '';
+                addToCartBtn.disabled = true;
+                addToCartBtn.classList.add('opacity-60', 'cursor-not-allowed');
+                if (variantStatus) variantStatus.textContent = 'Biến thể chưa hợp lệ hoặc chưa có trong kho cấu hình.';
+                return;
+            }
+
+            addToCartBtn.dataset.variantId = String(variant.id);
+            addToCartBtn.disabled = false;
+            addToCartBtn.classList.remove('opacity-60', 'cursor-not-allowed');
+
+            if (priceEl) {
+                priceEl.textContent = formatMoney(variant.price);
+                priceEl.classList.remove('text-red-500');
+            }
+
+            if (comparePriceEl) {
+                if (variant.compare_at_price && Number(variant.compare_at_price) > Number(variant.price)) {
+                    comparePriceEl.textContent = `${formatMoney(variant.compare_at_price)} đ`;
+                    comparePriceEl.classList.remove('hidden');
+                } else {
+                    comparePriceEl.classList.add('hidden');
+                    comparePriceEl.textContent = '';
+                }
+            }
+
+            if (variantStatus) {
+                variantStatus.textContent = `SKU: ${variant.sku ?? 'N/A'} • Tồn kho: ${variant.stock ?? 0}`;
+            }
+        };
+
+        variantButtons.forEach((button) => {
+            button.addEventListener('click', () => {
+                selectedOptions[button.dataset.attributeId] = button.dataset.value;
+                updateVariantSelectionUI();
+                applyVariantData(resolveVariant());
+            });
+        });
+
+        if (hasVariants) {
+            if (defaultVariantId) {
+                const defaultEntry = Object.entries(variantMatrix).find(([, value]) => Number(value.id) === Number(defaultVariantId));
+                if (defaultEntry) {
+                    const [signature, variant] = defaultEntry;
+                    signature.split('|').forEach((pair) => {
+                        const [key, value] = pair.split('=');
+                        selectedOptions[key] = value;
+                    });
+                    updateVariantSelectionUI();
+                    applyVariantData(variant);
+                }
+            } else {
+                applyVariantData(null);
+            }
+        }
     });
 </script>
 @endpush
