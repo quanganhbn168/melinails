@@ -153,6 +153,26 @@
                     @endif
                 </div>
 
+                <div class="mb-8">
+                    <div class="flex items-center gap-3 mb-4">
+                        <label for="product-qty" class="text-sm font-semibold text-gray-700 dark:text-gray-300">Số lượng</label>
+                        <div class="inline-flex items-center border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
+                            <button type="button" class="px-3 py-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800" id="product-qty-minus">-</button>
+                            <input id="product-qty" type="number" min="1" value="1" class="w-16 text-center border-0 focus:ring-0 bg-transparent text-gray-900 dark:text-white">
+                            <button type="button" class="px-3 py-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800" id="product-qty-plus">+</button>
+                        </div>
+                    </div>
+                    <button
+                        type="button"
+                        class="btn-add-to-cart inline-flex items-center justify-center px-6 py-3 text-base font-bold text-white bg-brand-600 hover:bg-brand-700 rounded-xl transition-colors shadow-md"
+                        data-id="{{ $product->id }}"
+                        data-quantity="1"
+                    >
+                        <i class="fas fa-cart-plus mr-2"></i>
+                        Thêm vào giỏ hàng
+                    </button>
+                </div>
+
                 <div class="prose prose-sm md:prose-base text-gray-600 dark:text-gray-300 dark:prose-invert mb-8">
                     {!! Str::limit(strip_tags($product->description), 300) !!}
                 </div>
@@ -309,6 +329,34 @@
                 }
             });
         }
+
+        const qtyInput = document.getElementById('product-qty');
+        const qtyPlus = document.getElementById('product-qty-plus');
+        const qtyMinus = document.getElementById('product-qty-minus');
+        const addToCartBtn = document.querySelector('.btn-add-to-cart[data-id="{{ $product->id }}"]');
+
+        const syncQuantity = () => {
+            if (!qtyInput || !addToCartBtn) return;
+            const quantity = Math.max(1, parseInt(qtyInput.value || '1', 10) || 1);
+            qtyInput.value = quantity;
+            addToCartBtn.dataset.quantity = String(quantity);
+        };
+
+        qtyPlus?.addEventListener('click', function () {
+            if (!qtyInput) return;
+            qtyInput.value = String((parseInt(qtyInput.value || '1', 10) || 1) + 1);
+            syncQuantity();
+        });
+
+        qtyMinus?.addEventListener('click', function () {
+            if (!qtyInput) return;
+            const nextValue = Math.max(1, (parseInt(qtyInput.value || '1', 10) || 1) - 1);
+            qtyInput.value = String(nextValue);
+            syncQuantity();
+        });
+
+        qtyInput?.addEventListener('change', syncQuantity);
+        syncQuantity();
     });
 </script>
 @endpush

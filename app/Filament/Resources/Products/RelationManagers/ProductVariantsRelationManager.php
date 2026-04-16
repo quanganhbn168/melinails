@@ -3,9 +3,9 @@
 namespace App\Filament\Resources\Products\RelationManagers;
 
 use App\Models\Attribute;
+use App\Models\ProductVariant;
 use Awcodes\Curator\Components\Forms\CuratorPicker;
 use Filament\Actions\Action;
-use Filament\Actions\CreateAction;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
@@ -46,9 +46,16 @@ class ProductVariantsRelationManager extends RelationManager
             ->get();
 
         $attributeFields = $attributes->map(function (Attribute $attr) {
-            return \Filament\Forms\Components\Select::make("options.{$attr->name}")
+            return \Filament\Forms\Components\Select::make("options.{$attr->id}")
                 ->label($attr->name)
                 ->options($attr->values->pluck('value', 'value')->toArray())
+                ->formatStateUsing(function ($state, ?ProductVariant $record) use ($attr) {
+                    if (! $record) {
+                        return $state;
+                    }
+
+                    return $this->extractOptionValue($record->options ?? [], $attr);
+                })
                 ->searchable()
                 ->required();
         })->toArray();
@@ -108,8 +115,16 @@ class ProductVariantsRelationManager extends RelationManager
                         if (empty($options) || ! is_array($options)) {
                             return '—';
                         }
+
+                        $attributes = Attribute::query()
+                            ->whereIn('id', collect($options)->keys()->filter(fn ($k) => is_numeric($k))->map(fn ($k) => (int) $k)->values())
+                            ->pluck('name', 'id');
+
                         return collect($options)
-                            ->map(fn ($v, $k) => "{$k}: {$v}")
+                            ->map(function ($v, $k) use ($attributes) {
+                                $label = is_numeric($k) ? ($attributes[(int) $k] ?? "Attr #{$k}") : $k;
+                                return "{$label}: {$v}";
+                            })
                             ->join(' · ');
                     })
                     ->badge()
@@ -241,6 +256,10 @@ class ProductVariantsRelationManager extends RelationManager
             ->label('Sinh biến thể')
             ->icon('heroicon-o-sparkles')
             ->color('primary')
+            ->disabled(! $this->hasVariantDefiningAttributes($categoryId))
+            ->tooltip(! $this->hasVariantDefiningAttributes($categoryId)
+                ? 'Danh mục của sản phẩm chưa có thuộc tính dùng cho biến thể.'
+                : null)
             ->slideOver()
             ->schema([
                 Section::make('Chọn giá trị thuộc tính')
@@ -273,7 +292,7 @@ class ProductVariantsRelationManager extends RelationManager
                 foreach ($attributes as $attr) {
                     $key = "attr_{$attr->id}";
                     if (! empty($data[$key])) {
-                        $selectedValues[$attr->name] = $data[$key];
+                        $selectedValues[(string) $attr->id] = $data[$key];
                     }
                 }
 
@@ -287,21 +306,26 @@ class ProductVariantsRelationManager extends RelationManager
 
                 // Tính tổ hợp (cartesian product)
                 $combinations = $this->cartesian($selectedValues);
+                $existingSignatures = $product->variants
+                    ->map(fn (ProductVariant $variant) => $this->variantSignature($variant->options ?? []))
+                    ->filter()
+                    ->values()
+                    ->all();
 
                 $created = 0;
                 foreach ($combinations as $combo) {
-                    // Kiểm tra trùng lặp
-                    $exists = $product->variants()
-                        ->where('options', json_encode($combo))
-                        ->exists();
+                    $normalizedCombo = $this->normalizeOptions($combo);
+                    $signature = $this->variantSignature($normalizedCombo);
+                    $exists = in_array($signature, $existingSignatures, true);
 
                     if (! $exists) {
                         $product->variants()->create([
-                            'options'          => $combo,
+                            'options'          => $normalizedCombo,
                             'price'            => $data['default_price'] ?? 0,
                             'stock'            => $data['default_stock'] ?? 0,
                             'is_default'       => $created === 0,
                         ]);
+                        $existingSignatures[] = $signature;
                         $created++;
                     }
                 }
@@ -311,6 +335,58 @@ class ProductVariantsRelationManager extends RelationManager
                     ->success()
                     ->send();
             });
+    }
+
+    protected function hasVariantDefiningAttributes(?int $categoryId): bool
+    {
+        if (! $categoryId) {
+            return false;
+        }
+
+        return Attribute::query()
+            ->where('is_variant_defining', true)
+            ->whereHas('categories', fn ($q) => $q->where('categories.id', $categoryId))
+            ->exists();
+    }
+
+    protected function extractOptionValue(array $options, Attribute $attribute): ?string
+    {
+        $byId = $options[(string) $attribute->id] ?? null;
+        if (filled($byId)) {
+            return (string) $byId;
+        }
+
+        $byName = $options[$attribute->name] ?? null;
+        return filled($byName) ? (string) $byName : null;
+    }
+
+    protected function normalizeOptions(array $options): array
+    {
+        $normalized = [];
+
+        foreach ($options as $key => $value) {
+            if (! filled($value)) {
+                continue;
+            }
+
+            $normalized[(string) $key] = (string) $value;
+        }
+
+        ksort($normalized, SORT_NATURAL);
+
+        return $normalized;
+    }
+
+    protected function variantSignature(array $options): string
+    {
+        $normalized = $this->normalizeOptions($options);
+        if (empty($normalized)) {
+            return '';
+        }
+
+        return collect($normalized)
+            ->map(fn ($value, $key) => "{$key}={$value}")
+            ->join('|');
     }
 
     /**

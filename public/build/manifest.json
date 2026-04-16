@@ -22,12 +22,12 @@
     "isEntry": true
   },
   "resources/css/filament/admin/theme.css": {
-    "file": "assets/theme-GKsCTJid.css",
+    "file": "assets/theme-DLx9AFNk.css",
     "src": "resources/css/filament/admin/theme.css",
     "isEntry": true
   },
   "resources/css/frontend.css": {
-    "file": "assets/frontend-CHVGcF2c.css",
+    "file": "assets/frontend-CwAIQ9BW.css",
     "src": "resources/css/frontend.css",
     "isEntry": true
   },
@@ -38,7 +38,7 @@
     "isEntry": true
   },
   "resources/js/frontend.js": {
-    "file": "assets/frontend-BIqVONTV.js",
+    "file": "assets/frontend-YrObETGM.js",
     "name": "frontend",
     "src": "resources/js/frontend.js",
     "isEntry": true,

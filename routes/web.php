@@ -51,12 +51,12 @@ Route::post('tu-van-trien-khai', [ConsultingController::class, 'store'])->name('
 // i l
 Route::get('dai-ly', [AgencyController::class, 'index'])->name('agency.index');
 Route::post('dai-ly', [AgencyController::class, 'store'])->name('agency.store');
-Route::middleware('auth')->prefix('cart')->name('cart.')->group(function () {
-    Route::get('/', [CartController::class, 'index'])->name('index');
+Route::prefix('cart')->name('cart.')->group(function () {
+    Route::get('/', [CartController::class, 'index'])->name('index')->middleware('auth');
     Route::post('/add', [CartController::class, 'add'])->name('add');
     Route::put('/update/{cartItemId}', [CartController::class, 'update'])->name('update');
     Route::delete('/remove/{cartItemId}', [CartController::class, 'remove'])->name('remove');
-    Route::post('/clear', [CartController::class, 'clear'])->name('clear');
+    Route::post('/clear', [CartController::class, 'clear'])->name('clear')->middleware('auth');
 });
 Route::get('/tuyen-dung', [CareerController::class, 'index'])->name('frontend.careers.index');
 Route::get('/tuyen-dung/{career:slug}', [CareerController::class, 'show'])->name('frontend.careers.show');
@@ -66,6 +66,7 @@ Route::post('/tuyen-dung/{id}/nop-don', [CareerController::class, 'apply'])->nam
 Route::post('/binh-luan', [CommentController::class, 'store'])->name('comments.store');
 
 Route::get('/gio-hang', [CartController::class, 'showCartPage'])->name('cart.page');
+Route::get('/gio-hang/data', [CartController::class, 'summary'])->name('cart.summary');
 Route::post('/gio-hang/buy-now', [CartController::class, 'buyNow'])->name('cart.buy_now');
 Route::post('/gio-hang/merge', [CartController::class, 'merge']);
 Route::get('/thanh-toan', [CheckoutController::class, 'index'])->name('checkout.index');

@@ -6,6 +6,7 @@ use Awcodes\Curator\Models\Media;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class ProductVariant extends Model
 {
@@ -52,5 +53,15 @@ class ProductVariant extends Model
     public function image(): BelongsTo
     {
         return $this->belongsTo(Media::class, 'image_id');
+    }
+
+    public function attributeValues(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            AttributeValue::class,
+            'product_variant_attribute_value',
+            'product_variant_id',
+            'attribute_value_id'
+        );
     }
 }

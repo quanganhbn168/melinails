@@ -28,14 +28,4 @@
 
     <a href="/" class="btn bg-main mt-4">Tiếp tục mua sắm</a>
 </div>
-<script>
-  try {
-    localStorage.removeItem('guest_cart');
-    // nếu có key khác thì xoá thêm:
-    // localStorage.removeItem('guest_cart_count');
-    // Phát sự kiện để mini-cart UI bên ngoài có thể lắng nghe và reset:
-    window.dispatchEvent(new CustomEvent('cart:cleared'));
-  } catch(e){}
-</script>
-
 @endsection

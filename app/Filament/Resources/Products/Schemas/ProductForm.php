@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Products\Schemas;
 
 use App\Filament\Forms\Components\SlugInput;
+use App\Models\Attribute;
 use App\Traits\HasSeo;
 use Awcodes\Curator\Components\Forms\CuratorPicker;
 use Filament\Forms\Components\Hidden;
@@ -12,6 +13,8 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\Toggle;
 use Filament\Forms\Components\ToggleButtons;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Support\RawJs;
@@ -28,6 +31,10 @@ class ProductForm
                 // ═════════════════════════════════════
                 Section::make('Thông tin cơ bản')
                     ->schema([
+                        Hidden::make('type')
+                            ->default('simple')
+                            ->dehydrated(true),
+
                         SlugInput::sourceField(TextInput::make('name'))
                             ->label('Tên sản phẩm')
                             ->required()
@@ -48,6 +55,13 @@ class ProductForm
                         Select::make('category_id')
                             ->label('Danh mục')
                             ->relationship('category', 'name')
+                            ->live()
+                            ->afterStateUpdated(function (Set $set, ?int $state) {
+                                if (! static::categoryHasVariantAttributes($state)) {
+                                    $set('has_variants', false);
+                                    $set('type', 'simple');
+                                }
+                            })
                             ->searchable()
                             ->preload()
                             ->required(),
@@ -96,11 +110,23 @@ class ProductForm
                             ->prefix('₫')
                             ->mask(RawJs::make('$money($input, \',\', \'.\', 0)'))
                             ->stripCharacters('.')
-                            ->numeric(),
+                            ->numeric()
+                            ->minValue(0)
+                            ->required(fn (Get $get) => ! (bool) $get('has_variants'))
+                            ->disabled(fn (Get $get) => (bool) $get('has_variants'))
+                            ->helperText(fn (Get $get) => (bool) $get('has_variants')
+                                ? 'Sản phẩm có biến thể: giá sẽ quản lý theo từng biến thể.'
+                                : null),
                         TextInput::make('stock')
                             ->label('Tồn kho')
                             ->numeric()
-                            ->default(0),
+                            ->minValue(0)
+                            ->default(0)
+                            ->required(fn (Get $get) => ! (bool) $get('has_variants'))
+                            ->disabled(fn (Get $get) => (bool) $get('has_variants'))
+                            ->helperText(fn (Get $get) => (bool) $get('has_variants')
+                                ? 'Sản phẩm có biến thể: tồn kho sẽ quản lý theo từng biến thể.'
+                                : null),
                         Toggle::make('is_on_sale')
                             ->label('Đang giảm giá')
                             ->live()
@@ -109,6 +135,8 @@ class ProductForm
                                     $set('price_discount', null);
                                 }
                             })
+                            ->disabled(fn (Get $get) => (bool) $get('has_variants'))
+                            ->hidden(fn (Get $get) => (bool) $get('has_variants'))
                             ->columnSpanFull(),
                         TextInput::make('price_discount')
                             ->label('Giá khuyến mãi')
@@ -116,7 +144,8 @@ class ProductForm
                             ->mask(RawJs::make('$money($input, \',\', \'.\', 0)'))
                             ->stripCharacters('.')
                             ->numeric()
-                            ->visible(fn (callable $get) => (bool) $get('is_on_sale'))
+                            ->minValue(0)
+                            ->visible(fn (Get $get) => (bool) $get('is_on_sale') && ! (bool) $get('has_variants'))
                             ->requiredIf('is_on_sale', true)
                             ->helperText('Nhập giá khuyến mãi (thấp hơn giá bán).'),
                     ])
@@ -149,7 +178,19 @@ class ProductForm
                             ->default(true),
                         Toggle::make('has_variants')
                             ->label('Có biến thể')
-                            ->helperText('Sản phẩm có nhiều phiên bản (màu, size...)'),
+                            ->disabled(fn (Get $get) => ! static::categoryHasVariantAttributes((int) ($get('category_id') ?? 0)))
+                            ->helperText(fn (Get $get) => static::categoryHasVariantAttributes((int) ($get('category_id') ?? 0))
+                                ? 'Sản phẩm có nhiều phiên bản (màu, size...). Bật lên thì giá/kho sẽ quản lý theo biến thể.'
+                                : 'Danh mục hiện tại chưa có thuộc tính dùng cho biến thể. Hãy cấu hình thuộc tính ở danh mục trước.')
+                            ->live()
+                            ->afterStateUpdated(function (Set $set, bool $state) {
+                                $set('type', $state ? 'variable' : 'simple');
+
+                                if ($state) {
+                                    $set('is_on_sale', false);
+                                    $set('price_discount', null);
+                                }
+                            }),
                         Toggle::make('is_featured')
                             ->label('Sản phẩm nổi bật'),
                         Toggle::make('is_home')
@@ -162,5 +203,17 @@ class ProductForm
                 // ═════════════════════════════════════
                 HasSeo::seoSection(),
             ]);
+    }
+
+    protected static function categoryHasVariantAttributes(?int $categoryId): bool
+    {
+        if (! $categoryId) {
+            return false;
+        }
+
+        return Attribute::query()
+            ->where('is_variant_defining', true)
+            ->whereHas('categories', fn ($q) => $q->where('categories.id', $categoryId))
+            ->exists();
     }
 }

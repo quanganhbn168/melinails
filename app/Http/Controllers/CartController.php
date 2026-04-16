@@ -4,7 +4,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Product;
 use App\Models\CartItem;
-use Illuminate\Support\Facades\DB;
+use App\Models\ProductVariant;
+use App\Models\Attribute;
 class CartController extends Controller
 {
     public function index()
@@ -19,37 +20,55 @@ class CartController extends Controller
             'variant_id' => 'nullable|exists:product_variants,id',
             'quantity' => 'required|integer|min:1',
         ]);
-        
-        $productId = $request->input('product_id');
-        $variantId = $request->input('variant_id');
-        $quantity = $request->input('quantity');
-        $user = Auth::user();
 
-        // Xây dựng câu truy vấn để tìm item đã tồn tại
-        $query = CartItem::where('user_id', $user->id)->where('product_id', $productId);
+        $productId = (int) $request->input('product_id');
+        $variantId = $request->filled('variant_id') ? (int) $request->input('variant_id') : null;
+        $quantity = (int) $request->input('quantity');
 
         if ($variantId) {
-            // Nếu có biến thể, phải tìm chính xác biến thể đó
-            $query->where('product_variant_id', $variantId);
-        } else {
-            // Nếu không, đảm bảo chỉ tìm sản phẩm không có biến thể
-            $query->whereNull('product_variant_id');
+            $variantValid = ProductVariant::where('id', $variantId)
+                ->where('product_id', $productId)
+                ->exists();
+            if (! $variantValid) {
+                return response()->json(['success' => false, 'message' => 'Biến thể không hợp lệ.'], 422);
+            }
         }
 
-        $cartItem = $query->first();
+        if (Auth::check()) {
+            $user = Auth::user();
 
-        if ($cartItem) {
-            // Nếu item đã tồn tại, chỉ cần cộng thêm số lượng
-            $cartItem->quantity += $quantity;
-            $cartItem->save();
+            $query = CartItem::where('user_id', $user->id)->where('product_id', $productId);
+            if ($variantId) {
+                $query->where('product_variant_id', $variantId);
+            } else {
+                $query->whereNull('product_variant_id');
+            }
+
+            $cartItem = $query->first();
+            if ($cartItem) {
+                $cartItem->quantity += $quantity;
+                $cartItem->save();
+            } else {
+                CartItem::create([
+                    'user_id' => $user->id,
+                    'product_id' => $productId,
+                    'product_variant_id' => $variantId,
+                    'quantity' => $quantity,
+                ]);
+            }
         } else {
-            // Nếu chưa, tạo mới cart item
-            CartItem::create([
-                'user_id' => $user->id,
-                'product_id' => $productId,
-                'product_variant_id' => $variantId, // Lưu ID của biến thể vào đây
-                'quantity' => $quantity,
-            ]);
+            $cart = session()->get('guest_cart', []);
+            $index = $this->findGuestItemIndex($cart, $productId, $variantId);
+            if ($index !== null) {
+                $cart[$index]['quantity'] = (int) $cart[$index]['quantity'] + $quantity;
+            } else {
+                $cart[] = [
+                    'product_id' => $productId,
+                    'variant_id' => $variantId,
+                    'quantity' => $quantity,
+                ];
+            }
+            session(['guest_cart' => $cart]);
         }
 
         return response()->json([
@@ -61,19 +80,50 @@ class CartController extends Controller
     public function update(Request $request, $cartItemId)
     {
         $request->validate(['quantity' => 'required|integer|min:0']);
-        $cartItem = CartItem::where('id', $cartItemId)->where('user_id', Auth::id())->firstOrFail();
-        if ($request->quantity == 0) {
-            $cartItem->delete();
-            $message = 'Sản phẩm đã được xóa khỏi giỏ!';
+        $quantity = (int) $request->quantity;
+
+        if (Auth::check()) {
+            $cartItem = CartItem::where('id', $cartItemId)->where('user_id', Auth::id())->firstOrFail();
+            if ($quantity === 0) {
+                $cartItem->delete();
+                $message = 'Sản phẩm đã được xóa khỏi giỏ!';
+            } else {
+                $cartItem->update(['quantity' => $quantity]);
+                $message = 'Giỏ hàng đã được cập nhật!';
+            }
         } else {
-            $cartItem->update(['quantity' => $request->quantity]);
-            $message = 'Giỏ hàng đã được cập nhật!';
+            $cart = session()->get('guest_cart', []);
+            $index = $this->findGuestItemIndexByKey($cart, (string) $cartItemId);
+
+            if ($index === null) {
+                return response()->json(['success' => false, 'message' => 'Không tìm thấy sản phẩm trong giỏ.'], 404);
+            }
+
+            if ($quantity === 0) {
+                unset($cart[$index]);
+                $message = 'Sản phẩm đã được xóa khỏi giỏ!';
+            } else {
+                $cart[$index]['quantity'] = $quantity;
+                $message = 'Giỏ hàng đã được cập nhật!';
+            }
+
+            session(['guest_cart' => array_values($cart)]);
         }
-        return response()->json(['message' => $message, 'cart' => $this->getCartData()]);
+
+        return response()->json(['success' => true, 'message' => $message, 'cart' => $this->getCartDataForAPI()]);
     }
     public function remove($cartItemId)
     {
-        CartItem::where('id', $cartItemId)->where('user_id', Auth::id())->firstOrFail()->delete();
+        if (Auth::check()) {
+            CartItem::where('id', $cartItemId)->where('user_id', Auth::id())->firstOrFail()->delete();
+        } else {
+            $cart = session()->get('guest_cart', []);
+            $index = $this->findGuestItemIndexByKey($cart, (string) $cartItemId);
+            if ($index !== null) {
+                unset($cart[$index]);
+                session(['guest_cart' => array_values($cart)]);
+            }
+        }
         
         return response()->json([
             'success' => true,
@@ -83,24 +133,29 @@ class CartController extends Controller
     }
     private function getCartData()
     {
-        return Auth::user()->cartItems()->count();
+        if (Auth::check()) {
+            return Auth::user()->cartItems()->count();
+        }
+
+        $guestCart = session()->get('guest_cart', []);
+        return collect($guestCart)->sum(fn ($item) => (int) ($item['quantity'] ?? 0));
     }
     public function showCartPage()
     {
     // Dù có check Auth hay không, chúng ta luôn cần biến $cartItems trong view.
-        $cartItems = []; 
-        
-    // Nếu người dùng đã đăng nhập, lấy dữ liệu từ database.
-        if (Auth::check()) {
-        // Dùng lại hàm getCartDataForAPI() để có cấu trúc dữ liệu đồng nhất
-        // và đảm bảo có đủ thông tin (product, total_price, etc.)
-        // Lấy mảng 'items' từ kết quả trả về.
-            $cartData = $this->getCartDataForAPI();
-            $cartItems = $cartData['items']; 
-        }
+        $cartData = $this->getCartDataForAPI();
+        $cartItems = $cartData['items'];
         
     // Truyền biến $cartItems vào view.
         return view('cart.index', ['cartItems' => $cartItems]);
+    }
+
+    public function summary()
+    {
+        return response()->json([
+            'success' => true,
+            'cart' => $this->getCartDataForAPI(),
+        ]);
     }
     public function buyNow(Request $request)
     {
@@ -130,19 +185,18 @@ class CartController extends Controller
             // --- USER ĐĂNG NHẬP ---
             $user = Auth::user();
 
-            // Upsert theo cặp (product_id, variant_id)
-            $item = $user->cartItems()->firstOrNew([
-                'product_id' => $productId,
-                'variant_id' => $variantId, // nullable OK
-            ]);
+            $query = $user->cartItems()->where('product_id', $productId);
+            if ($variantId) {
+                $query->where('product_variant_id', $variantId);
+            } else {
+                $query->whereNull('product_variant_id');
+            }
+            $item = $query->firstOrNew();
 
             $currentQty = max(0, (int)($item->quantity ?? 0));
             $item->quantity = $currentQty + $qty;
-
-            // Nếu bảng cart_items có cột variant_text (tuỳ DB của anh)
-            if (schema_has_column('cart_items', 'variant_text') && $variantText !== null) {
-                $item->variant_text = $variantText;
-            }
+            $item->product_id = $productId;
+            $item->product_variant_id = $variantId;
 
             $item->save();
 
@@ -151,32 +205,16 @@ class CartController extends Controller
 
         } else {
             // --- KHÁCH (GUEST) ---
-            // session('guest_cart') lưu MẢNG item với cặp khóa (product_id, variant_id)
-            // Cấu trúc mỗi item: ['product_id'=>int, 'variant_id'=>int|null, 'quantity'=>int, 'variant_text'=>?]
             $cart = session()->get('guest_cart', []);
-
-            $foundIndex = null;
-            foreach ($cart as $i => $it) {
-                $pid = (int)($it['product_id'] ?? 0);
-                $vid = array_key_exists('variant_id', $it) ? ($it['variant_id'] === null ? null : (int)$it['variant_id']) : null;
-                if ($pid === $productId && $vid === $variantId) {
-                    $foundIndex = $i;
-                    break;
-                }
-            }
+            $foundIndex = $this->findGuestItemIndex($cart, $productId, $variantId);
 
             if ($foundIndex !== null) {
-                // Cộng dồn đúng dòng biến thể
                 $cart[$foundIndex]['quantity'] = max(0, (int)$cart[$foundIndex]['quantity']) + $qty;
-                if ($variantText !== null) {
-                    $cart[$foundIndex]['variant_text'] = $variantText;
-                }
             } else {
                 $cart[] = [
                     'product_id'   => $productId,
-                    'variant_id'   => $variantId,     // có thể null
+                    'variant_id'   => $variantId,
                     'quantity'     => $qty,
-                    'variant_text' => $variantText,   // nếu muốn show tại checkout
                 ];
             }
 
@@ -191,49 +229,24 @@ class CartController extends Controller
 
     private function getCartDataForAPI()
     {
-        $user = auth()->user();
-        if (!$user) {
-            return ['items' => [], 'total_price' => 0, 'total_quantity' => 0];
+        if (Auth::check()) {
+            $items = $this->getAuthCartItems();
+        } else {
+            $items = $this->getGuestCartItems();
         }
 
-        // Tải sẵn cả product và variant để tối ưu
-        $cartItems = CartItem::where('user_id', $user->id)->with('product', 'variant.attributeValues.attribute')->get();
-        
         $total_price = 0;
         $total_quantity = 0;
-
-        // Xử lý lại dữ liệu để frontend luôn nhận được cấu trúc đồng nhất
-        $items = $cartItems->map(function($item) use (&$total_price, &$total_quantity) {
-            $itemData = $item->variant ?: $item->product; // Ưu tiên lấy dữ liệu từ biến thể
-            
-            $name = $item->product->name;
-            // Nếu là biến thể, thêm tên thuộc tính vào (VD: (Màu: Đỏ, Size: L))
-            if ($item->variant) {
-                $options = $item->variant->attributeValues->map(fn($v) => $v->attribute->name . ': ' . $v->value)->implode(', ');
-                $name .= " ($options)";
-            }
-
-            $price = $item->variant ? $item->variant->price : $item->product->price;
-            $image = $item->variant && $item->variant->image ? $item->variant->image : $item->product->image;
-
-            $total_price += $item->quantity * $price;
-            $total_quantity += $item->quantity;
-
-            // Trả về một cấu trúc chuẩn cho frontend
-            return [
-                'id' => $item->id, // ID của cart_item để xóa
-                'product_id' => $item->product->id,
-                'variant_id' => $item->variant->id ?? null,
-                'name' => $name,
-                'price' => $price,
-                'quantity' => $item->quantity,
-                'image' => asset($image),
-                'slug' => $item->product->slug->slug,
-            ];
-        });
+        $normalized = collect($items)->map(function ($item) use (&$total_price, &$total_quantity) {
+            $price = (float) ($item['price'] ?? 0);
+            $quantity = (int) ($item['quantity'] ?? 0);
+            $total_price += $quantity * $price;
+            $total_quantity += $quantity;
+            return $item;
+        })->values();
 
         return [
-            'items'          => $items,
+            'items'          => $normalized,
             'total_price'    => $total_price,
             'total_quantity' => $total_quantity,
         ];
@@ -246,23 +259,174 @@ class CartController extends Controller
 
         if ($user && !empty($guestCart)) {
             foreach ($guestCart as $guestItem) {
-                $existingItem = CartItem::where('user_id', $user->id)
-                ->where('product_id', $guestItem['id'])
-                ->first();
+                $productId = (int) ($guestItem['product_id'] ?? 0);
+                $variantId = isset($guestItem['variant_id']) ? (int) $guestItem['variant_id'] : null;
+                $quantity = max(1, (int) ($guestItem['quantity'] ?? 1));
+
+                if ($productId <= 0) {
+                    continue;
+                }
+
+                $query = CartItem::where('user_id', $user->id)->where('product_id', $productId);
+                if ($variantId) {
+                    $query->where('product_variant_id', $variantId);
+                } else {
+                    $query->whereNull('product_variant_id');
+                }
+                $existingItem = $query->first();
 
                 if ($existingItem) {
-                    $existingItem->quantity += $guestItem['quantity'];
+                    $existingItem->quantity += $quantity;
                     $existingItem->save();
                 } else {
                     CartItem::create([
                         'user_id' => $user->id,
-                        'product_id' => $guestItem['id'],
-                        'quantity' => $guestItem['quantity'],
+                        'product_id' => $productId,
+                        'product_variant_id' => $variantId,
+                        'quantity' => $quantity,
                     ]);
                 }
             }
         }
 
         return response()->json(['success' => true, 'message' => 'Giỏ hàng đã được gộp.']);
+    }
+
+    private function getAuthCartItems(): array
+    {
+        $user = auth()->user();
+        if (! $user) {
+            return [];
+        }
+
+        $cartItems = CartItem::where('user_id', $user->id)->with('product.slug', 'variant')->get();
+
+        return $cartItems->map(function (CartItem $item) {
+            $product = $item->product;
+            if (! $product) {
+                return null;
+            }
+
+            $variant = $item->variant;
+            $variantText = $variant ? $this->resolveVariantText($variant) : null;
+            $price = $variant && $variant->price !== null
+                ? (float) $variant->price
+                : (float) ($product->price_discount ?: $product->price);
+
+            $imagePath = $variant && $variant->image
+                ? $variant->image
+                : ($product->image_id ? $product->image?->url : ($product->image?->url ?: 'images/setting/no-image.png'));
+
+            return [
+                'id' => (string) $item->id,
+                'product_id' => (int) $product->id,
+                'variant_id' => $variant?->id,
+                'name' => (string) $product->name,
+                'price' => $price,
+                'quantity' => (int) $item->quantity,
+                'image' => $imagePath ? asset($imagePath) : asset('images/setting/no-image.png'),
+                'slug' => $product->slug?->slug,
+                'variant_text' => $variantText,
+            ];
+        })->filter()->values()->toArray();
+    }
+
+    private function getGuestCartItems(): array
+    {
+        $guestCart = session()->get('guest_cart', []);
+        if (empty($guestCart)) {
+            return [];
+        }
+
+        $productIds = collect($guestCart)->pluck('product_id')->filter()->map(fn ($id) => (int) $id)->unique()->values();
+        $variantIds = collect($guestCart)->pluck('variant_id')->filter()->map(fn ($id) => (int) $id)->unique()->values();
+
+        $products = Product::with('slug')->whereIn('id', $productIds)->get()->keyBy('id');
+        $variants = ProductVariant::whereIn('id', $variantIds)->get()->keyBy('id');
+
+        return collect($guestCart)->map(function ($row) use ($products, $variants) {
+            $productId = (int) ($row['product_id'] ?? 0);
+            $variantId = isset($row['variant_id']) ? (int) $row['variant_id'] : null;
+            $quantity = max(1, (int) ($row['quantity'] ?? 1));
+
+            $product = $products->get($productId);
+            if (! $product) {
+                return null;
+            }
+
+            $variant = $variantId ? $variants->get($variantId) : null;
+            $variantText = $variant ? $this->resolveVariantText($variant) : null;
+            $price = $variant && $variant->price !== null
+                ? (float) $variant->price
+                : (float) ($product->price_discount ?: $product->price);
+
+            return [
+                'id' => $this->makeGuestKey($productId, $variantId),
+                'product_id' => $productId,
+                'variant_id' => $variantId,
+                'name' => (string) $product->name,
+                'price' => $price,
+                'quantity' => $quantity,
+                'image' => asset($product->image?->url ?: 'images/setting/no-image.png'),
+                'slug' => $product->slug?->slug,
+                'variant_text' => $variantText,
+            ];
+        })->filter()->values()->toArray();
+    }
+
+    private function resolveVariantText(ProductVariant $variant): ?string
+    {
+        $options = (array) ($variant->options ?? []);
+        if (empty($options)) {
+            return null;
+        }
+
+        $attributeIds = collect(array_keys($options))
+            ->map(fn ($id) => (int) $id)
+            ->filter()
+            ->values();
+
+        $attributes = Attribute::whereIn('id', $attributeIds)->get()->keyBy('id');
+        $parts = [];
+        foreach ($options as $attributeId => $value) {
+            $name = $attributes->get((int) $attributeId)?->name;
+            if (! $name || ! filled($value)) {
+                continue;
+            }
+            $parts[] = $name . ': ' . $value;
+        }
+
+        return empty($parts) ? null : implode(', ', $parts);
+    }
+
+    private function makeGuestKey(int $productId, ?int $variantId): string
+    {
+        return $productId . '-' . ($variantId ?: '0');
+    }
+
+    private function findGuestItemIndex(array $cart, int $productId, ?int $variantId): ?int
+    {
+        foreach ($cart as $index => $item) {
+            $pid = (int) ($item['product_id'] ?? 0);
+            $vid = isset($item['variant_id']) ? (int) $item['variant_id'] : null;
+            if ($pid === $productId && $vid === $variantId) {
+                return $index;
+            }
+        }
+
+        return null;
+    }
+
+    private function findGuestItemIndexByKey(array $cart, string $key): ?int
+    {
+        foreach ($cart as $index => $item) {
+            $pid = (int) ($item['product_id'] ?? 0);
+            $vid = isset($item['variant_id']) ? (int) $item['variant_id'] : null;
+            if ($this->makeGuestKey($pid, $vid) === $key) {
+                return $index;
+            }
+        }
+
+        return null;
     }
 }

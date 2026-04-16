@@ -4,6 +4,9 @@ use App\Services\OrderService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Order; 
+use App\Models\Product;
+use App\Models\ProductVariant;
+use App\Models\Attribute;
 class CheckoutController extends Controller
 {
     protected $orderService;
@@ -18,7 +21,12 @@ class CheckoutController extends Controller
     {
         $cartItems = collect([]);
         if (Auth::guard('web')->check()) {
-            $cartItems = Auth::guard('web')->user()->cartItems()->with('product')->get();
+            $cartItems = Auth::guard('web')->user()->cartItems()->with('product', 'variant')->get();
+            if ($cartItems->isEmpty()) {
+                return redirect()->route('cart.page')->with('error', 'Giỏ hàng của bạn đang trống!');
+            }
+        } else {
+            $cartItems = collect($this->getGuestCheckoutItems());
             if ($cartItems->isEmpty()) {
                 return redirect()->route('cart.page')->with('error', 'Giỏ hàng của bạn đang trống!');
             }
@@ -43,11 +51,15 @@ class CheckoutController extends Controller
         try {
             $user = Auth::guard('web')->user();
             $cartItems = $user ? $user->cartItems()->with('product')->get() : collect([]);
-            $guestCart = !$user && $request->has('cart_data') ? json_decode($request->input('cart_data'), true) : [];
+            $guestCart = !$user ? session()->get('guest_cart', []) : [];
             $order = $this->orderService->createFromCheckout($customerData, $cartItems, $guestCart);
+            if (! $user) {
+                session()->forget('guest_cart');
+            }
             return redirect()->route('checkout.success', ['order' => $order->id])->with('clear_guest_cart', true);;
         } catch (\Exception $e) {
-            return back()->with('error', 'Đặt hàng thất bại: ' . $e->getMessage())->withInput();
+            report($e);
+            return back()->with('error', 'Đặt hàng thất bại, vui lòng thử lại sau ít phút.')->withInput();
         }
     }
     /**
@@ -56,5 +68,58 @@ class CheckoutController extends Controller
     public function success(Order $order)
     {
         return view('checkout.success', ['order' => $order])->with('clear_guest_cart', true);;
+    }
+
+    private function getGuestCheckoutItems(): array
+    {
+        $guestCart = session()->get('guest_cart', []);
+        if (empty($guestCart)) {
+            return [];
+        }
+
+        $productIds = collect($guestCart)->pluck('product_id')->filter()->map(fn ($id) => (int) $id)->unique()->values();
+        $variantIds = collect($guestCart)->pluck('variant_id')->filter()->map(fn ($id) => (int) $id)->unique()->values();
+
+        $products = Product::whereIn('id', $productIds)->get()->keyBy('id');
+        $variants = ProductVariant::whereIn('id', $variantIds)->get()->keyBy('id');
+        $attributes = Attribute::whereIn(
+            'id',
+            $variants->flatMap(fn (ProductVariant $variant) => array_keys((array) ($variant->options ?? [])))
+                ->map(fn ($id) => (int) $id)
+                ->filter()
+                ->unique()
+                ->values()
+        )->get()->keyBy('id');
+
+        return collect($guestCart)->map(function ($row) use ($products, $variants, $attributes) {
+            $productId = (int) ($row['product_id'] ?? 0);
+            $variantId = isset($row['variant_id']) ? (int) $row['variant_id'] : null;
+            $quantity = max(1, (int) ($row['quantity'] ?? 1));
+
+            $product = $products->get($productId);
+            if (! $product) {
+                return null;
+            }
+
+            $variant = $variantId ? $variants->get($variantId) : null;
+            $variantText = null;
+            if ($variant) {
+                $parts = [];
+                foreach ((array) ($variant->options ?? []) as $attributeId => $value) {
+                    $name = $attributes->get((int) $attributeId)?->name;
+                    if ($name && filled($value)) {
+                        $parts[] = $name . ': ' . $value;
+                    }
+                }
+                $variantText = empty($parts) ? null : implode(', ', $parts);
+            }
+
+            return [
+                'name' => $product->name,
+                'quantity' => $quantity,
+                'price' => $variant && $variant->price !== null ? (float) $variant->price : (float) ($product->price_discount ?: $product->price),
+                'variant_text' => $variantText,
+            ];
+        })->filter()->values()->toArray();
     }
 }
