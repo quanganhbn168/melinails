@@ -6,6 +6,7 @@ use App\Filament\Forms\Components\SlugInput;
 use App\Models\Attribute;
 use App\Traits\HasSeo;
 use Awcodes\Curator\Components\Forms\CuratorPicker;
+use Filament\Forms\Components\Actions\Action as FieldAction;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
@@ -50,7 +51,16 @@ class ProductForm
                             ->placeholder('VD: CAM-IP-4MP-01')
                             ->required()
                             ->unique(ignoreRecord: true)
-                            ->maxLength(50),
+                            ->maxLength(50)
+                            ->suffixAction(
+                                FieldAction::make('generateProductCode')
+                                    ->icon('heroicon-o-sparkles')
+                                    ->tooltip('Tạo mã ngẫu nhiên')
+                                    ->action(function (Set $set): void {
+                                        $random = strtoupper(substr(bin2hex(random_bytes(3)), 0, 6));
+                                        $set('code', 'SP-' . now()->format('ymd') . '-' . $random);
+                                    })
+                            ),
 
                         Select::make('category_id')
                             ->label('Danh mục')
