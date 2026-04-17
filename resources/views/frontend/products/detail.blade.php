@@ -153,7 +153,9 @@
                         <span id="product-current-price" class="text-red-500">Liên hệ báo giá</span>
                     @endif
                     <div id="product-compare-price" class="text-base font-normal text-gray-500 line-through mt-1 hidden"></div>
-                    <small><span class="italic">(giá chưa bao gồm VAT)</span></small>
+                    <div class="text-sm font-normal text-gray-500 italic mt-1">
+    (giá chưa bao gồm VAT)
+</div>
                 </div>
 
                 <div class="mb-8">
