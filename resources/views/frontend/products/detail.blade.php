@@ -201,7 +201,7 @@
                 </div>
 
                 <div class="prose prose-sm md:prose-base text-gray-600 dark:text-gray-300 dark:prose-invert mb-8">
-                    {!! $product->description !!}
+                    {!! nl2br($product->description) !!}
                 </div>
 
                 {{-- Khối Liên hệ --}}
