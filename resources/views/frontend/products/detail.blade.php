@@ -81,7 +81,7 @@
 <div class="bg-white dark:bg-gray-900 py-10">
     <div class="max-w-screen-xl mx-auto px-4">
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16">
-            
+
             {{-- CỘT TRÁI: ẢNH SẢN PHẨM --}}
             <div>
                 <div class="bg-gray-50 dark:bg-gray-800 rounded-2xl p-4 border border-gray-200 dark:border-gray-700 mb-4">
@@ -102,8 +102,8 @@
                             @else
                                 @foreach ($images as $image)
                                     <div class="swiper-slide flex items-center justify-center">
-                                        <img src="{{ (is_string($image) ? asset($image) : optional($image)->url()) ?? asset('images/setting/no-image.png') }}" 
-                                             alt="{{ $product->name }}" 
+                                        <img src="{{ (is_string($image) ? asset($image) : optional($image)->url) ?? asset('images/setting/no-image.png') }}"
+                                             alt="{{ $product->name }}"
                                              class="max-w-full max-h-full object-contain mix-blend-multiply dark:mix-blend-normal">
                                     </div>
                                 @endforeach
@@ -124,7 +124,7 @@
                     <div class="swiper-wrapper">
                         @foreach ($images as $image)
                             <div class="swiper-slide bg-gray-50 dark:bg-gray-800 p-2">
-                                <img src="{{ (is_string($image) ? asset($image) : optional($image)->url()) ?? asset('images/setting/no-image.png') }}" 
+                                <img src="{{ (is_string($image) ? asset($image) : optional($image)->url) ?? asset('images/setting/no-image.png') }}"
                                      alt="Thumb" class="w-full h-full object-contain mix-blend-multiply dark:mix-blend-normal">
                             </div>
                         @endforeach
@@ -138,7 +138,7 @@
                 <h1 class="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
                     {{ $product->name }}
                 </h1>
-                
+
                 <div class="text-sm text-gray-500 dark:text-gray-400 mb-6 flex items-center">
                     <span class="bg-gray-100 dark:bg-gray-800 px-3 py-1 rounded-full font-medium">
                         Mã SKU: <strong class="text-gray-900 dark:text-white ml-1">{{ $product->code ?? 'Đang cập nhật' }}</strong>
@@ -271,7 +271,7 @@
                     <div class="absolute -bottom-[4px] left-0 w-16 h-1 bg-blue-600 rounded-r-full"></div>
                 </h2>
             </div>
-            
+
             <div class="relative px-0 md:px-10">
                 <div class="swiper related-product-slider overflow-hidden py-4 -my-4">
                     <div class="swiper-wrapper">
@@ -293,7 +293,7 @@
             </div>
         </div>
         @endif
-        
+
         {{-- Footer Info --}}
         <div class="mt-16 bg-blue-50 dark:bg-gray-800 p-8 rounded-2xl text-center border border-blue-100 dark:border-gray-700">
             <p class="text-lg font-bold text-blue-900 dark:text-blue-400 mb-3">TRÂN TRỌNG CẢM ƠN QUÝ KHÁCH ĐÃ QUAN TÂM!</p>
@@ -318,7 +318,7 @@
         const thumbsEl = document.querySelector('.gallery-thumbs');
         const mainEl = document.querySelector('.main-slider');
         let thumbnailSlider = null;
-        
+
         if (thumbsEl) {
             thumbnailSlider = new Swiper(thumbsEl, {
                 spaceBetween: 10,
