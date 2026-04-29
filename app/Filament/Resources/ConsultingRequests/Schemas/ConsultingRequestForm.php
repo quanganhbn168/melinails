@@ -55,8 +55,10 @@ class ConsultingRequestForm
 
                         TextInput::make('budget')
     ->label('Ngân sách dự kiến')
-    ->prefix('₫')
-    ->mask(RawJs::make('$money($input, ".", ",", 0)'))
+    ->suffix('₫')
+    ->mask(RawJs::make(<<<'JS'
+        $money($input, '.', ',', 0)
+    JS))
     ->stripCharacters('.')
     ->numeric()
     ->placeholder('500.000.000'),
@@ -93,7 +95,6 @@ class ConsultingRequestForm
                             ])
                             ->directory('consulting-requests')
                             ->multiple(false)
-                            ->helperText('File upload từ website cũ vẫn được lưu ở file_path; file này dùng cho quản trị chọn bằng Media Library.'),
                     ])
                     ->columns(1)
                     ->columnSpan([
