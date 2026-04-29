@@ -44,7 +44,7 @@
     font-family: var(--font-heading);
     letter-spacing: -0.02em;
   }
-  
+
   input[type='text'], input[type='email'], input[type='password'], input[type='number'], select, textarea {
     @apply border-gray-300 rounded-sm focus:ring-brand-500 focus:border-brand-500 shadow-none hover:border-gray-400 transition-colors bg-gray-50 focus:bg-white;
   }
@@ -237,7 +237,7 @@
 
   .services-section {
     position: relative;
-    overflow: hidden;
+    overflow: clip;
     background:
       linear-gradient(90deg, rgba(248, 252, 255, .96) 0%, rgba(255, 255, 255, .94) 42%, rgba(239, 248, 255, .92) 100%),
       url('/images/setting/contractors-bg-1.png');
