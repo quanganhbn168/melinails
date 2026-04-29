@@ -6,6 +6,7 @@ use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 
 class CommentsTable
@@ -14,33 +15,87 @@ class CommentsTable
     {
         return $table
             ->columns([
-                TextColumn::make('commentable_type')
-                    ->searchable(),
-                TextColumn::make('commentable_id')
-                    ->numeric()
-                    ->sortable(),
-                TextColumn::make('parent.id')
-                    ->searchable(),
                 TextColumn::make('author_name')
-                    ->searchable(),
+                    ->label('Người gửi')
+                    ->searchable()
+                    ->sortable()
+                    ->limit(35)
+                    ->weight('medium'),
+
                 TextColumn::make('author_email')
-                    ->searchable(),
+                    ->label('Email')
+                    ->searchable()
+                    ->copyable()
+                    ->limit(35)
+                    ->placeholder('Chưa có'),
+
+                TextColumn::make('content')
+                    ->label('Nội dung')
+                    ->searchable()
+                    ->limit(70)
+                    ->wrap(),
+
                 TextColumn::make('rating')
+                    ->label('Đánh giá')
                     ->numeric()
-                    ->sortable(),
+                    ->sortable()
+                    ->alignCenter()
+                    ->placeholder('-'),
+
                 TextColumn::make('status')
-                    ->badge(),
-                TextColumn::make('created_at')
-                    ->dateTime()
+                    ->label('Trạng thái')
+                    ->badge()
+                    ->formatStateUsing(fn (?string $state): string => match ($state) {
+                        'pending' => 'Chờ duyệt',
+                        'approved' => 'Đã duyệt',
+                        'spam' => 'Spam',
+                        default => $state ?: 'Không rõ',
+                    })
+                    ->color(fn (?string $state): string => match ($state) {
+                        'pending' => 'warning',
+                        'approved' => 'success',
+                        'spam' => 'danger',
+                        default => 'gray',
+                    })
+                    ->sortable(),
+
+                TextColumn::make('commentable_type')
+                    ->label('Loại đối tượng')
+                    ->searchable()
+                    ->limit(35)
+                    ->toggleable(isToggledHiddenByDefault: true),
+
+                TextColumn::make('commentable_id')
+                    ->label('ID đối tượng')
+                    ->numeric()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
+
+                TextColumn::make('parent.id')
+                    ->label('Bình luận cha')
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+
+                TextColumn::make('created_at')
+                    ->label('Ngày gửi')
+                    ->dateTime('d/m/Y H:i')
+                    ->sortable(),
+
                 TextColumn::make('updated_at')
-                    ->dateTime()
+                    ->label('Cập nhật')
+                    ->dateTime('d/m/Y H:i')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
+            ->defaultSort('created_at', 'desc')
             ->filters([
-                //
+                SelectFilter::make('status')
+                    ->label('Trạng thái')
+                    ->options([
+                        'pending' => 'Chờ duyệt',
+                        'approved' => 'Đã duyệt',
+                        'spam' => 'Spam',
+                    ]),
             ])
             ->recordActions([
                 EditAction::make(),
