@@ -5,10 +5,10 @@ namespace App\Filament\Resources\ConsultingRequests\Schemas;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
-use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Awcodes\Curator\Components\Forms\CuratorPicker;
+use Filament\Support\RawJs;
 class ConsultingRequestForm
 {
     public static function configure(Schema $schema): Schema
@@ -54,9 +54,12 @@ class ConsultingRequestForm
                             ->maxLength(255),
 
                         TextInput::make('budget')
-                            ->label('Ngân sách dự kiến')
-                            ->placeholder('Ví dụ: 50 - 100 triệu')
-                            ->maxLength(255),
+    ->label('Ngân sách dự kiến')
+    ->prefix('₫')
+    ->mask(RawJs::make('$money($input, ".", ",", 0)'))
+    ->stripCharacters('.')
+    ->numeric()
+    ->placeholder('500.000.000'),
                     ])
                     ->columns(1)
                     ->columnSpan([
@@ -78,9 +81,19 @@ class ConsultingRequestForm
                             ->native(false),
 
                         CuratorPicker::make('file_id')
-    ->label('File đính kèm')
-    ->directory('consulting-requests')
-    ->multiple(false)
+                            ->label('File đính kèm')
+                            ->buttonLabel('Tải lên / Chọn file')
+                            ->acceptedFileTypes([
+                                'image/*',
+                                'application/pdf',
+                                'application/msword',
+                                'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                                'application/zip',
+                                'application/x-zip-compressed',
+                            ])
+                            ->directory('consulting-requests')
+                            ->multiple(false)
+                            ->helperText('File upload từ website cũ vẫn được lưu ở file_path; file này dùng cho quản trị chọn bằng Media Library.'),
                     ])
                     ->columns(1)
                     ->columnSpan([

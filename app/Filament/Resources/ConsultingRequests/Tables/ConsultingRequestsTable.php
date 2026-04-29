@@ -7,7 +7,6 @@ use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
-use Illuminate\Support\Facades\Storage;
 
 class ConsultingRequestsTable
 {
@@ -30,13 +29,13 @@ class ConsultingRequestsTable
                 TextColumn::make('address')
                     ->label('Địa chỉ')
                     ->searchable(),
-                TextColumn::make('file_path')
+                TextColumn::make('attachment_url')
                     ->label('File đính kèm')
                     ->formatStateUsing(fn (?string $state) => $state ? 'Xem file' : 'Không có')
-                    ->url(fn ($record) => $record->file_path ? Storage::disk('public')->url($record->file_path) : null)
+                    ->url(fn ($record) => $record->attachment_url)
                     ->openUrlInNewTab()
                     ->color(fn (?string $state) => $state ? 'primary' : 'gray')
-                    ->searchable(),
+                    ->toggleable(),
                 TextColumn::make('budget')
                     ->label('Ngân sách dự kiến')
                     ->searchable(),

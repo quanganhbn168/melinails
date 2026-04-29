@@ -15,8 +15,8 @@
     <h3>Chi tiết yêu cầu:</h3>
     <p>{!! nl2br(e($data->details)) !!}</p>
     
-    @if($data->file_path)
-        <p><strong>File đính kèm:</strong> <a href="{{ asset('storage/' . $data->file_path) }}">Xem file</a></p>
+    @if($data->attachment_url)
+        <p><strong>File đính kèm:</strong> <a href="{{ $data->attachment_url }}">Xem file</a></p>
     @endif
 </body>
 </html>
