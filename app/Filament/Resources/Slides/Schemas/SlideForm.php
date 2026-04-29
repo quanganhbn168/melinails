@@ -38,7 +38,7 @@ class SlideForm
                     ->columnSpanFull(),
 
                 Section::make('Nút hiển thị')
-                    ->description('Tối đa 2 nút cho mỗi slide, không dùng repeater.')
+                    ->description('Tối đa 2 nút cho mỗi slide')
                     ->schema([
                         Grid::make([
                             'default' => 1,

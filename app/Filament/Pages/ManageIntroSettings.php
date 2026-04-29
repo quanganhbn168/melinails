@@ -122,7 +122,6 @@ class ManageIntroSettings extends SettingsPage
                                         ->url(),
                                     CuratorPicker::make('video_thumbnail_id')
                                         ->label('Thumbnail Video')
-                                        ->description('Nếu để trống sẽ dùng ảnh minh họa câu chuyện')
                                         ->acceptedFileTypes(['image/*']),
                                     RichEditor::make('story_description')
                                         ->label('Nội dung câu chuyện')
