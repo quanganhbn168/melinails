@@ -2792,18 +2792,58 @@
     gap: .75rem;
   }
 
-  .home-consult-fields input {
-    width: 100%;
+  .home-consult-field {
+    display: flex;
+    align-items: center;
     min-width: 0;
-    height: 2.55rem;
-    border: 1px solid rgba(148, 163, 184, .35);
-    border-radius: 6px;
+    height: 2.75rem;
+    overflow: hidden;
+    border-radius: 7px;
     background: rgba(15, 42, 75, .82);
-    color: #ffffff;
-    font-size: .8rem;
+    outline: 1px solid rgba(148, 163, 184, .35);
+    outline-offset: -1px;
+    transition: outline-color .2s ease, outline-width .2s ease, box-shadow .2s ease, background .2s ease;
   }
 
-  .home-consult-fields input::placeholder {
+  .home-consult-field:focus-within {
+    outline: 2px solid rgba(96, 165, 250, .95);
+    outline-offset: -2px;
+    background: rgba(12, 38, 70, .96);
+    box-shadow: 0 0 0 3px rgba(96, 165, 250, .16);
+  }
+
+  .home-consult-field span {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 2.55rem;
+    align-self: stretch;
+    color: rgba(226, 232, 240, .78);
+    font-size: .82rem;
+  }
+
+  .home-consult-field input {
+    width: 100%;
+    min-width: 0;
+    height: 100%;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    color: #ffffff;
+    font-size: .8rem;
+    line-height: 1;
+    padding: 0 .8rem 0 0;
+    box-shadow: none;
+  }
+
+  .home-consult-field input:focus {
+    outline: none;
+    border: 0;
+    box-shadow: none;
+    background: transparent;
+  }
+
+  .home-consult-field input::placeholder {
     color: rgba(226, 232, 240, .68);
   }
 

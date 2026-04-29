@@ -153,7 +153,6 @@
             </div>
 
             <div class="intro-panel order-1 lg:order-2" data-aos="fade-left">
-                <div class="intro-eyebrow"><i class="fas fa-info-circle"></i> Giới thiệu</div>
                 <h2 class="section-title mb-6">{!! $homeSettings->intro_title ?? 'Giới thiệu về <span class="text-brand-700">CNETPOS</span>' !!}</h2>
                 <div class="text-gray-600 text-base md:text-lg mb-7 leading-relaxed prose max-w-none">
                     {!! $homeSettings->intro_description ?? 'Thành lập từ năm 2014, CNETPOS đã trở thành đơn vị cung cấp giải pháp công nghệ hàng đầu trong lĩnh vực F&B, bán lẻ, dịch vụ và quản trị vận hành.' !!}
@@ -525,12 +524,11 @@
                                     @if($productDescription)
                                         <p>{{ $productDescription }}</p>
                                     @endif
-                                    <a href="{{ route('frontend.product.bySlug', $product->slug) }}" class="home-product-detail">
+                                    <a href="{{ $product->slug_url }}" class="home-product-detail">
                                         Xem chi tiết sản phẩm <i class="fas fa-arrow-right"></i>
                                     </a>
                                 </div>
-
-                                <a href="{{ route('frontend.product.bySlug', $product->slug) }}" class="home-product-visual" aria-label="{{ $product->name }}">
+                                <a href="{{ $product->slug_url }}" class="home-product-visual" aria-label="{{ $product->name }}">
                                     <img src="{{ $productImage }}" alt="{{ $product->name }}" loading="lazy" decoding="async">
                                 </a>
 
@@ -660,10 +658,22 @@
                 <form action="{{ route('consulting.store') }}" method="POST">
                     @csrf
                     <div class="home-consult-fields">
-                        <input type="text" name="name" required placeholder="Họ và tên*">
-                        <input type="tel" name="phone" required placeholder="Số điện thoại*">
-                        <input type="email" name="email" placeholder="Email">
-                        <input type="text" name="details" placeholder="Nhu cầu tư vấn*">
+                        <label class="home-consult-field">
+                            <span><i class="fas fa-user"></i></span>
+                            <input type="text" name="name" required placeholder="Họ và tên*">
+                        </label>
+                        <label class="home-consult-field">
+                            <span><i class="fas fa-phone"></i></span>
+                            <input type="tel" name="phone" required placeholder="Số điện thoại*">
+                        </label>
+                        <label class="home-consult-field">
+                            <span><i class="fas fa-envelope"></i></span>
+                            <input type="email" name="email" placeholder="Email">
+                        </label>
+                        <label class="home-consult-field">
+                            <span><i class="fas fa-comment-dots"></i></span>
+                            <input type="text" name="details" placeholder="Nhu cầu tư vấn*">
+                        </label>
                     </div>
                     <button type="submit">Gửi yêu cầu tư vấn</button>
                 </form>

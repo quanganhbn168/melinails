@@ -1,8 +1,8 @@
-<footer class="text-gray-300 py-12 mt-10 relative bg-gray-900 bg-cover bg-center bg-no-repeat" 
+<footer class="text-gray-300 py-12 relative bg-gray-900 bg-cover bg-center bg-no-repeat"
         @if(!empty($globalFooterBackgroundUrl)) style="background-image: linear-gradient(to right, rgba(17, 24, 39, 0.95), rgba(17, 24, 39, 0.85)), url('{{ $globalFooterBackgroundUrl }}');" @endif>
     <div class="max-w-screen-xl mx-auto px-4 relative z-10">
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            
+
             {{-- Cột 1: Thông tin công ty --}}
             <div>
                 <a href="/" class="block mb-6">
@@ -11,10 +11,10 @@
                 <p class="text-sm text-gray-400 mb-6 leading-relaxed">
                     {{ $setting->description ?? 'CnetPOS - Đồng hành cùng bạn trên "Hành trình tới tương lai", mang đến giải pháp hiện đại và đẳng cấp.' }}
                 </p>
-                
-                
+
+
                 <div class="space-y-3 text-sm">
-                    
+
                     <div class="flex items-start">
                         <i class="fa-solid fa-building mt-1 me-3 text-blue-500 w-4"></i>
                         <span>MST: {{ $setting->tax_code ?? '2301372686' }}</span>
@@ -35,7 +35,7 @@
                         <a href="mailto:{{ $setting->email ?? '' }}" class="hover:text-white transition-colors">{{ $setting->email ?? '' }}</a>
                     </div>
                 </div>
-                
+
                 @if(!empty($setting->bct_link))
                 <div class="mt-6">
                     <a href="{{ $setting->bct_link }}" target="_blank" rel="nofollow">
