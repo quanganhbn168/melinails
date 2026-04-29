@@ -229,23 +229,25 @@
 @if(isset($homeServicesCategories) && $homeServicesCategories->count())
 <section id="services" class="services-section py-16 md:py-20">
     <div class="container mx-auto px-4 max-w-7xl">
-        <div class="services-layout">
-            <div class="services-intro" data-aos="fade-right">
+
+        <div class="services-layout grid grid-cols-1 lg:grid-cols-12 gap-8 relative">
+
+            <div class="services-intro lg:col-span-4 lg:sticky lg:top-24 h-fit" data-aos="fade-right">
                 <h2 class="home-section-title">{{ $homeSettings->services_title ?? 'Dịch vụ của chúng tôi' }}</h2>
                 <p>{{ $homeSettings->services_description ?? 'Tư vấn, triển khai đến vận hành tối ưu, CNETPOS luôn đồng hành dài hạn cùng doanh nghiệp.' }}</p>
-                <a href="{{ route('frontend.services.index') }}" class="services-all-link">
+                <a href="{{ route('frontend.services.index') }}" class="services-all-link inline-block mt-4">
                     Xem tất cả dịch vụ <i class="fas fa-arrow-right"></i>
                 </a>
             </div>
 
-            <div class="services-list" data-aos="fade-left">
+            <div class="services-list lg:col-span-8 flex flex-col gap-4" data-aos="fade-left">
                 @foreach($homeServicesCategories as $service)
                 @php
                     $serviceImage = $service->banner_id ? ($service->banner?->url ?? null) : null;
                     $serviceImage = $serviceImage ?: ($service->image_id ? ($service->image?->url ?? null) : null);
                     $serviceImage = $serviceImage ?: 'https://placehold.co/1000x360/0b3762/ffffff?text=Service';
                     $serviceSummary = Str::limit(strip_tags($service->description ?? $service->content), 150);
-                    $serviceBullets = collect(preg_split('/[\\r\\n]+|(?<=[.!?])\\s+/', strip_tags($service->description ?? $service->content)))
+                    $serviceBullets = collect(preg_split('/[\r\n]+|(?<=[.!?])\s+/', strip_tags($service->description ?? $service->content)))
                         ->map(fn ($item) => trim($item))
                         ->filter()
                         ->take(3);
@@ -271,7 +273,6 @@
     </div>
 </section>
 @endif
-
 {{-- 5. FEATURED PROJECTS (TABS) --}}
 @if(isset($homeProjects) && $homeProjects->count())
 @php
