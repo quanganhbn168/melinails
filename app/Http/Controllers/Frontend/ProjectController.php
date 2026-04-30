@@ -10,6 +10,7 @@ use App\Settings\GeneralSettings;
 use App\Settings\PageSettings;
 use Awcodes\Curator\Models\Media;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 
 class ProjectController extends Controller
@@ -146,6 +147,8 @@ class ProjectController extends Controller
      */
     public function detail(Project $project)
     {
+        $project->loadMissing(['image', 'banner', 'category', 'slugData']);
+
         // Lấy các dự án liên quan (trừ dự án đang xem)
         $relatedProjects = Project::with(['image', 'slugData'])
             ->where("status", 1)
@@ -156,30 +159,15 @@ class ProjectController extends Controller
 
         $setting = app(\App\Settings\GeneralSettings::class);
         $pageTitle = $project->name;
-        $bannerUrl = $project->banner ? $project->banner->path : ($project->image ? $project->image->path : ($setting->banner ?? asset('images/setting/no-banner.png')));
+        $bannerUrl = $project->banner?->url
+            ?? $project->image?->url
+            ?? ($setting->banner ?? asset('images/setting/no-banner.png'));
         $breadcrumbs = [
             ['label' => 'Dự án', 'url' => route('frontend.projects.index')],
             ['label' => $project->name, 'url' => ''],
         ];
 
-        $images = collect();
-        if ($project->gallery && is_array($project->gallery)) {
-            $first = reset($project->gallery);
-            if (is_numeric($first)) {
-                $medias = \Awcodes\Curator\Models\Media::whereIn('id', $project->gallery)->get();
-                foreach ($medias as $media) {
-                    $images->push($media->path);
-                }
-            } else {
-                foreach ($project->gallery as $galImg) {
-                    $url = is_string($galImg) ? $galImg : ($galImg['url'] ?? $galImg['path'] ?? null);
-                    if ($url) {
-                        $images->push($url);
-                    }
-                }
-            }
-        }
-        $images = $images->filter()->values();
+        $images = $this->projectGalleryImages($project);
         $metaDescription = \Illuminate\Support\Str::limit(strip_tags($project->description ?? ''), 155);
 
         return view("frontend.projects.detail", compact(
@@ -192,5 +180,74 @@ class ProjectController extends Controller
             "images",
             "metaDescription"
         ));
+    }
+
+    private function projectGalleryImages(Project $project): Collection
+    {
+        $images = collect();
+
+        $push = function (?string $url) use ($images): void {
+            if (blank($url)) {
+                return;
+            }
+
+            $normalized = $this->normalizeImageUrl($url);
+
+            if ($normalized && ! $images->contains($normalized)) {
+                $images->push($normalized);
+            }
+        };
+
+        $push($project->image?->url);
+
+        foreach (collect($project->gallery)->filter() as $item) {
+            $push($this->resolveGalleryItemUrl($item));
+        }
+
+        if ($images->isEmpty()) {
+            $push($project->banner?->url);
+        }
+
+        return $images->values();
+    }
+
+    private function resolveGalleryItemUrl(mixed $item): ?string
+    {
+        if ($item instanceof Media) {
+            return $item->url;
+        }
+
+        if (is_numeric($item)) {
+            return Media::find((int) $item)?->url;
+        }
+
+        if (is_string($item)) {
+            return $item;
+        }
+
+        if (is_array($item)) {
+            $id = $item['id'] ?? $item['media_id'] ?? null;
+
+            if (is_numeric($id)) {
+                $mediaUrl = Media::find((int) $id)?->url;
+
+                if ($mediaUrl) {
+                    return $mediaUrl;
+                }
+            }
+
+            return $item['url'] ?? $item['path'] ?? null;
+        }
+
+        return null;
+    }
+
+    private function normalizeImageUrl(string $url): string
+    {
+        if (Str::startsWith($url, ['http://', 'https://', '//'])) {
+            return $url;
+        }
+
+        return asset(ltrim($url, '/'));
     }
 }

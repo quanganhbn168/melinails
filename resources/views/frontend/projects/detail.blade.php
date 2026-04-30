@@ -134,10 +134,11 @@
                     <div class="swiper-wrapper">
                         @foreach($images as $img)
                             <div class="swiper-slide flex items-center justify-center">
-                                <img src="{{ asset($img) }}" alt="{{ $project->name }}" loading="lazy" class="max-w-full max-h-full object-contain rounded-sm mix-blend-multiply dark:mix-blend-normal">
+                                <img src="{{ $img }}" alt="{{ $project->name }}" loading="lazy" class="max-w-full max-h-full object-contain rounded-sm mix-blend-multiply dark:mix-blend-normal">
                                 <div class="swiper-lazy-preloader swiper-lazy-preloader-brand"></div>
                             </div>
                         @endforeach
+                    </div>
                     <div class="gallery-custom-next absolute top-1/2 -translate-y-1/2 right-4 z-10 w-10 h-10 bg-white/80 border border-gray-200 rounded-full shadow-md hover:bg-brand-600 focus:outline-none hover:text-white text-gray-600 transition-colors flex items-center justify-center cursor-pointer">
                         <i class="fas fa-chevron-right text-sm"></i>
                     </div>
@@ -151,7 +152,7 @@
                     <div class="swiper-wrapper">
                         @foreach($images as $img)
                             <div class="swiper-slide bg-white dark:bg-gray-900 p-2 border-2 border-transparent hover:border-brand-500 rounded-sm overflow-hidden cursor-pointer">
-                                <img src="{{ asset($img) }}" alt="Thumb" class="w-full h-full object-contain mix-blend-multiply dark:mix-blend-normal">
+                                <img src="{{ $img }}" alt="Thumb" class="w-full h-full object-contain mix-blend-multiply dark:mix-blend-normal">
                             </div>
                         @endforeach
                     </div>

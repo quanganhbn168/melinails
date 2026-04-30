@@ -2719,7 +2719,7 @@
     color: #026ed3;
     font-size: .78rem;
     font-style: normal;
-    font-weight: 900;
+    font-weight: 700;
   }
 
   .home-news-layout {
@@ -2899,8 +2899,8 @@
   .home-action-content strong {
     display: block;
     color: #0f172a;
-    font-size: 1.15rem;
-    font-weight: 900;
+    font-size: 1.05rem;
+    font-weight: 700;
     line-height: 1.25;
     margin-bottom: .7rem;
   }
@@ -2928,8 +2928,8 @@
   }
 
   .home-consult-box h3 {
-    font-size: clamp(1.35rem, 2.2vw, 1.85rem);
-    font-weight: 900;
+    font-size: clamp(1.18rem, 1.8vw, 1.55rem);
+    font-weight: 700;
     line-height: 1.18;
     margin-bottom: .55rem;
   }
@@ -3012,7 +3012,7 @@
     background: #026ed3;
     color: #ffffff;
     font-size: .86rem;
-    font-weight: 900;
+    font-weight: 700;
     transition: background .25s ease, transform .25s ease;
   }
 
@@ -3031,21 +3031,30 @@
     }
 
     .home-action-grid {
-      grid-template-columns: minmax(0, .9fr) minmax(22rem, 1.05fr) minmax(0, .9fr);
-      gap: 0;
-      align-items: center;
+      grid-template-columns: 1fr;
+      gap: 1rem;
+      align-items: stretch;
     }
 
     .home-action-card {
-      min-height: 12.8rem;
+      min-height: 13rem;
     }
 
     .home-consult-box {
-      margin: -1rem -1.5rem 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      margin: 0;
     }
 
     .home-consult-fields {
       grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .home-action-grid {
+      grid-template-columns: minmax(0, .9fr) minmax(22rem, 1.05fr) minmax(0, .9fr);
     }
   }
 
