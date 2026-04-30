@@ -2,10 +2,18 @@
 @section('title', 'Tư vấn triển khai & Dự toán')
 
 @section('content')
-<x-frontend.page-hero 
-    title="Tư vấn & Giải pháp" 
-    subtitle="Giải pháp kỹ thuật toàn diện, tối ưu và chuyên nghiệp"
-    :breadcrumb="[['label' => 'Tư vấn triển khai']]" 
+@php
+    $consultingTitle = $pageSettings->consulting_title ?: 'Tư vấn & Giải pháp';
+@endphp
+
+<x-frontend.leaderboard
+    :image="$pageSettings->consulting_banner ?: ($setting->banner ?? null)"
+    :title="$consultingTitle"
+    :subline="$pageSettings->consulting_leaderboard_subline"
+    :description="$pageSettings->consulting_leaderboard_description ?: ($pageSettings->consulting_headline ?: 'Giải pháp kỹ thuật toàn diện, tối ưu và chuyên nghiệp')"
+    :breadcrumb="[['label' => $consultingTitle]]"
+    :actions="$pageSettings->consulting_leaderboard_actions"
+    :stats="$pageSettings->consulting_leaderboard_stats"
 />
 <div class="bg-gray-50 dark:bg-gray-900 py-12 md:py-20">
     <div class="max-w-screen-xl mx-auto px-4">

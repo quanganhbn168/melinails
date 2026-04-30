@@ -25,13 +25,16 @@
 @endpush
 
 @section('content')
-    {{-- Banner chung (Hoặc banner mặc định của web) --}}
-    <div class="banner">
-        {{-- Nếu anh có truyền $pageBanner từ controller thì dùng, không thì dùng banner mặc định của setting --}}
-        <img src="{{ asset($setting->banner ?? 'images/default-banner.jpg') }}" 
-             alt="Kết quả tìm kiếm" 
-             style="width: 100%; max-height: 300px; object-fit: cover;">
-    </div>
+    <x-frontend.leaderboard
+        :image="$pageSettings->products_banner ?: ($setting->banner ?? 'images/default-banner.jpg')"
+        title="Kết quả tìm kiếm"
+        subline="Tìm kiếm sản phẩm"
+        :description="'Từ khóa: ' . $keyword"
+        :breadcrumb="[
+            ['label' => 'Sản phẩm', 'url' => route('products.index')],
+            ['label' => 'Tìm kiếm'],
+        ]"
+    />
 
     <div class="container py-5">
         

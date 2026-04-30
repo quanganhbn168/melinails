@@ -9,9 +9,17 @@
 @endpush
 
 @section('content')
-    <div class="banner">
-        <img src="{{ $category->banner?->url }}" alt="{{ $category->name }}" class="w-100">
-    </div>
+    <x-frontend.leaderboard
+        :image="$category->banner?->url ?? $pageSettings->products_banner"
+        :title="$category->name"
+        subline="Danh mục sản phẩm"
+        :description="$category->description ?? null"
+        :breadcrumb="[
+            ['label' => 'Sản phẩm', 'url' => route('products.index')],
+            ['label' => $category->name],
+        ]"
+    />
+
     <div class="filter my-4">
         <div class="container">
             <div class="row">

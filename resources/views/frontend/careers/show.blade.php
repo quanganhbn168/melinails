@@ -2,9 +2,26 @@
 @section('title', $career->name)
 
 @section('content')
-<x-frontend.page-hero 
-    title="{{ $career->name }}" 
-    :breadcrumb="[['label' => 'Tuyển dụng', 'url' => route('frontend.careers.index')], ['label' => $career->name]]" 
+@php
+    $careerStats = collect([
+        ['value' => $career->salary ?: 'Thỏa thuận', 'label' => 'Mức lương', 'icon' => 'fas fa-money-bill-wave'],
+        ['value' => $career->quantity ? $career->quantity . ' người' : 'Linh hoạt', 'label' => 'Số lượng', 'icon' => 'fas fa-users'],
+        ['value' => $career->type ?: 'Toàn thời gian', 'label' => 'Hình thức', 'icon' => 'fas fa-briefcase'],
+        ['value' => $career->deadline ? $career->deadline->format('d/m/Y') : 'Không thời hạn', 'label' => 'Hạn nộp', 'icon' => 'far fa-clock'],
+    ])->all();
+@endphp
+
+<x-frontend.leaderboard
+    :image="$pageSettings->careers_banner ?: ($setting->banner ?? null)"
+    :title="$career->name"
+    subline="Tuyển dụng"
+    :description="Str::limit(strip_tags((string) $career->description), 180)"
+    :breadcrumb="[['label' => 'Tuyển dụng', 'url' => route('frontend.careers.index')], ['label' => $career->name]]"
+    :actions="[
+        ['label' => 'Ứng tuyển ngay', 'url' => '#apply-form-section', 'icon' => 'fas fa-paper-plane', 'style' => 'primary'],
+        ['label' => 'Liên hệ HR', 'url' => 'mailto:' . ($setting->email ?? ''), 'icon' => 'fas fa-envelope', 'style' => 'secondary'],
+    ]"
+    :stats="$careerStats"
 />
 
 <div class="bg-gray-50 dark:bg-gray-900 py-12 lg:py-16">

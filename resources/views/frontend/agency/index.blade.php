@@ -2,10 +2,18 @@
 @section('title', 'Hợp tác Đại lý & Đối tác')
 
 @section('content')
-<x-frontend.page-hero 
-    title="Hợp tác Đại lý" 
-    subtitle="Cùng chúng tôi kiến tạo thành công và chia sẻ giá trị bền vững"
-    :breadcrumb="[['label' => 'Đại lý & Đối tác']]" 
+@php
+    $agencyTitle = $pageSettings->agency_title ?: 'Hợp tác Đại lý';
+@endphp
+
+<x-frontend.leaderboard
+    :image="$pageSettings->agency_banner ?: ($setting->banner ?? null)"
+    :title="$agencyTitle"
+    :subline="$pageSettings->agency_leaderboard_subline"
+    :description="$pageSettings->agency_leaderboard_description ?: ($pageSettings->agency_headline ?: 'Cùng chúng tôi kiến tạo thành công và chia sẻ giá trị bền vững')"
+    :breadcrumb="[['label' => $agencyTitle]]"
+    :actions="$pageSettings->agency_leaderboard_actions"
+    :stats="$pageSettings->agency_leaderboard_stats"
 />
 <div class="bg-white dark:bg-gray-900 py-12 md:py-20">
     <div class="max-w-screen-xl mx-auto px-4">

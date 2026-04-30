@@ -11,17 +11,15 @@
     $mainPostImage = $mainPost?->image?->url ?? 'https://placehold.co/900x520/0b3762/ffffff?text=CNETPOS';
 @endphp
 
-<section class="news-index-hero {{ $postsBannerUrl ? 'has-banner' : '' }}" @if($postsBannerUrl) style="--news-hero-image: url('{{ $postsBannerUrl }}');" @endif>
-    <div class="container mx-auto px-4 max-w-7xl">
-        <nav class="news-index-breadcrumb" aria-label="Breadcrumb">
-            <a href="{{ url('/') }}">Trang chủ</a>
-            <span>/</span>
-            <span>Tin tức</span>
-        </nav>
-        <h1>{{ $pageTitle ?? 'Tin tức & Blog' }}</h1>
-        <p>{{ $pageSubtitle ?? 'Cập nhật những xu hướng công nghệ, câu chuyện chuyển đổi số, kinh nghiệm vận hành và tin tức mới nhất từ CNETPOS.' }}</p>
-    </div>
-</section>
+<x-frontend.leaderboard
+    :image="$postsBannerUrl ?: $pageSettings->posts_banner"
+    :title="$pageTitle ?? 'Tin tức & Blog'"
+    :subline="$pageSettings->posts_leaderboard_subline"
+    :description="$pageSettings->posts_leaderboard_description ?: ($pageSubtitle ?? 'Cập nhật những xu hướng công nghệ, câu chuyện chuyển đổi số, kinh nghiệm vận hành và tin tức mới nhất từ CNETPOS.')"
+    :breadcrumb="$breadcrumbs"
+    :actions="$pageSettings->posts_leaderboard_actions"
+    :stats="$pageSettings->posts_leaderboard_stats"
+/>
 
 <section class="news-index-page">
     <div class="container mx-auto px-4 max-w-7xl">

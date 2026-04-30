@@ -2,29 +2,16 @@
 @section('title', $category->name ?? 'Tin tức')
 
 @section('content')
-{{-- Hero Banner --}}
-<div class="relative w-full h-[25vh] md:h-[35vh] overflow-hidden">
-    <img src="{{ $category->banner?->url ?: ($category->banner ? asset($category->banner) : asset($setting->banner)) }}" 
-         alt="{{ $category->name }}" class="w-full h-full object-cover">
-    <div class="absolute inset-0 bg-gray-900/60 flex flex-col items-center justify-center">
-        <h1 class="text-3xl md:text-5xl font-bold text-white uppercase tracking-wider mb-4 text-center px-4">{{ $category->name }}</h1>
-        <nav class="flex" aria-label="Breadcrumb">
-            <ol class="inline-flex items-center space-x-1 md:space-x-3">
-                <li class="inline-flex items-center">
-                    <a href="/" class="inline-flex items-center text-sm font-medium text-gray-200 hover:text-white transition-colors">
-                        <i class="fas fa-home mr-2"></i> Trang chủ
-                    </a>
-                </li>
-                <li aria-current="page">
-                    <div class="flex items-center">
-                        <i class="fas fa-chevron-right text-gray-400 mx-2 text-sm"></i>
-                        <span class="text-sm font-medium text-gray-100">{{ $category->name }}</span>
-                    </div>
-                </li>
-            </ol>
-        </nav>
-    </div>
-</div>
+<x-frontend.leaderboard
+    :image="$category->banner?->url ?? $pageSettings->posts_banner ?? ($setting->banner ?? null)"
+    :title="$category->name"
+    subline="Chuyên mục tin tức"
+    :description="$category->description ?? null"
+    :breadcrumb="[
+        ['label' => 'Tin tức', 'url' => route('frontend.posts.index')],
+        ['label' => $category->name],
+    ]"
+/>
 
 <div class="bg-white dark:bg-gray-900 py-12">
     <div class="max-w-screen-xl mx-auto px-4">

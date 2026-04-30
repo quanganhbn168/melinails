@@ -1,4 +1,3 @@
-@section('content')
 @extends('layouts.master')
 @section('title',$category->name)
 @push('css')
@@ -6,26 +5,16 @@
 @endpush
 @section('content')
 	<div id="category-wrapper" class="bg-light">
-		<div class="category-banner">
-			<img src="{{ asset($category->banner) }}" alt="{{ $category->title }}" width="1920" height="300">
-			<div class="category-banner_overlay"></div>
-			<div class="category-banner_info">
-				<h1 class="category-banner_title">{{ $category->name }}</h1>
-				<div class="category-banner_meta">
-					<i class="fas fa-user"></i> Admin
-					<span class="dot">•</span>
-					<i class="fas fa-clock"></i> {{ $category->updated_at->format('d/m/Y') }}
-				</div>
-			</div>
-		</div>
-		<div class="breadcrumb-wrapper bg-white">
-			<div class="container">
-				<ul class="breadcrumb">
-					<li class="breadcrumb-item"><a href="{{ url('/') }}">Trang chủ</a></li>
-					<li class="breadcrumb-item active">{{ $category->name }}</li>
-				</ul>
-			</div>
-		</div>
+        <x-frontend.leaderboard
+            :image="$category->banner?->url ?? $category->banner ?? $pageSettings->services_banner"
+            :title="$category->name"
+            subline="Danh mục dịch vụ"
+            :description="$category->description ?? null"
+            :breadcrumb="[
+                ['label' => 'Dịch vụ', 'url' => route('frontend.services.index')],
+                ['label' => $category->name],
+            ]"
+        />
 
 		<div class="container">
 			<div class="row">

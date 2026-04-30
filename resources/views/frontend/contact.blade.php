@@ -2,28 +2,19 @@
 @section('title', 'Liên hệ')
 
 @section('content')
-{{-- Hero Banner --}}
-<div class="relative w-full h-[25vh] md:h-[35vh] overflow-hidden bg-brand-900 border-b border-brand-800">
-    <img src="{{ asset($setting->banner ?? 'images/setting/cover01.jpg') }}" alt="Liên hệ" class="w-full h-full object-cover mix-blend-overlay opacity-60">
-    <div class="absolute inset-0 flex flex-col items-center justify-center">
-        <h1 class="text-3xl md:text-5xl font-black text-white uppercase tracking-wider mb-4">Liên hệ</h1>
-        <nav class="flex" aria-label="Breadcrumb">
-            <ol class="inline-flex items-center space-x-1 md:space-x-3">
-                <li class="inline-flex items-center">
-                    <a href="/" class="inline-flex items-center text-sm font-medium text-brand-200 hover:text-white transition-colors">
-                        <i class="fas fa-home mr-2"></i> Trang chủ
-                    </a>
-                </li>
-                <li aria-current="page">
-                    <div class="flex items-center">
-                        <i class="fas fa-chevron-right text-brand-400 mx-2 text-sm"></i>
-                        <span class="text-sm font-medium text-white">Liên hệ</span>
-                    </div>
-                </li>
-            </ol>
-        </nav>
-    </div>
-</div>
+@php
+    $contactTitle = $pageSettings->contact_title ?: 'Liên hệ';
+@endphp
+
+<x-frontend.leaderboard
+    :image="$pageSettings->contact_banner ?: ($setting->banner ?? 'images/setting/cover01.jpg')"
+    :title="$contactTitle"
+    :subline="$pageSettings->contact_leaderboard_subline"
+    :description="$pageSettings->contact_leaderboard_description ?: ($pageSettings->contact_headline ?: 'Kết nối với đội ngũ CNETPOS để được tư vấn giải pháp phù hợp.')"
+    :breadcrumb="[['label' => $contactTitle]]"
+    :actions="$pageSettings->contact_leaderboard_actions"
+    :stats="$pageSettings->contact_leaderboard_stats"
+/>
 
 <div class="bg-gray-50 py-16 md:py-24">
     <div class="max-w-screen-xl mx-auto px-4">

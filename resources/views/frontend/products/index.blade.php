@@ -13,28 +13,19 @@
 @endpush
 
 @section('content')
-{{-- Hero Banner --}}
-<div class="relative w-full h-[25vh] md:h-[35vh] overflow-hidden">
-    <img src="{{ asset('images/setting/cover01.jpg') }}" alt="Sản phẩm" class="w-full h-full object-cover">
-    <div class="absolute inset-0 bg-gray-900/60 flex flex-col items-center justify-center">
-        <h1 class="text-3xl md:text-5xl font-bold text-white uppercase tracking-wider mb-4">Sản phẩm</h1>
-        <nav class="flex" aria-label="Breadcrumb">
-            <ol class="inline-flex items-center space-x-1 md:space-x-3">
-                <li class="inline-flex items-center">
-                    <a href="/" class="inline-flex items-center text-sm font-medium text-gray-200 hover:text-white transition-colors">
-                        <i class="fas fa-home mr-2"></i> Trang chủ
-                    </a>
-                </li>
-                <li>
-                    <div class="flex items-center">
-                        <i class="fas fa-chevron-right text-gray-400 mx-2 text-sm"></i>
-                        <span class="text-sm font-medium text-gray-100">Sản phẩm</span>
-                    </div>
-                </li>
-            </ol>
-        </nav>
-    </div>
-</div>
+@php
+    $productsTitle = $pageSettings->products_title ?: 'Sản phẩm';
+@endphp
+
+<x-frontend.leaderboard
+    :image="$pageSettings->products_banner ?: ($setting->banner ?? 'images/setting/cover01.jpg')"
+    :title="$productsTitle"
+    :subline="$pageSettings->products_leaderboard_subline"
+    :description="$pageSettings->products_leaderboard_description ?: ($pageSettings->products_headline ?: $pageSettings->products_description)"
+    :breadcrumb="[['label' => $productsTitle]]"
+    :actions="$pageSettings->products_leaderboard_actions"
+    :stats="$pageSettings->products_leaderboard_stats"
+/>
 
 <div class="bg-white dark:bg-gray-900 py-12">
     <div class="max-w-screen-xl mx-auto px-4">

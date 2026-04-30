@@ -62,15 +62,26 @@
 @endpush
 
 @section('content')
-{{-- Header/Banner --}}
 @php
     $bannerUrl = $post->banner?->url ?: ($post->banner ? asset($post->banner) : asset($setting->banner ?? ''));
+    $postBreadcrumbs = [
+        ['label' => 'Tin tức', 'url' => route('frontend.posts.index')],
+    ];
+
+    if ($post->category) {
+        $postBreadcrumbs[] = ['label' => $post->category->name, 'url' => $post->category->slug_url];
+    }
+
+    $postBreadcrumbs[] = ['label' => $post->title];
 @endphp
-@if($bannerUrl)
-<div class="w-full h-[20vh] md:h-[30vh] overflow-hidden bg-gray-900">
-    <img src="{{ $bannerUrl }}" alt="{{ $post->title }}" class="w-full h-full object-cover opacity-70" loading="lazy">
-</div>
-@endif
+
+<x-frontend.leaderboard
+    :image="$bannerUrl ?: ($post->image?->url ?? $pageSettings->posts_banner)"
+    :title="$post->title"
+    :subline="$post->category?->name ?? 'Tin tức'"
+    :description="$post->description ?? Str::limit(strip_tags((string) $post->content), 180)"
+    :breadcrumb="$postBreadcrumbs"
+/>
 
 <div class="bg-gray-50 dark:bg-gray-900 py-10 md:py-16">
     <div class="max-w-screen-xl mx-auto px-4">

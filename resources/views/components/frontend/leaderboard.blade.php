@@ -11,7 +11,46 @@
 ])
 
 @php
-    $leaderboardImage = $image ? asset($image) : null;
+    $resolveImage = function (mixed $value): ?string {
+        if (blank($value)) {
+            return null;
+        }
+
+        if (is_string($value) && str_starts_with(trim($value), '[') && str_ends_with(trim($value), ']')) {
+            $decoded = json_decode($value, true);
+
+            if (is_array($decoded)) {
+                $value = $decoded;
+            }
+        }
+
+        if (is_array($value)) {
+            $value = $value[0] ?? null;
+        }
+
+        if (is_object($value)) {
+            $value = $value->url ?? $value->path ?? null;
+        }
+
+        if (blank($value)) {
+            return null;
+        }
+
+        if (is_numeric($value)) {
+            $media = \Awcodes\Curator\Models\Media::find((int) $value);
+            $value = $media?->url ?? $media?->path ?? null;
+        }
+
+        if (blank($value)) {
+            return null;
+        }
+
+        $value = (string) $value;
+
+        return filter_var($value, FILTER_VALIDATE_URL) ? $value : asset($value);
+    };
+
+    $leaderboardImage = $resolveImage($image);
     $leaderboardDescription = filled($description) ? $description : $subtitle;
     $visibleActions = collect($actions ?? [])
         ->filter(fn ($action) => filled($action['label'] ?? null))

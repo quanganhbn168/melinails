@@ -2,47 +2,16 @@
 @section('title', $career->name)
 
 @section('content')
-{{-- Header/Hero Nhỏ --}}
-<div class="bg-blue-600 dark:bg-gray-800 text-white py-12 md:py-16 relative overflow-hidden">
-    {{-- Pattern nền --}}
-    <div class="absolute inset-0 opacity-10">
-        <svg class="h-full w-full" viewBox="0 0 100 100" preserveAspectRatio="none">
-            <pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse">
-                <path d="M 10 0 L 0 0 0 10" fill="none" stroke="currentColor" stroke-width="0.5"/>
-            </pattern>
-            <rect width="100" height="100" fill="url(#grid)"/>
-        </svg>
-    </div>
-    
-    <div class="max-w-screen-xl mx-auto px-4 relative z-10">
-        <h1 class="text-3xl md:text-5xl font-bold mb-4 leading-tight">
-            {{ $career->name }}
-        </h1>
-        <nav aria-label="Breadcrumb">
-            <ol class="inline-flex items-center space-x-1 md:space-x-3">
-                <li class="inline-flex items-center">
-                    <a href="/" class="inline-flex items-center text-sm font-medium text-white/80 hover:text-white">
-                        <i class="fas fa-home mr-2"></i> Trang chủ
-                    </a>
-                </li>
-                <li>
-                    <div class="flex items-center">
-                        <i class="fas fa-chevron-right text-white/50 mx-2 text-sm"></i>
-                        <a href="{{ route('frontend.careers.index') }}" class="text-sm font-medium text-white/80 hover:text-white">
-                            Tuyển dụng
-                        </a>
-                    </div>
-                </li>
-                <li aria-current="page">
-                    <div class="flex items-center">
-                        <i class="fas fa-chevron-right text-white/50 mx-2 text-sm"></i>
-                        <span class="text-sm font-medium text-white line-clamp-1">{{ $career->name }}</span>
-                    </div>
-                </li>
-            </ol>
-        </nav>
-    </div>
-</div>
+<x-frontend.leaderboard
+    :image="$pageSettings->careers_banner ?: ($setting->banner ?? null)"
+    :title="$career->name"
+    subline="Tuyển dụng"
+    :description="Str::limit(strip_tags((string) $career->description), 180)"
+    :breadcrumb="[
+        ['label' => 'Tuyển dụng', 'url' => route('frontend.careers.index')],
+        ['label' => $career->name],
+    ]"
+/>
 
 <div class="bg-gray-50 dark:bg-gray-900 py-12 lg:py-16">
     <div class="max-w-screen-xl mx-auto px-4">

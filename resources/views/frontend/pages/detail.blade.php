@@ -6,10 +6,11 @@
 
 @section('content')
 
-<x-frontend.page-hero 
-    :image="$bannerUrl" 
-    :title="$pageTitle" 
-    :breadcrumb="$breadcrumbs" 
+<x-frontend.leaderboard
+    :image="$bannerUrl"
+    :title="$pageTitle"
+    :description="$page->meta_description"
+    :breadcrumb="$breadcrumbs"
 />
 
 <section class="py-12 md:py-20 bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800">

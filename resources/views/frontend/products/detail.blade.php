@@ -47,38 +47,31 @@
 @endpush
 
 @section('content')
-{{-- Hero Banner Nhỏ --}}
-<div class="bg-gray-100 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 py-4">
-     <div class="max-w-screen-xl mx-auto px-4">
-         <nav class="flex" aria-label="Breadcrumb">
-             <ol class="inline-flex items-center space-x-1 md:space-x-3">
-                 <li class="inline-flex items-center">
-                     <a href="/" class="inline-flex items-center text-sm font-medium text-gray-600 hover:text-blue-600 dark:text-gray-400 dark:hover:text-white transition-colors">
-                         <i class="fas fa-home mr-2"></i> Trang chủ
-                     </a>
-                 </li>
-                 <li>
-                     <div class="flex items-center">
-                         <i class="fas fa-chevron-right text-gray-400 mx-2 text-xs"></i>
-                         <a href="{{ $product->category->slug_url }}" class="text-sm font-medium text-gray-600 hover:text-blue-600 dark:text-gray-400 dark:hover:text-white transition-colors">
-                             {{ $product->category->name }}
-                         </a>
-                     </div>
-                 </li>
-                 <li aria-current="page">
-                     <div class="flex items-center">
-                         <i class="fas fa-chevron-right text-gray-400 mx-2 text-xs"></i>
-                         <span class="text-sm font-medium text-gray-900 dark:text-gray-200 break-words line-clamp-1">
-                             {{ $product->name }}
-                         </span>
-                     </div>
-                 </li>
-             </ol>
-         </nav>
-     </div>
-</div>
+@php
+    $productBreadcrumbs = [
+        ['label' => 'Sản phẩm', 'url' => route('products.index')],
+    ];
 
-<div class="bg-white dark:bg-gray-900 py-10">
+    if ($product->category) {
+        $productBreadcrumbs[] = ['label' => $product->category->name, 'url' => $product->category->slug_url];
+    }
+
+    $productBreadcrumbs[] = ['label' => $product->name];
+@endphp
+
+<x-frontend.leaderboard
+    :image="$product->banner?->url ?? $product->image?->url ?? $pageSettings->products_banner"
+    :title="$product->name"
+    :subline="$product->category?->name ?? 'Sản phẩm'"
+    :description="$product->meta_description ?? Str::limit(strip_tags((string) $product->description), 180)"
+    :breadcrumb="$productBreadcrumbs"
+    :actions="[
+        ['label' => 'Liên hệ tư vấn', 'url' => route('contact.show'), 'icon' => 'fas fa-headset', 'style' => 'primary'],
+        ['label' => 'Xem thông tin', 'url' => '#product-detail', 'icon' => 'fas fa-chevron-down', 'style' => 'secondary'],
+    ]"
+/>
+
+<div id="product-detail" class="bg-white dark:bg-gray-900 py-10 scroll-mt-24">
     <div class="max-w-screen-xl mx-auto px-4">
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16">
 

@@ -3,10 +3,25 @@
 
 @section('content')
 
-<x-frontend.page-hero 
-    :title="$pageTitle ?? 'Dịch vụ'" 
-    subtitle="Giải pháp công nghệ toàn diện cho doanh nghiệp"
-    :breadcrumb="$breadcrumbItems ?? [['label' => 'Dịch vụ']]" 
+@php
+    $leaderboardTitle = $pageTitle ?? ($category->name ?? 'Dịch vụ');
+    $leaderboardBreadcrumbs = $breadcrumbItems ?? $breadcrumbs ?? [['label' => 'Dịch vụ']];
+    $leaderboardImage = isset($category)
+        ? ($category->banner?->url ?? $pageSettings->services_banner ?? ($setting->banner ?? null))
+        : ($pageSettings->services_banner ?? $bannerUrl ?? ($setting->banner ?? null));
+    $leaderboardDescription = isset($category)
+        ? ($category->description ?? null)
+        : ($pageSettings->services_leaderboard_description ?: ($pageSubtitle ?? 'Giải pháp công nghệ toàn diện cho doanh nghiệp'));
+@endphp
+
+<x-frontend.leaderboard
+    :image="$leaderboardImage"
+    :title="$leaderboardTitle"
+    :subline="isset($category) ? 'Danh mục dịch vụ' : $pageSettings->services_leaderboard_subline"
+    :description="$leaderboardDescription"
+    :breadcrumb="$leaderboardBreadcrumbs"
+    :actions="isset($category) ? [] : $pageSettings->services_leaderboard_actions"
+    :stats="isset($category) ? [] : $pageSettings->services_leaderboard_stats"
 />
 
 <section class="py-16 bg-white dark:bg-gray-900">

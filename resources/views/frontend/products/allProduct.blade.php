@@ -5,10 +5,15 @@
 
 @endpush
 @section("content")
-{{-- Banner đầu trang --}}
-<div class="collection-banner">
-    <img src="https://placehold.co/1920x300/1a1a1a/c30000?text=Sản+Phẩm+KPTech" alt="Tất cả sản phẩm">
-</div>
+<x-frontend.leaderboard
+    :image="$pageSettings->products_banner ?: ($setting->banner ?? null)"
+    :title="$pageSettings->products_title ?: 'Tất cả sản phẩm'"
+    :subline="$pageSettings->products_leaderboard_subline"
+    :description="$pageSettings->products_leaderboard_description ?: $pageSettings->products_headline"
+    :breadcrumb="[['label' => $pageSettings->products_title ?: 'Sản phẩm']]"
+    :actions="$pageSettings->products_leaderboard_actions"
+    :stats="$pageSettings->products_leaderboard_stats"
+/>
 
 <div class="container mt-4">
     {{-- Breadcrumb --}}

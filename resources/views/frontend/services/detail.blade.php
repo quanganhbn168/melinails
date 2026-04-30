@@ -3,10 +3,17 @@
 @section('meta_description', Str::limit(strip_tags($service->content), 155))
 @section('meta_image', optional($service->image) ? $service->image?->url : '')
 @section('content')
-<x-frontend.page-hero 
-    :image="$bannerUrl" 
-    :title="$service->name" 
-    :breadcrumb="$breadcrumbItems" 
+
+<x-frontend.leaderboard
+    :image="$bannerUrl ?: ($service->image?->url ?? $pageSettings->services_banner)"
+    :title="$service->name"
+    :subline="$service->category?->name ?? 'Dịch vụ'"
+    :description="$service->description ?: Str::limit(strip_tags((string) $service->content), 180)"
+    :breadcrumb="$breadcrumbItems"
+    :actions="[
+        ['label' => 'Yêu cầu báo giá', 'url' => '#apply-form-section', 'icon' => 'fas fa-file-invoice', 'style' => 'primary'],
+        ['label' => 'Liên hệ tư vấn', 'url' => route('contact.show'), 'icon' => 'fas fa-phone-alt', 'style' => 'secondary'],
+    ]"
 />
 
 <div class="bg-white dark:bg-gray-900 py-12 md:py-20 border-b border-gray-100 dark:border-gray-800">
@@ -163,7 +170,7 @@
 @endif
 
 {{-- FORM BÁO GIÁ THEO DỊCH VỤ --}}
-<section class="py-12 bg-white dark:bg-gray-900 border-t border-gray-100 dark:border-gray-800">
+<section id="apply-form-section" class="py-12 bg-white dark:bg-gray-900 border-t border-gray-100 dark:border-gray-800 scroll-mt-24">
     <div class="max-w-screen-xl mx-auto px-4">
         <div class="mb-10 text-center">
             <h2 class="text-2xl font-black uppercase text-gray-900 dark:text-white tracking-tight">Yêu cầu báo giá</h2>

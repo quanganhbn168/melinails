@@ -3,10 +3,14 @@
 
 @section('content')
 
-<x-frontend.page-hero 
-    title="Cơ hội nghề nghiệp" 
-    subtitle="Gia nhập đội ngũ chuyên gia công nghệ hàng đầu"
-    :breadcrumb="[['label' => 'Tuyển dụng']]" 
+<x-frontend.leaderboard
+    :image="$pageSettings->careers_banner ?: ($setting->banner ?? null)"
+    :title="$pageTitle ?? 'Tuyển dụng'"
+    :subline="$pageSettings->careers_leaderboard_subline"
+    :description="$pageSettings->careers_leaderboard_description ?: ($pageSubtitle ?? 'Gia nhập đội ngũ chuyên gia công nghệ hàng đầu')"
+    :breadcrumb="$breadcrumbs"
+    :actions="$pageSettings->careers_leaderboard_actions"
+    :stats="$pageSettings->careers_leaderboard_stats"
 />
 
 <section class="py-16 bg-white dark:bg-gray-900">
