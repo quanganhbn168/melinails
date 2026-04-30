@@ -160,40 +160,18 @@
                 </div>
             </section>
 
-            @if($relatedProjectCards->isNotEmpty())
-                <section class="field-project-section" data-aos="fade-up" data-aos-delay="140">
-                    <div class="field-featured-heading">
-                        <span>Dự án nổi bật</span>
-                        <h2>Dự án tiêu biểu theo lĩnh vực</h2>
-                    </div>
-
-                    <div class="field-project-grid">
-                        @foreach($relatedProjectCards as $card)
-                            <a href="{{ $card['url'] }}" class="field-project-card">
-                                <img src="{{ $card['image'] }}" alt="{{ $card['title'] }}" loading="lazy" decoding="async">
-                                <span>{{ $card['badge'] }}</span>
-                                <strong>{{ $card['title'] }}</strong>
-                                @if(!empty($card['description']))
-                                    <p>{{ $card['description'] }}</p>
-                                @endif
-                                <em>Xem chi tiết <i class="fas fa-arrow-right"></i></em>
-                            </a>
-                        @endforeach
-                    </div>
-                </section>
-            @endif
-
+            @if($allProjectCards->isNotEmpty())
             <section class="field-featured-section" data-field-tabs data-aos="fade-up" data-aos-delay="160">
                 <div class="field-featured-heading">
-                    <span>Lĩnh vực nổi bật</span>
-                    <h2>Giải pháp tiêu biểu theo lĩnh vực</h2>
+                    <span>Dự án nổi bật</span>
+                    <h2>Dự án tiêu biểu theo lĩnh vực</h2>
                 </div>
 
-                <div class="field-tabs" role="tablist" aria-label="Lọc lĩnh vực nổi bật">
+                <div class="field-tabs" role="tablist" aria-label="Lọc dự án tiêu biểu theo lĩnh vực">
                     <button type="button" class="field-tab is-active" data-field-tab="field-panel-all" role="tab" aria-selected="true">
                         Tất cả
                     </button>
-                    @foreach($fieldTabPanels as $panel)
+                    @foreach($projectTabPanels as $panel)
                         <button type="button" class="field-tab" data-field-tab="{{ $panel['id'] }}" role="tab" aria-selected="false">
                             {{ $panel['name'] }}
                         </button>
@@ -202,35 +180,32 @@
 
                 <div class="field-tab-panels">
                     <div class="field-tab-panel is-active" id="field-panel-all" role="tabpanel">
-                        <div class="field-featured-grid">
-                            @forelse($featuredFieldCards as $card)
-                                <a href="{{ $card['url'] }}" class="field-mini-card">
+                        <div class="field-project-grid">
+                            @foreach($allProjectCards as $card)
+                                <a href="{{ $card['url'] }}" class="field-project-card">
                                     <img src="{{ $card['image'] }}" alt="{{ $card['title'] }}" loading="lazy" decoding="async">
                                     <span>{{ $card['badge'] }}</span>
                                     <strong>{{ $card['title'] }}</strong>
+                                    @if(!empty($card['description']))
+                                        <p>{{ $card['description'] }}</p>
+                                    @endif
                                     <em>Xem chi tiết <i class="fas fa-arrow-right"></i></em>
                                 </a>
-                            @empty
-                                @foreach($fieldCategoryCards->take(6) as $card)
-                                    <a href="{{ $card['url'] }}" class="field-mini-card">
-                                        <img src="{{ $card['image'] }}" alt="{{ $card['title'] }}" loading="lazy" decoding="async">
-                                        <span>Lĩnh vực</span>
-                                        <strong>{{ $card['title'] }}</strong>
-                                        <em>Xem chi tiết <i class="fas fa-arrow-right"></i></em>
-                                    </a>
-                                @endforeach
-                            @endforelse
+                            @endforeach
                         </div>
                     </div>
 
-                    @foreach($fieldTabPanels as $panel)
+                    @foreach($projectTabPanels as $panel)
                         <div class="field-tab-panel" id="{{ $panel['id'] }}" role="tabpanel">
-                            <div class="field-featured-grid">
+                            <div class="field-project-grid">
                                 @foreach($panel['cards'] as $card)
-                                    <a href="{{ $card['url'] }}" class="field-mini-card">
+                                    <a href="{{ $card['url'] }}" class="field-project-card">
                                         <img src="{{ $card['image'] }}" alt="{{ $card['title'] }}" loading="lazy" decoding="async">
                                         <span>{{ $card['badge'] }}</span>
                                         <strong>{{ $card['title'] }}</strong>
+                                        @if(!empty($card['description']))
+                                            <p>{{ $card['description'] }}</p>
+                                        @endif
                                         <em>Xem chi tiết <i class="fas fa-arrow-right"></i></em>
                                     </a>
                                 @endforeach
@@ -239,6 +214,7 @@
                     @endforeach
                 </div>
             </section>
+            @endif
 
             <section class="field-faq-section" data-aos="fade-up" data-aos-delay="180">
                 <h2>Câu hỏi thường gặp</h2>

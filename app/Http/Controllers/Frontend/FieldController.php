@@ -65,38 +65,27 @@ class FieldController extends Controller
 
         $featuredFieldCategory = $field_categories->firstWhere('is_home', true) ?? $field_categories->first();
 
-        $featuredFields = Field::query()
-            ->where('status', 1)
-            ->where('is_featured', 1)
-            ->with(['image', 'category'])
-            ->latest()
-            ->take(8)
-            ->get();
+        $projectIdsByCategory = $field_categories
+            ->mapWithKeys(fn (FieldCategory $category) => [
+                $category->id => collect($category->related_project_ids ?? [])
+                    ->filter()
+                    ->map(fn ($id) => (int) $id)
+                    ->values(),
+            ]);
 
-        if ($featuredFields->isEmpty()) {
-            $featuredFields = $field_categories
-                ->flatMap(fn (FieldCategory $category) => $category->fields)
-                ->unique('id')
-                ->take(8)
-                ->values();
-        }
-
-        $relatedProjectIds = collect($featuredFieldCategory?->related_project_ids ?? [])
-            ->filter()
-            ->map(fn ($id) => (int) $id)
+        $allRelatedProjectIds = $projectIdsByCategory
+            ->flatten()
+            ->unique()
             ->values();
 
-        $relatedProjects = collect();
-
-        if ($relatedProjectIds->isNotEmpty()) {
-            $relatedProjects = Project::query()
+        $relatedProjectsById = $allRelatedProjectIds->isNotEmpty()
+            ? Project::query()
                 ->where('status', 1)
-                ->whereIn('id', $relatedProjectIds)
+                ->whereIn('id', $allRelatedProjectIds)
                 ->with(['image', 'category'])
                 ->get()
-                ->sortBy(fn (Project $project) => $relatedProjectIds->search($project->id))
-                ->values();
-        }
+                ->keyBy('id')
+            : collect();
 
         $overviewDescription = $pageSettings->fields_description ?? $setting->fields_description ?? null;
         $showcaseFields = $featuredFieldCategory?->fields ?? collect();
@@ -175,15 +164,25 @@ class FieldController extends Controller
             ->map(fn (FieldCategory $category, int $index) => $this->categoryCard($category, $index))
             ->values();
 
-        $featuredFieldCards = $this->fieldCards($featuredFields);
-        $relatedProjectCards = $this->projectCards($relatedProjects);
-        $fieldTabPanels = $field_categories
-            ->filter(fn (FieldCategory $category) => $category->fields->isNotEmpty())
-            ->map(fn (FieldCategory $category) => [
-                'id' => 'field-panel-' . $category->id,
-                'name' => $category->name,
-                'cards' => $this->fieldCards($category->fields->take(6), $category),
-            ])
+        $projectTabPanels = $field_categories
+            ->map(function (FieldCategory $category) use ($projectIdsByCategory, $relatedProjectsById) {
+                $projectIds = $projectIdsByCategory->get($category->id, collect());
+                $projects = $projectIds
+                    ->map(fn (int $id) => $relatedProjectsById->get($id))
+                    ->filter()
+                    ->values();
+
+                return [
+                    'id' => 'project-panel-' . $category->id,
+                    'name' => $category->name,
+                    'cards' => $this->projectCards($projects),
+                ];
+            })
+            ->filter(fn (array $panel) => $panel['cards']->isNotEmpty())
+            ->values();
+        $allProjectCards = $projectTabPanels
+            ->flatMap(fn (array $panel) => $panel['cards'])
+            ->unique('url')
             ->values();
 
         $storyField = $showcaseFields->first();
@@ -210,9 +209,8 @@ class FieldController extends Controller
             'keyFeatures',
             'processSteps',
             'impactStats',
-            'relatedProjectCards',
-            'featuredFieldCards',
-            'fieldTabPanels',
+            'allProjectCards',
+            'projectTabPanels',
             'faqs',
         ));
     }
@@ -327,13 +325,6 @@ class FieldController extends Controller
             'title' => $field->name,
             'badge' => $category?->name ?? 'Lĩnh vực',
         ];
-    }
-
-    private function fieldCards(iterable $fields, ?FieldCategory $fallbackCategory = null): Collection
-    {
-        return collect($fields)
-            ->map(fn (Field $field) => $this->fieldCard($field, $fallbackCategory))
-            ->values();
     }
 
     private function projectCards(iterable $projects): Collection
