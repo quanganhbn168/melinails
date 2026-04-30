@@ -55,6 +55,7 @@ class PostCategoryForm
                         RichEditor::make('content')
                             ->label('Nội dung chi tiết')
                             ->columnSpanFull(),
+                        HasSeo::seoSection(),
                     ])
                     ->columns(1)
                     ->columnSpan([
@@ -86,7 +87,7 @@ class PostCategoryForm
                             ])
                             ->columns(1),
 
-                        HasSeo::seoSection(),
+
                     ])
                     ->columnSpan([
                         'default' => 1,
