@@ -126,26 +126,39 @@
                 </section>
             @endif
 
-            @if ($businessProblems->isNotEmpty())
-                <section class="project-case-section project-case-problems" data-aos="fade-up">
-                    <div class="project-section-heading">
-                        <span>Bài toán doanh nghiệp</span>
-                        <h2>Những thách thức trước triển khai</h2>
+            @if($businessProblems->isNotEmpty())
+    <section class="py-12 lg:py-16" data-aos="fade-up">
+        <div class="mb-8 text-center">
+            <span class="mb-2 block text-sm font-bold uppercase tracking-[0.2em] text-brand-600">
+                Bài toán doanh nghiệp
+            </span>
+
+            <h2 class="text-2xl font-bold leading-tight text-brand-900 md:text-3xl">
+                Những thách thức trước triển khai
+            </h2>
+        </div>
+
+        <div class="grid items-stretch gap-5 md:grid-cols-2 xl:grid-cols-4">
+            @foreach($businessProblems as $item)
+                <article class="group flex h-full flex-col rounded-2xl border border-brand-100 bg-white p-6 shadow-sm transition duration-300 hover:-translate-y-1 hover:border-brand-300 hover:shadow-xl">
+                    <div class="mb-5 inline-flex size-14 shrink-0 items-center justify-center rounded-xl bg-brand-50 text-brand-600">
+                        <i class="{{ $item['icon'] ?? 'fas fa-triangle-exclamation' }} text-xl leading-none"></i>
                     </div>
 
-                    <div class="project-case-grid">
-                        @foreach ($businessProblems as $item)
-                            <article class="project-case-card">
-                                <i class="{{ $item['icon'] ?? 'fas fa-triangle-exclamation' }}"></i>
-                                <h3>{{ $item['title'] ?? '' }}</h3>
-                                @if (!empty($item['description']))
-                                    <p>{{ $item['description'] }}</p>
-                                @endif
-                            </article>
-                        @endforeach
-                    </div>
-                </section>
-            @endif
+                    <h3 class="line-clamp-2 text-lg font-bold leading-snug text-slate-900">
+                        {{ $item['title'] ?? '' }}
+                    </h3>
+
+                    @if(!empty($item['description']))
+                        <p class="mt-3 line-clamp-4 text-sm leading-6 text-slate-600">
+                            {{ $item['description'] }}
+                        </p>
+                    @endif
+                </article>
+            @endforeach
+        </div>
+    </section>
+@endif
 
             @if ($implementedSolutions->isNotEmpty())
                 <section class="project-case-section project-case-solutions" data-aos="fade-up">
@@ -170,47 +183,45 @@
                 </section>
             @endif
 
-            @if ($implementationProcess->isNotEmpty())
-                <section class="py-12 lg:py-16" data-aos="fade-up">
-                    <div class="mb-8 text-center">
-                        <span class="mb-2 block text-sm font-semibold uppercase tracking-[0.2em] text-primary">
-                            Quy trình triển khai
-                        </span>
-                        <h2 class="text-2xl font-bold text-slate-900 md:text-3xl">
-                            Các bước đưa hệ thống vào vận hành
-                        </h2>
+            @if($implementationProcess->isNotEmpty())
+    <section class="py-12 lg:py-16" data-aos="fade-up">
+        <div class="mb-8 text-center">
+            <span class="mb-2 block text-sm font-bold uppercase tracking-[0.2em] text-brand-600">
+                Quy trình triển khai
+            </span>
+
+            <h2 class="text-2xl font-bold leading-tight text-brand-900 md:text-3xl">
+                Các bước đưa hệ thống vào vận hành
+            </h2>
+        </div>
+
+        <div class="grid items-stretch gap-5 md:grid-cols-2 xl:grid-cols-4">
+            @foreach($implementationProcess as $item)
+                <article class="group relative flex h-full flex-col overflow-hidden rounded-2xl border border-brand-100 bg-white p-6 shadow-sm transition duration-300 hover:-translate-y-1 hover:border-brand-300 hover:shadow-xl">
+                    <span class="pointer-events-none absolute right-5 top-5 text-5xl font-black leading-none text-brand-50">
+                        {{ str_pad((string) ($loop->index + 1), 2, '0', STR_PAD_LEFT) }}
+                    </span>
+
+                    <div class="relative z-10 mb-5 inline-flex size-14 shrink-0 items-center justify-center rounded-xl bg-brand-50 text-brand-600">
+                        <i class="{{ $item['icon'] ?? 'fas fa-circle-check' }} text-xl leading-none"></i>
                     </div>
 
-                    <div class="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-                        @foreach ($implementationProcess as $item)
-                            <article
-                                class="group relative flex h-full flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-xl">
-                                <span
-                                    class="absolute right-5 top-5 text-5xl font-black leading-none text-slate-100 transition group-hover:text-primary/10">
-                                    {{ str_pad((string) ($loop->index + 1), 2, '0', STR_PAD_LEFT) }}
-                                </span>
+                    <div class="relative z-10">
+                        <h3 class="line-clamp-2 text-lg font-bold leading-snug text-slate-900">
+                            {{ $item['title'] ?? '' }}
+                        </h3>
 
-                                <div
-                                    class="relative z-10 mb-5 inline-flex size-14 items-center justify-center rounded-2xl bg-primary/10 text-primary transition duration-300 group-hover:bg-primary group-hover:text-white">
-                                    <i class="{{ $item['icon'] ?? 'fas fa-circle-check' }} text-xl"></i>
-                                </div>
-
-                                <div class="relative z-10">
-                                    <h3 class="line-clamp-2 text-lg font-bold leading-snug text-slate-900">
-                                        {{ $item['title'] ?? '' }}
-                                    </h3>
-
-                                    @if (!empty($item['description']))
-                                        <p class="mt-3 line-clamp-4 text-sm leading-6 text-slate-600">
-                                            {{ $item['description'] }}
-                                        </p>
-                                    @endif
-                                </div>
-                            </article>
-                        @endforeach
+                        @if(!empty($item['description']))
+                            <p class="mt-3 line-clamp-4 text-sm leading-6 text-slate-600">
+                                {{ $item['description'] }}
+                            </p>
+                        @endif
                     </div>
-                </section>
-            @endif
+                </article>
+            @endforeach
+        </div>
+    </section>
+@endif
 
             @if ($achievedResults->isNotEmpty())
                 <section class="project-results-section" data-aos="fade-up">
