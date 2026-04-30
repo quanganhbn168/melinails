@@ -9,6 +9,9 @@ use App\Models\Product;
 use App\Models\Slug;
 use App\Models\Attribute;
 use App\Settings\PageSettings;
+use Awcodes\Curator\Models\Media;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Str;
 
 class ProductController extends Controller
 {
@@ -174,7 +177,9 @@ class ProductController extends Controller
      */
     public function show(Product $product)
     {
-        $product->load(['variants']);
+        $product->load(['variants', 'image', 'banner', 'category', 'brand']);
+
+        $productImages = $this->productGalleryImages($product);
 
         $variantOptions = [];
         $variantMatrix = [];
@@ -243,6 +248,7 @@ class ProductController extends Controller
 
         $relatedProducts = Product::where('id', '!=', $product->id)
             ->where('category_id', $product->category_id)
+            ->with(['image', 'category'])
             ->inRandomOrder()
             ->take(4)
             ->get();
@@ -253,7 +259,78 @@ class ProductController extends Controller
             'variantOptions',
             'variantMatrix',
             'defaultVariantId',
+            'productImages',
         ));
+    }
+
+    private function productGalleryImages(Product $product): Collection
+    {
+        $images = collect();
+
+        $push = function (?string $url) use ($images): void {
+            if (blank($url)) {
+                return;
+            }
+
+            $normalized = $this->normalizeImageUrl($url);
+
+            if ($normalized && ! $images->contains($normalized)) {
+                $images->push($normalized);
+            }
+        };
+
+        // Anh muốn ảnh đại diện luôn là ảnh đầu tiên trong gallery chi tiết.
+        $push($product->image?->url);
+
+        foreach (collect($product->gallery)->filter() as $item) {
+            $push($this->resolveGalleryItemUrl($item));
+        }
+
+        if ($images->isEmpty()) {
+            $push($product->banner?->url);
+        }
+
+        return $images->values();
+    }
+
+    private function resolveGalleryItemUrl(mixed $item): ?string
+    {
+        if ($item instanceof Media) {
+            return $item->url;
+        }
+
+        if (is_numeric($item)) {
+            return Media::find((int) $item)?->url;
+        }
+
+        if (is_string($item)) {
+            return $item;
+        }
+
+        if (is_array($item)) {
+            $id = $item['id'] ?? $item['media_id'] ?? null;
+
+            if (is_numeric($id)) {
+                $mediaUrl = Media::find((int) $id)?->url;
+
+                if ($mediaUrl) {
+                    return $mediaUrl;
+                }
+            }
+
+            return $item['url'] ?? $item['path'] ?? null;
+        }
+
+        return null;
+    }
+
+    private function normalizeImageUrl(string $url): string
+    {
+        if (Str::startsWith($url, ['http://', 'https://', '//'])) {
+            return $url;
+        }
+
+        return asset(ltrim($url, '/'));
     }
 
     public function search(Request $request)

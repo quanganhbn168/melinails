@@ -89,11 +89,7 @@
                     <div class="swiper main-slider aspect-square">
                         <div class="swiper-wrapper">
                             @php
-                                $images = collect($product->gallery)->filter();
-                                if($images->isEmpty()){
-                                    if($product->image) $images->push($product->image);
-                                    elseif($product->banner) $images->push($product->banner);
-                                }
+                                $images = collect($productImages ?? [])->filter()->values();
                             @endphp
 
                             @if($images->isEmpty())
@@ -103,7 +99,7 @@
                             @else
                                 @foreach ($images as $image)
                                     <div class="swiper-slide flex items-center justify-center">
-                                        <img src="{{ (is_string($image) ? asset($image) : optional($image)->url) ?? asset('images/setting/no-image.png') }}"
+                                        <img src="{{ $image }}"
                                              alt="{{ $product->name }}"
                                              class="max-w-full max-h-full object-contain mix-blend-multiply dark:mix-blend-normal">
                                     </div>
@@ -125,7 +121,7 @@
                     <div class="swiper-wrapper">
                         @foreach ($images as $image)
                             <div class="swiper-slide bg-gray-50 dark:bg-gray-800 p-2">
-                                <img src="{{ (is_string($image) ? asset($image) : optional($image)->url) ?? asset('images/setting/no-image.png') }}"
+                                <img src="{{ $image }}"
                                      alt="Thumb" class="w-full h-full object-contain mix-blend-multiply dark:mix-blend-normal">
                             </div>
                         @endforeach
