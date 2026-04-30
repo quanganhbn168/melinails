@@ -6,6 +6,8 @@ use App\Filament\Forms\Components\FaqRepeater;
 use App\Filament\Forms\Components\ParentCategorySelect;
 use App\Filament\Forms\Components\SlugInput;
 use App\Models\FieldCategory;
+use App\Models\Product;
+use App\Models\Project;
 use Awcodes\Curator\Components\Forms\CuratorPicker;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\RichEditor;
@@ -104,7 +106,7 @@ class FieldCategoryForm
                     ]),
 
                 Section::make('Landing page lĩnh vực')
-                    ->description('Các khối hiển thị dưới leaderboard: tổng quan, thách thức, giải pháp, tính năng, hiệu quả, quy trình và FAQ.')
+                    ->description('Các khối hiển thị dưới leaderboard: tổng quan, thách thức, giải pháp, tính năng, hiệu quả, sản phẩm, dự án, quy trình và FAQ.')
                     ->schema([
                         Textarea::make('solution_overview')
                             ->label('Tổng quan giải pháp')
@@ -223,6 +225,32 @@ class FieldCategoryForm
                             ->maxItems(8)
                             ->columnSpanFull()
                             ->addActionLabel('+ Thêm bước'),
+
+                        Select::make('related_product_ids')
+                            ->label('Sản phẩm liên quan')
+                            ->helperText('Chọn sản phẩm hiển thị trong section "Sản phẩm phù hợp" của trang lĩnh vực này.')
+                            ->multiple()
+                            ->searchable()
+                            ->preload()
+                            ->options(fn () => Product::query()
+                                ->where('status', true)
+                                ->orderByDesc('is_home')
+                                ->orderBy('name')
+                                ->pluck('name', 'id'))
+                            ->columnSpanFull(),
+
+                        Select::make('related_project_ids')
+                            ->label('Dự án nổi bật liên quan')
+                            ->helperText('Chọn dự án hiển thị trong section "Dự án tiêu biểu" của trang lĩnh vực này.')
+                            ->multiple()
+                            ->searchable()
+                            ->preload()
+                            ->options(fn () => Project::query()
+                                ->where('status', true)
+                                ->orderByDesc('is_home')
+                                ->orderBy('name')
+                                ->pluck('name', 'id'))
+                            ->columnSpanFull(),
 
                         FaqRepeater::make(),
                     ])

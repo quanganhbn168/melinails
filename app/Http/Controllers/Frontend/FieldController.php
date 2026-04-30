@@ -4,6 +4,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Field;
 use App\Models\FieldCategory;
+use App\Models\Product;
 use App\Models\Project;
 use App\Models\Slug;
 use App\Settings\PageSettings;
@@ -210,29 +211,73 @@ class FieldController extends Controller
     }
     public function byCategory(FieldCategory $fieldCategory): View
     {
+        $pageSettings = app(PageSettings::class);
+        $setting = app(\App\Settings\GeneralSettings::class);
         $pageTitle = $fieldCategory->name;
         $current_category = $fieldCategory;
-        $childCategories = $fieldCategory->children()->where('status', 1)->get();
+        $current_category->loadMissing([
+            'image',
+            'banner',
+            'faqs' => fn ($query) => $query->active(),
+        ]);
 
-        $setting = app(\App\Settings\GeneralSettings::class);
-        $bannerUrl = $fieldCategory->image ? $fieldCategory->image->url : asset('images/setting/no-banner.png');
+        $childCategories = $fieldCategory->children()
+            ->where('status', 1)
+            ->with('image')
+            ->orderByDesc('is_home')
+            ->orderBy('position')
+            ->orderBy('order')
+            ->orderBy('name')
+            ->get();
+
+        $childCategoryCards = $childCategories
+            ->values()
+            ->map(fn (FieldCategory $category, int $index) => $this->categoryCard($category, $index))
+            ->values();
+
+        $bannerUrl = $fieldCategory->banner?->url
+            ?: ($fieldCategory->image?->url ?: asset('images/setting/no-banner.png'));
         $breadcrumbs = [
             ['label' => 'Lĩnh vực', 'url' => route('frontend.fields.index')],
             ['label' => $pageTitle, 'url' => '']
         ];
 
-        if ($childCategories->isNotEmpty()) {
-            return view("frontend.fields.fieldByCate", [
-                "field_categories" => $childCategories,
-                "pageTitle" => $pageTitle,
-                "current_category" => $current_category,
-                "setting" => $setting,
-                "bannerUrl" => $bannerUrl,
-                "breadcrumbs" => $breadcrumbs
-            ]);
-        }
-        $fields = $fieldCategory->fields()->where('status', 1)->paginate(10);
-        return view("frontend.fields.fieldList", compact("fields", "pageTitle", "current_category", "setting", "bannerUrl", "breadcrumbs"));
+        $showcaseImage = $fieldCategory->banner?->url
+            ?: ($fieldCategory->image?->url ?: 'https://placehold.co/720x720/eaf4fb/0e4a86?text=CNETPOS');
+        $showcaseDescription = Str::limit(strip_tags((string) ($fieldCategory->solution_overview ?: $fieldCategory->description ?: $fieldCategory->content)), 340);
+
+        $businessChallenges = $this->landingItems($fieldCategory->business_challenges);
+        $cnetposSolutions = $this->landingItems($fieldCategory->cnetpos_solutions);
+        $keyFeatures = $this->landingItems($fieldCategory->key_features);
+        $impactStats = $this->landingItems($fieldCategory->impact_stats, ['value', 'label']);
+        $processSteps = $this->landingItems($fieldCategory->implementation_steps)
+            ->values()
+            ->map(fn (array $step, int $index) => array_merge($step, [
+                'number' => str_pad((string) ($index + 1), 2, '0', STR_PAD_LEFT),
+            ]));
+        $faqs = $this->faqItems($fieldCategory->faqs ?? collect());
+        $relatedProductCards = $this->selectedProductCards($fieldCategory->related_product_ids ?? []);
+        $relatedProjectCards = $this->selectedProjectCards($fieldCategory->related_project_ids ?? []);
+
+        return view("frontend.fields.fieldByCate", compact(
+            'pageSettings',
+            'pageTitle',
+            'current_category',
+            'setting',
+            'bannerUrl',
+            'breadcrumbs',
+            'childCategoryCards',
+            'showcaseImage',
+            'showcaseDescription',
+            'businessChallenges',
+            'cnetposSolutions',
+            'keyFeatures',
+            'impactStats',
+            'processSteps',
+            'relatedProductCards',
+            'relatedProjectCards',
+            'faqs',
+        ));
     }
     public function detail(Field $field): View
     {
@@ -330,6 +375,73 @@ class FieldController extends Controller
                 'title' => $project->name,
                 'badge' => $project->category?->name ?? 'Dự án',
                 'description' => Str::limit(strip_tags((string) $project->description), 90),
+            ])
+            ->values();
+    }
+
+    private function selectedProjectCards(mixed $ids): Collection
+    {
+        $projectIds = collect($ids ?? [])
+            ->filter()
+            ->map(fn ($id) => (int) $id)
+            ->unique()
+            ->values();
+
+        if ($projectIds->isEmpty()) {
+            return collect();
+        }
+
+        $projectsById = Project::query()
+            ->where('status', 1)
+            ->whereIn('id', $projectIds)
+            ->with(['image', 'category', 'slugData'])
+            ->get()
+            ->keyBy('id');
+
+        return $this->projectCards(
+            $projectIds
+                ->map(fn (int $id) => $projectsById->get($id))
+                ->filter()
+                ->values()
+        );
+    }
+
+    private function selectedProductCards(mixed $ids): Collection
+    {
+        $productIds = collect($ids ?? [])
+            ->filter()
+            ->map(fn ($id) => (int) $id)
+            ->unique()
+            ->values();
+
+        if ($productIds->isEmpty()) {
+            return collect();
+        }
+
+        $productsById = Product::query()
+            ->where('status', 1)
+            ->whereIn('id', $productIds)
+            ->with(['image', 'category', 'slugData'])
+            ->get()
+            ->keyBy('id');
+
+        return $this->productCards(
+            $productIds
+                ->map(fn (int $id) => $productsById->get($id))
+                ->filter()
+                ->values()
+        );
+    }
+
+    private function productCards(iterable $products): Collection
+    {
+        return collect($products)
+            ->map(fn (Product $product) => [
+                'url' => $product->slug_url,
+                'image' => $product->image?->url ?: 'https://placehold.co/520x360/eaf4fb/0e4a86?text=Product',
+                'title' => $product->name,
+                'badge' => $product->category?->name ?? 'Sản phẩm',
+                'description' => Str::limit(strip_tags((string) $product->description), 90),
             ])
             ->values();
     }
