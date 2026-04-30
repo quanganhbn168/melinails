@@ -212,7 +212,7 @@ class FieldController extends Controller
     {
         $pageTitle = $fieldCategory->name;
         $current_category = $fieldCategory;
-        $childCategories = $fieldCategory->children()->where('status', 1)->get();        
+        $childCategories = $fieldCategory->children()->where('status', 1)->get();
 
         $setting = app(\App\Settings\GeneralSettings::class);
         $bannerUrl = $fieldCategory->image ? $fieldCategory->image->url : asset('images/setting/no-banner.png');
@@ -230,7 +230,7 @@ class FieldController extends Controller
                 "bannerUrl" => $bannerUrl,
                 "breadcrumbs" => $breadcrumbs
             ]);
-        }        
+        }
         $fields = $fieldCategory->fields()->where('status', 1)->paginate(10);
         return view("frontend.fields.fieldList", compact("fields", "pageTitle", "current_category", "setting", "bannerUrl", "breadcrumbs"));
     }
@@ -243,7 +243,7 @@ class FieldController extends Controller
 
         while ($currentCategory) {
             array_unshift($breadcrumbs, $currentCategory);
-            
+
             $currentCategory = $currentCategory->parent;
         }
 

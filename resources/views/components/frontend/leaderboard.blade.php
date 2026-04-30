@@ -77,7 +77,6 @@
     <div class="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-white/85 to-transparent md:hidden"></div>
     <div class="absolute inset-0 hidden bg-gradient-to-r from-white via-white/88 to-white/8 md:block"></div>
     <div class="absolute inset-y-0 left-0 hidden w-2/3 bg-gradient-to-r from-white via-white/95 to-transparent md:block"></div>
-    <div class="absolute inset-x-0 bottom-0 h-12 bg-white/75 md:h-24 md:bg-white/80" style="clip-path: polygon(0 58%, 14% 50%, 29% 66%, 47% 48%, 66% 64%, 82% 52%, 100% 62%, 100% 100%, 0 100%);"></div>
 
     <div class="relative z-10 mx-auto flex min-h-[360px] max-w-screen-xl flex-col justify-center px-4 py-7 sm:min-h-[400px] sm:py-10 md:min-h-[480px] md:py-14 lg:min-h-[520px] lg:py-16">
         <div class="max-w-3xl text-left">
