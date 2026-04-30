@@ -1,5 +1,5 @@
 @extends('layouts.master')
-@section('title', $setting->site_name)
+@section('title',$setting->company_name)
 @section('meta_description', $setting->meta_description)
 
 @section('content')

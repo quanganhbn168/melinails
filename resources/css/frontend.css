@@ -4189,6 +4189,158 @@
   }
 }
 
+/* Frontend typography tuning */
+#main-content {
+  --content-heading-weight: 700;
+  --content-strong-weight: 600;
+}
+
+#main-content .font-black,
+#main-content .font-extrabold {
+  font-weight: var(--content-heading-weight);
+}
+
+#main-content .font-bold {
+  font-weight: var(--content-strong-weight);
+}
+
+#main-content :is(.tracking-wider, .tracking-widest, .tracking-\[0\.3em\]) {
+  letter-spacing: .04em;
+}
+
+#main-content :is(.prose-lg, .prose-xl) {
+  font-size: 1rem;
+  line-height: 1.75;
+}
+
+#main-content :is(.text-7xl, .text-6xl) {
+  font-size: 2.55rem;
+  line-height: 1.08;
+}
+
+#main-content .text-5xl {
+  font-size: 2.25rem;
+  line-height: 1.12;
+}
+
+#main-content .text-4xl {
+  font-size: 1.95rem;
+  line-height: 1.16;
+}
+
+#main-content .text-3xl {
+  font-size: 1.62rem;
+  line-height: 1.22;
+}
+
+#main-content .text-2xl {
+  font-size: 1.32rem;
+  line-height: 1.28;
+}
+
+#main-content :is(
+  .home-section-title,
+  .home-projects-heading h2,
+  .home-product-heading h2,
+  .home-news-heading h2,
+  .home-testimonials-heading h2,
+  .news-index-hero h1,
+  .news-section-title,
+  .field-index-heading h2,
+  .field-showcase-main h2,
+  .field-process h2,
+  .field-featured-heading h2,
+  .field-faq-section h2,
+  .field-detail-band-copy h2,
+  .field-detail-section-heading h2,
+  .service-feature-title,
+  .product-detail-title,
+  .product-detail-related-heading h2
+) {
+  font-size: clamp(1.5rem, 2.45vw, 2.25rem);
+  font-weight: var(--content-heading-weight);
+  letter-spacing: 0;
+  line-height: 1.22;
+}
+
+#main-content :is(
+  .home-product-title,
+  .home-project-featured-title,
+  .home-project-side-body strong,
+  .home-news-featured-title,
+  .home-news-card-title,
+  .news-main-body h2,
+  .news-top-body h3,
+  .news-list-body h3,
+  .field-mini-card strong,
+  .field-project-card strong,
+  .field-process-card h3,
+  .field-icon-list strong,
+  .field-check-list strong,
+  .product-detail-related-card strong
+) {
+  font-weight: var(--content-heading-weight);
+  line-height: 1.32;
+}
+
+@media (min-width: 768px) and (max-width: 1199px) {
+  #main-content :is(.md\:text-6xl, .md\:text-5xl) {
+    font-size: 2.35rem;
+    line-height: 1.1;
+  }
+
+  #main-content .md\:text-4xl {
+    font-size: 2rem;
+    line-height: 1.15;
+  }
+
+  #main-content .md\:text-3xl {
+    font-size: 1.55rem;
+    line-height: 1.22;
+  }
+
+  #main-content .md\:text-2xl {
+    font-size: 1.32rem;
+    line-height: 1.28;
+  }
+}
+
+@media (min-width: 1024px) {
+  #main-content .lg\:text-6xl {
+    font-size: 3rem;
+    line-height: 1.06;
+  }
+
+  #main-content .lg\:text-5xl {
+    font-size: 2.55rem;
+    line-height: 1.08;
+  }
+
+  #main-content .lg\:text-4xl {
+    font-size: 2.1rem;
+    line-height: 1.14;
+  }
+}
+
+@media (max-width: 767px) {
+  #main-content :is(.text-7xl, .text-6xl, .text-5xl) {
+    font-size: 2rem;
+    line-height: 1.12;
+  }
+
+  #main-content .text-4xl {
+    font-size: 1.75rem;
+  }
+
+  #main-content .text-3xl {
+    font-size: 1.5rem;
+  }
+
+  #main-content .text-2xl {
+    font-size: 1.25rem;
+  }
+}
+
 /* Swiper Custom Pagination */
 .swiper-pagination-bullet {
   width: 25px !important;

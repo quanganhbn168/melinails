@@ -132,7 +132,7 @@
 
             {{-- CỘT PHẢI: THÔNG TIN SẢN PHẨM --}}
             <div class="flex flex-col">
-                <h1 class="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
+                <h1 class="text-2xl md:text-3xl xl:text-4xl font-semibold md:font-bold text-gray-900 dark:text-white mb-4 leading-tight">
                     {{ $product->name }}
                 </h1>
 
@@ -142,9 +142,9 @@
                     </span>
                 </div>
 
-                <div id="product-price-box" class="text-4xl font-bold text-blue-700 dark:text-blue-500 mb-8">
+                <div id="product-price-box" class="text-2xl md:text-3xl xl:text-4xl font-semibold text-blue-700 dark:text-blue-500 mb-8">
                     @if($product->price > 0)
-                        <span id="product-current-price">{{ number_format($product->price) }}</span> <span class="text-2xl font-normal underline">đ</span>
+                        <span id="product-current-price">{{ number_format($product->price) }}</span> <span class="text-lg md:text-xl xl:text-2xl font-normal underline">đ</span>
 
                     @else
                         <span id="product-current-price" class="text-red-500">Liên hệ báo giá</span>
@@ -189,7 +189,7 @@
                     </div>
                     <button
                         type="button"
-                        class="btn-add-to-cart inline-flex items-center justify-center px-6 py-3 text-base font-bold text-white bg-brand-600 hover:bg-brand-700 rounded-xl transition-colors shadow-md"
+                        class="btn-add-to-cart inline-flex items-center justify-center px-5 md:px-6 py-3 text-sm md:text-base font-semibold text-white bg-brand-600 hover:bg-brand-700 rounded-xl transition-colors shadow-md"
                         data-id="{{ $product->id }}"
                         data-quantity="1"
                         data-variant-id=""
@@ -205,22 +205,22 @@
 
                 {{-- Khối Liên hệ --}}
                 <div class="bg-blue-50 dark:bg-gray-800/50 rounded-2xl p-6 border border-blue-100 dark:border-gray-700 mt-auto">
-                    <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4">
+                    <h3 class="text-base md:text-lg font-semibold text-gray-900 dark:text-white mb-4">
                         Cần hỗ trợ hoặc mua hàng?
                     </h3>
                     <div class="flex flex-col sm:flex-row gap-4 mb-4">
-                        <a href="/lien-he" class="flex-1 inline-flex items-center justify-center px-6 py-3.5 text-base font-bold text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 rounded-xl transition-colors shadow-lg shadow-blue-500/30">
+                        <a href="/lien-he" class="flex-1 inline-flex items-center justify-center px-5 py-3 text-sm md:text-base font-semibold text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 rounded-xl transition-colors shadow-lg shadow-blue-500/30">
                             <i class="fas fa-paper-plane mr-2"></i> Gửi yêu cầu ngay
                         </a>
                     </div>
                     <div class="grid grid-cols-2 gap-4">
                         <a href="{{ $setting->zalo }}" target="_blank" class="flex items-center justify-center px-4 py-3 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl hover:border-blue-500 dark:hover:border-blue-400 transition-colors group">
                             <img src="{{ asset('images/setting/Icon_of_Zalo.svg') }}" alt="Zalo" class="w-6 h-6 mr-2 group-hover:scale-110 transition-transform">
-                            <span class="font-medium text-gray-700 dark:text-gray-200">Chat Zalo</span>
+                            <span class="text-sm md:text-base font-medium text-gray-700 dark:text-gray-200">Chat Zalo</span>
                         </a>
                         <a href="tel:{{ $setting->phone }}" class="flex items-center justify-center px-4 py-3 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl hover:border-blue-500 dark:hover:border-blue-400 transition-colors group">
                             <i class="fas fa-phone-alt text-lg text-blue-600 dark:text-blue-400 mr-2 group-hover:animate-bounce"></i>
-                            <span class="font-medium text-gray-700 dark:text-gray-200">{{ $setting->phone }}</span>
+                            <span class="text-sm md:text-base font-medium text-gray-700 dark:text-gray-200">{{ $setting->phone }}</span>
                         </a>
                     </div>
                 </div>
@@ -232,12 +232,12 @@
             <div class="border-b border-gray-200 dark:border-gray-700 mb-6">
                 <ul class="flex flex-wrap -mb-px text-sm font-medium text-center" id="productTab" data-tabs-toggle="#productTabContent" role="tablist">
                     <li class="mr-2" role="presentation">
-                        <button class="inline-block p-4 border-b-2 rounded-t-lg aria-selected:border-blue-600 aria-selected:text-blue-600 text-gray-500 border-transparent hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300 transition-colors uppercase font-bold text-base md:text-lg" id="desc-tab" data-tabs-target="#desc" type="button" role="tab" aria-controls="desc" aria-selected="true">
+                        <button class="inline-block p-3 md:p-4 border-b-2 rounded-t-lg aria-selected:border-blue-600 aria-selected:text-blue-600 text-gray-500 border-transparent hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300 transition-colors uppercase font-semibold text-sm md:text-base" id="desc-tab" data-tabs-target="#desc" type="button" role="tab" aria-controls="desc" aria-selected="true">
                             Mô tả chi tiết
                         </button>
                     </li>
                     <li class="mr-2" role="presentation">
-                        <button class="inline-block p-4 border-b-2 rounded-t-lg aria-selected:border-blue-600 aria-selected:text-blue-600 text-gray-500 border-transparent hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300 transition-colors uppercase font-bold text-base md:text-lg" id="specs-tab" data-tabs-target="#specs" type="button" role="tab" aria-controls="specs" aria-selected="false">
+                        <button class="inline-block p-3 md:p-4 border-b-2 rounded-t-lg aria-selected:border-blue-600 aria-selected:text-blue-600 text-gray-500 border-transparent hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300 transition-colors uppercase font-semibold text-sm md:text-base" id="specs-tab" data-tabs-target="#specs" type="button" role="tab" aria-controls="specs" aria-selected="false">
                             Thông số kỹ thuật
                         </button>
                     </li>
@@ -245,12 +245,12 @@
             </div>
             <div id="productTabContent" class="bg-white dark:bg-gray-800 p-6 md:p-10 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700">
                 <div class="hidden" id="desc" role="tabpanel" aria-labelledby="desc-tab">
-                    <div class="prose prose-lg max-w-none prose-blue dark:prose-invert">
+                    <div class="prose prose-base max-w-none prose-blue dark:prose-invert">
                         @if($product->content) {!! $product->content !!} @else <p class="text-gray-500 italic">Nội dung đang cập nhật...</p> @endif
                     </div>
                 </div>
                 <div class="hidden" id="specs" role="tabpanel" aria-labelledby="specs-tab">
-                    <div class="prose prose-lg max-w-none prose-blue dark:prose-invert">
+                    <div class="prose prose-base max-w-none prose-blue dark:prose-invert">
                         @if($product->specifications) {!! $product->specifications !!} @else <p class="text-gray-500 italic">Nội dung đang cập nhật...</p> @endif
                     </div>
                 </div>
@@ -267,7 +267,7 @@
         @if(isset($relatedProducts) && $relatedProducts->count() > 0)
         <div class="mt-20">
             <div class="flex items-center justify-between mb-8 border-b-2 border-gray-100 dark:border-gray-700 pb-2">
-                <h2 class="text-2xl font-bold text-gray-900 dark:text-white uppercase relative inline-block">
+                <h2 class="text-xl md:text-2xl font-semibold text-gray-900 dark:text-white uppercase relative inline-block">
                     Sản phẩm liên quan
                     <div class="absolute -bottom-[4px] left-0 w-16 h-1 bg-blue-600 rounded-r-full"></div>
                 </h2>
@@ -297,8 +297,8 @@
 
         {{-- Footer Info --}}
         <div class="mt-16 bg-blue-50 dark:bg-gray-800 p-8 rounded-2xl text-center border border-blue-100 dark:border-gray-700">
-            <p class="text-lg font-bold text-blue-900 dark:text-blue-400 mb-3">TRÂN TRỌNG CẢM ƠN QUÝ KHÁCH ĐÃ QUAN TÂM!</p>
-            <div class="flex flex-col md:flex-row items-center justify-center gap-4 text-gray-600 dark:text-gray-300 font-medium">
+            <p class="text-base md:text-lg font-semibold text-blue-900 dark:text-blue-400 mb-3">TRÂN TRỌNG CẢM ƠN QUÝ KHÁCH ĐÃ QUAN TÂM!</p>
+            <div class="flex flex-col md:flex-row items-center justify-center gap-4 text-sm md:text-base text-gray-600 dark:text-gray-300 font-medium">
                 <span class="flex items-center"><i class="fas fa-map-marker-alt text-blue-600 mr-2"></i> {{ $setting->address }}</span>
                 <span class="hidden md:inline text-gray-300">|</span>
                 <span class="flex items-center"><i class="fas fa-phone-alt text-blue-600 mr-2"></i> Hotline: {{ $setting->phone }}</span>
