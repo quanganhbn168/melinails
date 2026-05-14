@@ -10,10 +10,11 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 use App\Traits\HasSlug;
+use App\Traits\HasCategoryTree;
 
 class FieldCategory extends Model
 {
-    use HasFactory, HasSlug, \App\Traits\HasCategoryTree;
+    use HasFactory, HasSlug, HasCategoryTree;
 
     protected $fillable = [
         'name',
