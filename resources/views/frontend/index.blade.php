@@ -42,9 +42,9 @@
                         @endif
 
                         @if($slide->title)
-                        <h1 data-hero-anim="2" class="text-2xl sm:text-3xl md:text-5xl lg:text-6xl font-extrabold text-white leading-tight mb-4 md:mb-6">
+                        <h2 data-hero-anim="2" class="text-2xl sm:text-3xl md:text-5xl lg:text-6xl font-extrabold text-white leading-tight mb-4 md:mb-6">
                             {!! nl2br(e($slide->title)) !!}
-                        </h1>
+                        </h2>
                         @endif
 
                         @if($slide->description)

@@ -12,7 +12,7 @@
     @php
         $siteName = $setting->site_name ?? config('app.name');
     @endphp
-    <title>@hasSection('title') @yield('title') - {{ $siteName }} @else {{ $siteName }} @endif</title>
+    <title>@yield('title', $setting->site_name)</title>
     <meta name="description" content="@yield('meta_description', $setting->meta_description ?? '')">
     <meta name="keywords" content="@yield('meta_keywords', $setting->meta_keywords ?? '')">
     <meta name="robots" content="@yield('meta_robots', 'index, follow')">
@@ -20,16 +20,14 @@
     <link rel="canonical" href="{{ url()->current() }}" />
     {{-- Open Graph --}}
     <meta property="og:type" content="@yield('og_type', 'website')" />
-    <meta property="og:title"
-        content="@hasSection('title') @yield('title') - {{ $siteName }} @else {{ $siteName }} @endif" />
+    <meta property="og:title" content="@yield('title', $setting->site_name ?? '')" />
     <meta property="og:description" content="@yield('meta_description', $setting->meta_description ?? '')" />
     <meta property="og:url" content="{{ url()->current() }}" />
     <meta property="og:site_name" content="{{ $setting->site_name ?? config('app.name') }}" />
     <meta property="og:image" content="@yield('meta_image', $globalMetaImageUrl)" />
     {{-- Twitter Card --}}
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title"
-        content="@hasSection('title') @yield('title') - {{ $siteName }} @else {{ $siteName }} @endif" />
+    <meta name="twitter:title" content="@yield('title', $setting->site_name ?? '')" />
     <meta name="twitter:description" content="@yield('meta_description', $setting->meta_description ?? '')" />
     <meta name="twitter:image" content="@yield('meta_image', $globalMetaImageUrl)" />
     {{-- Fonts, Favicons --}}
@@ -48,7 +46,7 @@
 <body
     class="bg-white text-gray-900 font-sans antialiased dark:bg-gray-900 dark:text-gray-100 {{ Auth::check() ? 'logged-in' : '' }}">
     {!! $setting->body_start_script ?? '' !!}
-    {!! $setting->body_script ?? '' !!}
+    
 
     @include('partials.frontend.header')
 
@@ -103,6 +101,7 @@
         });
     </script>
     @stack('js')
+    {!! $setting->body_script ?? '' !!}
 </body>
 
 </html>
