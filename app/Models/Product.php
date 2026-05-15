@@ -23,7 +23,7 @@ class Product extends Model
         'brand_id',
         'name',
         'code',
-'image_id',
+        'image_id',
         'gallery',
         'banner_id',
         'description',
@@ -45,11 +45,13 @@ class Product extends Model
     ];
 
     protected $casts = [
-        'gallery'      => 'array',
-        'status'       => 'boolean',
-        'is_on_sale'   => 'boolean',
-        'is_featured'  => 'boolean',
-        'is_home'      => 'boolean',
+        'gallery' => 'array',
+        'price' => 'decimal:2',
+        'price_discount' => 'decimal:2',
+        'status' => 'boolean',
+        'is_on_sale' => 'boolean',
+        'is_featured' => 'boolean',
+        'is_home' => 'boolean',
         'has_variants' => 'boolean',
     ];
 

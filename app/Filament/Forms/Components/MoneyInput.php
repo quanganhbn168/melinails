@@ -13,30 +13,43 @@ class MoneyInput extends TextInput
 
         $this
             ->prefix('₫')
+            ->placeholder('0')
+            ->inputMode('numeric')
             ->mask(RawJs::make('$money($input, \',\', \'.\', 0)'))
             ->stripCharacters('.')
-            ->numeric()
             ->minValue(0)
-            ->dehydrateStateUsing(
-                fn ($state) => filled($state)
-                    ? (int) str_replace('.', '', $state)
-                    : null
-            )
-            ->formatStateUsing(
-                fn ($state) => filled($state)
-                    ? number_format((int) $state, 0, ',', '.')
-                    : null
-            );
+            ->dehydrateStateUsing(fn ($state) => static::normalizeMoney($state))
+            ->formatStateUsing(fn ($state) => static::formatMoney($state));
     }
 
     public function zeroWhenEmpty(): static
     {
         $this->dehydrateStateUsing(
-            fn ($state) => filled($state)
-                ? (int) str_replace('.', '', $state)
-                : 0
+            fn ($state) => static::normalizeMoney($state) ?? 0
         );
 
         return $this;
+    }
+
+    protected static function normalizeMoney($state): ?int
+    {
+        if (! filled($state)) {
+            return null;
+        }
+
+        $state = (string) $state;
+
+        $state = str_replace(['.', ',', '₫', ' '], '', $state);
+
+        return (int) $state;
+    }
+
+    protected static function formatMoney($state): ?string
+    {
+        if (! filled($state)) {
+            return null;
+        }
+
+        return number_format((float) $state, 0, ',', '.');
     }
 }
