@@ -11,7 +11,10 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Filament\Actions\DeleteAction;
 use Filament\Notifications\Notification;
-
+use App\Models\Category;
+use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Filters\TernaryFilter;
+use Illuminate\Database\Eloquent\Builder;
 class CategoriesTable
 {
     public static function configure(Table $table): Table
@@ -62,8 +65,44 @@ class CategoriesTable
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                //
-            ])
+    SelectFilter::make('category_tree')
+        ->label('Nhóm danh mục')
+        ->options(fn () => Category::getTreeOptions())
+        ->searchable()
+        ->preload()
+        ->query(fn (Builder $query, array $data): Builder => filled($data['value'] ?? null)
+            ? $query->whereIn('id', Category::getTreeIds((int) $data['value']))
+            : $query
+        ),
+
+    TernaryFilter::make('root_only')
+        ->label('Cấp danh mục')
+        ->placeholder('Tất cả')
+        ->trueLabel('Chỉ danh mục gốc')
+        ->falseLabel('Chỉ danh mục con')
+        ->queries(
+            true: fn (Builder $query) => $query->whereNull('parent_id'),
+            false: fn (Builder $query) => $query->whereNotNull('parent_id'),
+            blank: fn (Builder $query) => $query,
+        ),
+
+    TernaryFilter::make('status')
+        ->label('Kích hoạt')
+        ->placeholder('Tất cả')
+        ->trueLabel('Đang bật')
+        ->falseLabel('Đang tắt'),
+
+    TernaryFilter::make('has_products')
+        ->label('Sản phẩm')
+        ->placeholder('Tất cả')
+        ->trueLabel('Có sản phẩm')
+        ->falseLabel('Chưa có sản phẩm')
+        ->queries(
+            true: fn (Builder $query) => $query->has('products'),
+            false: fn (Builder $query) => $query->doesntHave('products'),
+            blank: fn (Builder $query) => $query,
+        ),
+])
             ->recordActions([
                 EditAction::make(),
                 DeleteAction::make()
