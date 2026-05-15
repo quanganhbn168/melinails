@@ -34,7 +34,7 @@ class FieldCategoryForm
                         ParentCategorySelect::make('parent_id')
                             ->label('Danh mục cha')
                             ->treeModel(FieldCategory::class)
-                            ->rootAsZero('-- Danh mục gốc --')
+                            ->rootAsNull('-- Danh mục gốc --')
                             ->columnSpanFull(),
 
                         Grid::make([
