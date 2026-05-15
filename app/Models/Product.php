@@ -37,6 +37,8 @@ class Product extends Model
         'is_featured',
         'is_home',
         'is_on_sale',
+        'discount_type',
+        'discount_value',
         'product_type',
         'meta_title',
         'meta_description',
@@ -53,6 +55,7 @@ class Product extends Model
         'is_featured' => 'boolean',
         'is_home' => 'boolean',
         'has_variants' => 'boolean',
+        'discount_value' => 'decimal:2',
     ];
 
     const TYPE_PHYSICS  = 'physics';
