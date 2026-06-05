@@ -183,6 +183,18 @@ class MelinailsSeeder extends Seeder
                     ],
                 ]);
             }
+
+            $availableCategoryIds = $branch->services()
+                ->wherePivot('is_available', true)
+                ->pluck('services.service_category_id')
+                ->unique()
+                ->values();
+
+            $branch->serviceCategories()->sync(
+                $availableCategoryIds
+                    ->mapWithKeys(fn (int $categoryId) => [$categoryId => ['is_available' => true]])
+                    ->all()
+            );
         }
 
         $staffRows = [
