@@ -54,6 +54,7 @@ class BookingAppointmentResource extends Resource
     public static function form(Schema $schema): Schema
     {
         return $schema
+            ->columns(1)
             ->components([
                 Section::make('Lịch hẹn')
                     ->schema([
@@ -108,7 +109,8 @@ class BookingAppointmentResource extends Resource
                             ->searchable()
                             ->required()
                             ->columnSpanFull(),
-                    ]),
+                    ])
+                    ->columnSpanFull(),
                 Section::make('Khách hàng')
                     ->schema([
                         Grid::make(2)
@@ -129,7 +131,8 @@ class BookingAppointmentResource extends Resource
                                     ->label('Ghi chú')
                                     ->rows(3),
                             ]),
-                    ]),
+                    ])
+                    ->columnSpanFull(),
             ]);
     }
 

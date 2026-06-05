@@ -186,6 +186,15 @@ class ManageSettings extends SettingsPage
                                             ->label('Tự động xác nhận booking')
                                             ->default(true)
                                             ->helperText('Bật: booking mới vào Confirmed. Tắt: booking mới vào Pending để quản lý duyệt.'),
+                                        Select::make('booking_form_layout')
+                                            ->label('Kiểu form booking')
+                                            ->options([
+                                                'single' => 'Một trang dọc',
+                                                'steps' => 'Từng bước Next/Back',
+                                            ])
+                                            ->default('single')
+                                            ->native(false)
+                                            ->helperText('Chọn "Từng bước" để khách đi theo flow chọn dịch vụ, thời gian, liên hệ rồi kiểm tra trước khi gửi.'),
                                     ])
                                     ->columns(4),
                                 Section::make('Mail xác nhận booking')

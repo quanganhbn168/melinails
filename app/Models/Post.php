@@ -70,11 +70,6 @@ class Post extends Model
         return $this->belongsTo(Media::class, 'meta_image_id');
     }
 
-    public function services()
-    {
-        return $this->belongsToMany(Service::class);
-    }
-
     // ==========================================
     // IMAGE HELPERS (tương thích với View cũ dùng mainImage() / bannerImage())
     // ==========================================

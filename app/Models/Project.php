@@ -62,8 +62,4 @@ class Project extends Model
         return $this->belongsTo(Media::class, 'banner_id');
     }
 
-    public function services()
-    {
-        return $this->belongsToMany(Service::class);
-    }
 }

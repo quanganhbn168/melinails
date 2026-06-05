@@ -52,6 +52,7 @@ class BranchResource extends Resource
     public static function form(Schema $schema): Schema
     {
         return $schema
+            ->columns(1)
             ->components([
                 Tabs::make('Cài đặt shop')
                     ->tabs([
@@ -169,7 +170,8 @@ class BranchResource extends Resource
                                     ->label('Kích hoạt shop')
                                     ->default(true),
                             ]),
-                    ]),
+                    ])
+                    ->columnSpanFull(),
             ]);
     }
 

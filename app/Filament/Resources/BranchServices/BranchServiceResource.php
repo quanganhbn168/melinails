@@ -52,10 +52,15 @@ class BranchServiceResource extends Resource
     public static function form(Schema $schema): Schema
     {
         return $schema
+            ->columns(1)
             ->components([
                 Section::make('Chi nhánh & dịch vụ')
                     ->schema([
-                        Grid::make(2)
+                        Grid::make([
+                            'default' => 1,
+                            'md' => 2,
+                            'xl' => 3,
+                        ])
                             ->schema([
                                 Select::make('branch_id')
                                     ->label('Chi nhánh')
@@ -87,7 +92,8 @@ class BranchServiceResource extends Resource
                                     ->label('Có ở chi nhánh này')
                                     ->default(true),
                             ]),
-                    ]),
+                    ])
+                    ->columnSpanFull(),
             ]);
     }
 

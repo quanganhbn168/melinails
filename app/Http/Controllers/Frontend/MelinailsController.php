@@ -107,6 +107,7 @@ class MelinailsController extends Controller
             'bookingOnlineEnabled' => $settings->booking_online_enabled ?? true,
             'allowStaffSelection' => $settings->booking_customer_staff_selection_enabled ?? true,
             'autoAssignStaff' => $settings->booking_staff_auto_assign_enabled ?? true,
+            'bookingFormLayout' => $settings->booking_form_layout ?: 'single',
             'appointments' => BookingAppointment::query()
                 ->with('segments')
                 ->active()

@@ -2,21 +2,21 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
 use App\Models\User;
+use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Role;
+
 class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        // Tạo tài khoản admin mặc định
         $user = User::firstOrCreate(
-            ['email' => 'admin@cnetpos.vn'],
+            ['email' => 'admin@melinails.cz'],
             [
-                'name' => 'Super Admin',
+                'name' => 'Meli Admin',
                 'password' => 'admin123',
-                'phone' => '0123456789',
-                'address' => 'Vietnam',
+                'phone' => '+420777768681',
+                'address' => 'Uherské Hradiště, Czechia',
             ]
         );
 
@@ -24,10 +24,6 @@ class DatabaseSeeder extends Seeder
         $role = Role::firstOrCreate(['name' => 'super_admin', 'guard_name' => 'web']);
         $user->assignRole($role);
 
-        $this->call([
-            DemoHomepageSeeder::class,
-            MelinailsSeeder::class,
-            // Thêm các seeder khác nếu cần
-        ]);
+        $this->call(MelinailsSeeder::class);
     }
 }

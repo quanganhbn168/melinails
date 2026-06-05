@@ -55,6 +55,7 @@ class GeneralSettings extends Settings
     public ?bool $booking_customer_staff_selection_enabled;
     public ?bool $booking_staff_auto_assign_enabled;
     public ?bool $booking_auto_confirm_enabled;
+    public ?string $booking_form_layout;
 
     // ── Booking mail ────────────────────────────────────────────
     public ?bool $booking_customer_mail_enabled;

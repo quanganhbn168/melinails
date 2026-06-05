@@ -120,6 +120,7 @@
         bookingOnlineEnabled: @js($bookingOnlineEnabled),
         allowStaffSelection: @js($allowStaffSelection),
         autoAssignStaff: @js($autoAssignStaff),
+        bookingFormLayout: @js($bookingFormLayout),
         initialBranch: @js(request('branch')),
         initialService: @js(request('service')),
         storeUrl: @js(route('meli.booking.store')),
@@ -130,7 +131,17 @@
             <div x-show="!bookingOnlineEnabled" class="booking-panel p-5 text-sm font-semibold text-stone-700">
                 Online booking je momentálně vypnutý. Kontaktujte prosím salon telefonicky.
             </div>
-            <div class="booking-panel overflow-hidden">
+            <div x-show="isStepLayout()" class="booking-panel p-4 sm:p-5">
+                <div class="booking-wizard-steps">
+                    <template x-for="item in wizardSteps()" :key="item.number">
+                        <button type="button" class="booking-wizard-step" :class="{ 'is-active': bookingStep === item.number, 'is-done': bookingStep > item.number }" @click="goToStep(item.number)">
+                            <span x-text="item.number"></span>
+                            <strong x-text="item.label"></strong>
+                        </button>
+                    </template>
+                </div>
+            </div>
+            <div class="booking-panel overflow-hidden" x-show="showPanel(1)">
                 <div class="booking-step-header">
                     <div>
                         <h2>Vyberte pobočku</h2>
@@ -155,7 +166,7 @@
                 </div>
             </div>
 
-            <div class="booking-panel p-4 sm:p-6 lg:p-8">
+            <div class="booking-panel p-4 sm:p-6 lg:p-8" x-show="showPanel(2)">
                 <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
                     <div>
                         <h2 class="booking-step-label">2. Služby</h2>
@@ -197,7 +208,7 @@
                 </div>
             </div>
 
-            <div class="booking-panel p-4 sm:p-6 lg:p-8">
+            <div class="booking-panel p-4 sm:p-6 lg:p-8" x-show="showPanel(3)">
                 <h2 class="booking-step-label" x-text="allowStaffSelection ? '3. Specialistka a čas' : '3. Datum a čas'"></h2>
                 <div class="mt-4 grid gap-3 sm:mt-5 md:grid-cols-3">
                     <select x-show="allowStaffSelection" x-model.number="staffId" class="booking-input w-full" @change="syncTime()">
@@ -215,13 +226,46 @@
                 </div>
             </div>
 
-            <div class="booking-panel p-4 sm:p-6 lg:p-8">
+            <div class="booking-panel p-4 sm:p-6 lg:p-8" x-show="showPanel(4)">
                 <h2 class="booking-step-label">4. Kontakt</h2>
                 <div class="mt-4 grid gap-3 sm:mt-5 md:grid-cols-2">
                     <input type="text" x-model="customer.name" placeholder="Jméno a příjmení" class="booking-input w-full">
                     <input type="tel" x-model="customer.phone" placeholder="Telefon" class="booking-input w-full">
                     <input type="email" x-model="customer.email" placeholder="Email" class="booking-input w-full md:col-span-2">
                     <textarea x-model="customer.note" placeholder="Poznámka ke službě, barva, inspirace..." class="booking-input w-full md:col-span-2" rows="4"></textarea>
+                </div>
+            </div>
+            <div class="booking-panel p-4 sm:p-6 lg:p-8" x-show="isStepLayout() && bookingStep === 5">
+                <h2 class="booking-step-label">5. Kontrola</h2>
+                <p class="mt-2 text-sm text-stone-600">Zkontrolujte údaje v souhrnu a odešlete rezervaci.</p>
+                <div class="mt-5 grid gap-3 text-sm sm:grid-cols-2">
+                    <div class="rounded-sm bg-[#f4ebde] p-4">
+                        <span class="text-stone-500">Pobočka</span>
+                        <strong class="mt-1 block text-stone-950" x-text="selectedBranch()?.name || '-'"></strong>
+                    </div>
+                    <div class="rounded-sm bg-[#f4ebde] p-4">
+                        <span class="text-stone-500">Termín</span>
+                        <strong class="mt-1 block text-stone-950" x-text="date + ' ' + time"></strong>
+                    </div>
+                    <div class="rounded-sm bg-[#f4ebde] p-4">
+                        <span class="text-stone-500">Klient</span>
+                        <strong class="mt-1 block text-stone-950" x-text="customer.name || '-'"></strong>
+                    </div>
+                    <div class="rounded-sm bg-[#f4ebde] p-4">
+                        <span class="text-stone-500">Kontakt</span>
+                        <strong class="mt-1 block text-stone-950" x-text="customer.phone || '-'"></strong>
+                    </div>
+                </div>
+            </div>
+            <div x-show="isStepLayout()" class="booking-panel p-4 sm:p-5">
+                <p x-show="errorMessage" x-text="errorMessage" class="mb-4 rounded-sm bg-[#f4ebde] px-4 py-3 text-sm font-semibold text-[#8d6837]"></p>
+                <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                    <button type="button" class="booking-step-button booking-step-button--ghost" @click="previousStep()" :disabled="bookingStep === 1 || isSubmitting">Zpět</button>
+                    <button type="button" class="booking-step-button" x-show="bookingStep < 5" @click="nextStep()" :disabled="isSubmitting">Pokračovat</button>
+                    <button type="button" class="booking-step-button" x-show="bookingStep === 5" @click.prevent="submitBooking()" :disabled="isSubmitting">
+                        <span x-show="!isSubmitting">Potvrdit rezervaci</span>
+                        <span x-show="isSubmitting">Ukládám rezervaci...</span>
+                    </button>
                 </div>
             </div>
         </div>
@@ -241,9 +285,9 @@
                 <div class="flex justify-between"><span>Celková cena</span><strong x-text="formatPrice(totalPrice())"></strong></div>
                 <div><span class="text-stone-500">Termín</span><strong class="block text-stone-950" x-text="date + ' ' + time"></strong></div>
             </div>
-            <p x-show="errorMessage" x-text="errorMessage" class="mt-4 rounded-sm bg-[#f4ebde] px-4 py-3 text-sm font-semibold text-[#8d6837]"></p>
+            <p x-show="!isStepLayout() && errorMessage" x-text="errorMessage" class="mt-4 rounded-sm bg-[#f4ebde] px-4 py-3 text-sm font-semibold text-[#8d6837]"></p>
             <p x-show="successMessage" x-text="successMessage" class="mt-4 rounded-sm bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-700"></p>
-            <button type="button" class="mt-6 w-full rounded-sm bg-stone-950 px-5 py-3 text-sm font-bold text-white hover:bg-[#ac8449] disabled:cursor-not-allowed disabled:opacity-60" @click.prevent="submitBooking()" :disabled="isSubmitting">
+            <button x-show="!isStepLayout()" type="button" class="mt-6 w-full rounded-sm bg-stone-950 px-5 py-3 text-sm font-bold text-white hover:bg-[#ac8449] disabled:cursor-not-allowed disabled:opacity-60" @click.prevent="submitBooking()" :disabled="isSubmitting">
                 <span x-show="!isSubmitting">Odeslat rezervaci</span>
                 <span x-show="isSubmitting">Ukládám rezervaci...</span>
             </button>
@@ -265,6 +309,8 @@
             bookingOnlineEnabled: payload.bookingOnlineEnabled,
             allowStaffSelection: payload.allowStaffSelection,
             autoAssignStaff: payload.autoAssignStaff,
+            bookingFormLayout: payload.bookingFormLayout || 'single',
+            bookingStep: 1,
             selectedBranchId: 0,
             selectedServices: [],
             categoryId: 0,
@@ -289,6 +335,54 @@
                 this.syncTime();
             },
             selectedBranch() { return this.branches.find((item) => item.id === this.selectedBranchId); },
+            isStepLayout() { return this.bookingFormLayout === 'steps'; },
+            wizardSteps() {
+                return [
+                    { number: 1, label: 'Pobočka' },
+                    { number: 2, label: 'Služby' },
+                    { number: 3, label: this.allowStaffSelection ? 'Čas' : 'Termín' },
+                    { number: 4, label: 'Kontakt' },
+                    { number: 5, label: 'Kontrola' },
+                ];
+            },
+            showPanel(step) { return !this.isStepLayout() || this.bookingStep === step; },
+            validateStep(step = this.bookingStep) {
+                if (!this.bookingOnlineEnabled) return 'Online booking je momentálně vypnutý.';
+                if (step >= 1 && !this.selectedBranchId) return 'Vyberte pobočku.';
+                if (!this.selectedBranch()?.online_booking_enabled) return 'Online booking pro vybranou pobočku je vypnutý.';
+                if (step >= 2 && !this.selectedServices.length) return 'Vyberte alespoň jednu službu.';
+                if (step >= 3 && !this.time) return this.allowStaffSelection ? 'Pro zvolený den a specialistku není volný čas.' : 'Pro zvolený den není volný čas.';
+                if (step >= 4 && (!this.customer.name?.trim() || !this.customer.phone?.trim())) return 'Vyplňte jméno a telefon.';
+                return '';
+            },
+            nextStep() {
+                this.errorMessage = this.validateStep(this.bookingStep);
+                if (this.errorMessage) return;
+                this.bookingStep = Math.min(5, this.bookingStep + 1);
+                this.errorMessage = '';
+            },
+            previousStep() {
+                this.bookingStep = Math.max(1, this.bookingStep - 1);
+                this.errorMessage = '';
+            },
+            goToStep(step) {
+                if (!this.isStepLayout()) return;
+                if (step <= this.bookingStep) {
+                    this.bookingStep = step;
+                    this.errorMessage = '';
+                    return;
+                }
+                for (let current = this.bookingStep; current < step; current += 1) {
+                    const error = this.validateStep(current);
+                    if (error) {
+                        this.errorMessage = error;
+                        this.bookingStep = current;
+                        return;
+                    }
+                }
+                this.bookingStep = step;
+                this.errorMessage = '';
+            },
             selectBranch(id) {
                 const branch = this.branches.find((item) => item.id === id);
                 if (!this.bookingOnlineEnabled || !branch?.online_booking_enabled) return;
@@ -501,13 +595,7 @@
                 };
             },
             validateBooking() {
-                if (!this.bookingOnlineEnabled) return 'Online booking je momentálně vypnutý.';
-                if (!this.selectedBranch()?.online_booking_enabled) return 'Online booking pro vybranou pobočku je vypnutý.';
-                if (!this.selectedBranchId) return 'Vyberte pobočku.';
-                if (!this.selectedServices.length) return 'Vyberte alespoň jednu službu.';
-                if (!this.time) return this.allowStaffSelection ? 'Pro zvolený den a specialistku není volný čas.' : 'Pro zvolený den není volný čas.';
-                if (!this.customer.name?.trim() || !this.customer.phone?.trim()) return 'Vyplňte jméno a telefon.';
-                return '';
+                return this.validateStep(5);
             },
             async submitBooking() {
                 this.errorMessage = this.validateBooking();
@@ -760,6 +848,76 @@
         font-size: 20px;
         font-weight: 800;
     }
+    .booking-wizard-steps {
+        display: grid;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: 8px;
+    }
+    .booking-wizard-step {
+        display: flex;
+        min-width: 0;
+        align-items: center;
+        gap: 9px;
+        border-radius: 14px;
+        padding: 10px;
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 800;
+        text-align: left;
+        transition: background .2s ease, color .2s ease;
+    }
+    .booking-wizard-step span {
+        display: inline-flex;
+        width: 26px;
+        height: 26px;
+        flex: 0 0 26px;
+        align-items: center;
+        justify-content: center;
+        border-radius: 999px;
+        background: #f4ebde;
+        color: #8d6837;
+        font-size: 12px;
+    }
+    .booking-wizard-step strong {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    .booking-wizard-step.is-active,
+    .booking-wizard-step.is-done {
+        background: #fffdf8;
+        color: var(--text);
+    }
+    .booking-wizard-step.is-active span,
+    .booking-wizard-step.is-done span {
+        background: var(--black);
+        color: white;
+    }
+    .booking-step-button {
+        min-height: 48px;
+        border-radius: 6px;
+        background: var(--black);
+        padding: 0 22px;
+        color: white;
+        font-size: 13px;
+        font-weight: 800;
+        transition: background .2s ease, opacity .2s ease;
+    }
+    .booking-step-button:hover {
+        background: var(--gold-dark);
+    }
+    .booking-step-button:disabled {
+        cursor: not-allowed;
+        opacity: .5;
+    }
+    .booking-step-button--ghost {
+        border: 1px solid rgba(31, 27, 22, .12);
+        background: rgba(255,255,255,.54);
+        color: var(--text);
+    }
+    .booking-step-button--ghost:hover {
+        background: #fffdf8;
+    }
     .booking-summary {
         background: rgba(255,255,255,.72);
         position: sticky;
@@ -872,6 +1030,12 @@
         .booking-step-header {
             align-items: flex-start;
             padding: 24px 20px;
+        }
+        .booking-wizard-steps {
+            grid-template-columns: 1fr;
+        }
+        .booking-wizard-step strong {
+            white-space: normal;
         }
         .booking-step-counter {
             width: 58px;

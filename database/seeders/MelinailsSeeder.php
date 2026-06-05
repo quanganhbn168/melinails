@@ -8,6 +8,8 @@ use App\Models\Service;
 use App\Models\ServiceCategory;
 use App\Support\SlugGenerator;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 
 class MelinailsSeeder extends Seeder
@@ -15,6 +17,8 @@ class MelinailsSeeder extends Seeder
     public function run(): void
     {
         $slugger = app(SlugGenerator::class);
+
+        $this->resetMelinailsDomain();
 
         $categories = collect([
             ['key' => 'massage', 'name' => 'Masáže', 'description' => 'Relaxace, regenerace a péče o tělo.', 'position' => 10],
@@ -222,6 +226,40 @@ class MelinailsSeeder extends Seeder
             }
 
             $person->services()->sync($serviceIds);
+        }
+    }
+
+    protected function resetMelinailsDomain(): void
+    {
+        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+
+        try {
+            foreach ([
+                'melinails_appointment_segments',
+                'melinails_appointments',
+                'beauty_staff_service',
+                'branch_service',
+                'branch_service_category',
+                'beauty_staff',
+                'branches',
+                'services',
+                'service_categories',
+            ] as $table) {
+                if (Schema::hasTable($table)) {
+                    DB::table($table)->truncate();
+                }
+            }
+
+            if (Schema::hasTable('slugs')) {
+                DB::table('slugs')
+                    ->whereIn('sluggable_type', [
+                        Service::class,
+                        ServiceCategory::class,
+                    ])
+                    ->delete();
+            }
+        } finally {
+            DB::statement('SET FOREIGN_KEY_CHECKS=1;');
         }
     }
 }

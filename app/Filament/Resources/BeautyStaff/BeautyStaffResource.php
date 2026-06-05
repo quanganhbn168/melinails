@@ -54,6 +54,7 @@ class BeautyStaffResource extends Resource
     public static function form(Schema $schema): Schema
     {
         return $schema
+            ->columns(1)
             ->components([
                 Section::make('Thông tin nhân viên')
                     ->schema([
@@ -185,7 +186,8 @@ class BeautyStaffResource extends Resource
                         Toggle::make('status')
                             ->label('Đang làm việc')
                             ->default(true),
-                    ]),
+                    ])
+                    ->columnSpanFull(),
             ]);
     }
 
