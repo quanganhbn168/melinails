@@ -1,192 +1,51 @@
-<!-- Topbar -->
-<div class="bg-gray-900 text-white w-full py-2 hidden lg:block border-b border-gray-800 relative z-[101]">
-    <div class="max-w-screen-xl mx-auto px-4 flex justify-between items-center text-xs font-semibold tracking-wide h-6">
-        <div class="flex items-center gap-6">
-            @if(!empty($setting->email))
-                <a href="mailto:{{ $setting->email }}"
-                    class="flex items-center gap-2 hover:text-blue-400 transition-colors">
-                    <i class="fas fa-envelope text-gray-400"></i> {{ $setting->email }}
-                </a>
-            @endif
-            <div class="flex items-center gap-2 text-gray-300">
-                <i class="fas fa-clock text-gray-400"></i> {{ $setting->working_hours ?? 'T2 - T7: 08:00 - 17:30' }}
-            </div>
-        </div>
-        <div class="flex items-center gap-4">
-            <span class="flex items-center gap-2">
-                <i class="fas fa-headset text-blue-400"></i> Hỗ trợ 24/7:
-                <a href="tel:{{ preg_replace('/\s+/', '', $setting->phone ?? '') }}"
-                    class="text-blue-400 hover:text-white transition-colors">{{ $setting->phone_display ?? $setting->phone ?? '' }}</a>
-            </span>
-            <div class="h-4 w-px bg-gray-700"></div>
-        </div>
-    </div>
-</div>
+@php
+    $meliNav = [
+        ['label' => 'Služby', 'url' => route('meli.services')],
+        ['label' => 'Ceník', 'url' => route('meli.prices')],
+        ['label' => 'Galerie', 'url' => route('meli.gallery')],
+        ['label' => 'Pobočky', 'url' => route('meli.branches')],
+        ['label' => 'O nás', 'url' => route('meli.about')],
+        ['label' => 'Kontakt', 'url' => route('meli.contact')],
+    ];
+@endphp
 
-<header
-    class="bg-white border-b border-gray-100 dark:bg-gray-900 dark:border-gray-800 w-full transition-all duration-300 sticky top-0 z-[100] shadow-sm"
-    id="main-header">
-    <nav class="max-w-screen-xl mx-auto flex flex-wrap items-center justify-between p-4">
-        <!-- Logo -->
-        <a href="{{ url('/') }}" class="flex items-center space-x-3 rtl:space-x-reverse">
-            <img src="{{ !empty($globalLogoUrl) ? $globalLogoUrl : asset('images/setting/no-image.png') }}"
-                class="h-12 md:h-14 object-contain" alt="{{ $setting->site_name ?? 'Logo' }}" />
+<header class="sticky top-0 z-50 border-b border-stone-200/80 bg-[#fff7f7]/95 backdrop-blur" x-data="{ open: false }">
+    <div class="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-8">
+        <a href="{{ route('home') }}" class="flex items-center gap-3" aria-label="Meli Nails & Beauty">
+            <img src="{{ asset('melinails/assets/logo.png') }}" alt="Meli Nails & Beauty" class="h-12 w-auto object-contain">
         </a>
 
-        <!-- Mobile Toggle & Actions -->
-        <div class="flex lg:order-2 space-x-3 lg:space-x-4 rtl:space-x-reverse items-center">
+        <nav class="hidden items-center gap-7 lg:flex" aria-label="Hlavní navigace">
+            @foreach($meliNav as $item)
+                <a href="{{ $item['url'] }}" class="text-sm font-semibold text-stone-700 transition hover:text-rose-700">
+                    {{ $item['label'] }}
+                </a>
+            @endforeach
+        </nav>
 
-            <!-- Language Switcher -->
-            <x-frontend.language-switcher type="desktop" />
-
-            <!-- Hamburger Button (Triggers Drawer) -->
-            <button type="button" data-drawer-target="drawer-navigation" data-drawer-show="drawer-navigation"
-                aria-controls="drawer-navigation"
-                class="inline-flex items-center p-2 w-10 h-10 justify-center text-sm text-gray-600 rounded-xl lg:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-800 dark:focus:ring-gray-700 transition-colors">
-                <span class="sr-only">Mở menu chính</span>
-                <svg class="w-6 h-6" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
-                    viewBox="0 0 17 14">
-                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M1 1h15M1 7h15M1 13h15" />
-                </svg>
-            </button>
+        <div class="hidden items-center gap-3 lg:flex">
+            <a href="tel:+420777768681" class="text-sm font-semibold text-stone-700 hover:text-rose-700">+420 777 768 681</a>
+            <a href="{{ route('meli.booking') }}" class="inline-flex items-center justify-center rounded-sm bg-stone-950 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-rose-800">
+                Rezervace
+            </a>
         </div>
 
-        <!-- Desktop Menu -->
-        <div class="hidden w-full lg:block lg:w-auto lg:order-1" id="navbar-desktop">
-            <ul
-                class="flex flex-col font-medium p-4 lg:p-0 mt-4 border border-gray-100 rounded-xl bg-gray-50 lg:space-x-4 xl:space-x-8 rtl:space-x-reverse lg:flex-row lg:mt-0 lg:border-0 lg:bg-white dark:bg-gray-800 lg:dark:bg-gray-900 dark:border-gray-700">
-                @if(isset($headerMenu) && count($headerMenu) > 0)
-                    @foreach($headerMenu as $menuItem)
-                        @if($menuItem->children && $menuItem->children->count() > 0)
-                            <li class="relative group">
-                                <button id="dropdownNavbarLink-{{ $loop->index }}"
-                                    type="button"
-                                    aria-haspopup="true"
-                                    class="flex items-center justify-between w-full py-2 px-3 text-gray-900 rounded hover:bg-gray-100 lg:hover:bg-transparent lg:border-0 lg:hover:text-blue-600 lg:p-0 lg:w-auto dark:text-white lg:dark:hover:text-blue-500 dark:focus:text-white dark:border-gray-700 dark:hover:bg-gray-700 lg:dark:hover:bg-transparent font-semibold uppercase tracking-wide text-sm transition-colors">
-                                    {{ $menuItem->title }}
-                                    <svg class="w-2.5 h-2.5 ms-2.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
-                                        fill="none" viewBox="0 0 10 6">
-                                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="m1 1 4 4 4-4" />
-                                    </svg>
-                                </button>
-                                <!-- Dropdown menu -->
-                                <div id="dropdownNavbar-{{ $loop->index }}"
-                                    class="absolute left-0 top-full z-50 hidden w-56 font-normal bg-white divide-y divide-gray-100 rounded-xl shadow-xl dark:bg-gray-800 dark:divide-gray-700 border border-gray-100 dark:border-gray-700 group-hover:block group-focus-within:block">
-                                    <ul class="py-2 text-sm text-gray-700 dark:text-gray-300"
-                                        aria-labelledby="dropdownNavbarLink-{{ $loop->index }}">
-                                        @foreach($menuItem->children as $childItem)
-                                            <li>
-                                                <a href="{{ $childItem->link }}" target="{{ $childItem->link_target }}"
-                                                    class="block px-4 py-2.5 hover:bg-blue-50 dark:hover:bg-blue-900/40 hover:text-blue-600 dark:hover:text-blue-400 font-medium transition-colors">
-                                                    @if($childItem->icon)<i
-                                                    class="{{ $childItem->icon }} text-gray-400 text-xs mr-2"></i>@else<i
-                                                        class="fas fa-angle-right text-gray-400 text-xs mr-2"></i>@endif
-                                                    {{ $childItem->title }}
-                                                </a>
-                                            </li>
-                                        @endforeach
-                                    </ul>
-                                </div>
-                            </li>
-                        @else
-                            <li>
-                                <a href="{{ $menuItem->link }}" target="{{ $menuItem->link_target }}"
-                                    class="block py-2 px-3 rounded lg:hover:bg-transparent lg:border-0 lg:p-0 dark:text-white lg:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white lg:dark:hover:bg-transparent font-semibold uppercase tracking-wide text-sm transition-colors {{ $menuItem->is_active_route ? 'text-blue-600 border-b-2 border-blue-600 lg:pb-1' : 'text-gray-900 hover:bg-gray-100 lg:hover:text-blue-600' }}">
-                                    @if($menuItem->icon)<i class="{{ $menuItem->icon }} mr-1"></i>@endif {{ $menuItem->title }}
-                                </a>
-                            </li>
-                        @endif
-                    @endforeach
-                @else
-                    <li><a href="/"
-                            class="block py-2 px-3 rounded lg:border-0 lg:p-0 font-semibold uppercase tracking-wide text-sm transition-colors {{ request()->is('/') ? 'text-blue-600 border-b-2 border-blue-600 lg:pb-1' : 'text-gray-900 hover:text-blue-600 dark:text-white lg:dark:hover:text-blue-500' }}">Trang
-                            chủ</a></li>
-                    <li><a href="/dich-vu"
-                            class="block py-2 px-3 rounded lg:border-0 lg:p-0 font-semibold uppercase tracking-wide text-sm transition-colors {{ request()->is('dich-vu*') ? 'text-blue-600 border-b-2 border-blue-600 lg:pb-1' : 'text-gray-900 hover:text-blue-600 dark:text-white lg:dark:hover:text-blue-500' }}">Dịch
-                            vụ</a></li>
-                    <li><a href="/linh-vuc"
-                            class="block py-2 px-3 rounded lg:border-0 lg:p-0 font-semibold uppercase tracking-wide text-sm transition-colors {{ request()->is('linh-vuc*') ? 'text-blue-600 border-b-2 border-blue-600 lg:pb-1' : 'text-gray-900 hover:text-blue-600 dark:text-white lg:dark:hover:text-blue-500' }}">Lĩnh
-                            vực</a></li>
-                    <li><a href="/du-an"
-                            class="block py-2 px-3 rounded lg:border-0 lg:p-0 font-semibold uppercase tracking-wide text-sm transition-colors {{ request()->is('du-an*') ? 'text-blue-600 border-b-2 border-blue-600 lg:pb-1' : 'text-gray-900 hover:text-blue-600 dark:text-white lg:dark:hover:text-blue-500' }}">Dự
-                            án</a></li>
-                    <li><a href="/san-pham"
-                            class="block py-2 px-3 rounded lg:border-0 lg:p-0 font-semibold uppercase tracking-wide text-sm transition-colors {{ request()->is('san-pham*') ? 'text-blue-600 border-b-2 border-blue-600 lg:pb-1' : 'text-gray-900 hover:text-blue-600 dark:text-white lg:dark:hover:text-blue-500' }}">Sản
-                            phẩm</a></li>
-                @endif
-            </ul>
-        </div>
-    </nav>
+        <button type="button" class="inline-flex h-11 w-11 items-center justify-center rounded-sm border border-stone-300 text-stone-900 lg:hidden" @click="open = !open" :aria-expanded="open.toString()" aria-controls="mobile-menu">
+            <span class="sr-only">Otevřít menu</span>
+            <i class="fa-solid" :class="open ? 'fa-xmark' : 'fa-bars'"></i>
+        </button>
+    </div>
+
+    <div id="mobile-menu" class="border-t border-stone-200 bg-[#fff7f7] px-4 py-4 lg:hidden" x-show="open" x-transition>
+        <nav class="flex flex-col gap-1" aria-label="Mobilní navigace">
+            @foreach($meliNav as $item)
+                <a href="{{ $item['url'] }}" class="rounded-sm px-3 py-3 text-sm font-semibold text-stone-800 hover:bg-white">
+                    {{ $item['label'] }}
+                </a>
+            @endforeach
+            <a href="{{ route('meli.booking') }}" class="mt-2 inline-flex items-center justify-center rounded-sm bg-stone-950 px-5 py-3 text-sm font-semibold text-white">
+                Rezervovat termín
+            </a>
+        </nav>
+    </div>
 </header>
-
-<x-frontend.mobile-drawer :headerMenu="$headerMenu ?? []" :setting="$setting" />
-
-<div id="google_translate_element2"></div>
-<style type="text/css">
-    #goog-gt-tt {
-        display: none !important;
-    }
-
-    .goog-te-banner-frame {
-        display: none !important;
-    }
-
-    .goog-te-menu-value:hover {
-        text-decoration: none !important;
-    }
-
-    body {
-        top: 0 !important;
-    }
-
-    #google_translate_element2 {
-        display: none !important;
-    }
-</style>
-
-@push('js')
-    <script type="text/javascript">
-        function googleTranslateElementInit2() { new google.translate.TranslateElement({ pageLanguage: 'vi', autoDisplay: false }, 'google_translate_element2'); }
-    </script>
-    <script type="text/javascript"
-        src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit2"></script>
-    <script type="text/javascript">
-        function doGTranslate(langPair) {
-            if (!langPair || langPair === '') return;
-            var lang = langPair.split('|')[1];
-            var selectField = document.querySelector('.goog-te-combo');
-
-            if (!selectField || !selectField.options || selectField.options.length === 0) {
-                setTimeout(function () { doGTranslate(langPair); }, 500);
-                return;
-            }
-
-            selectField.value = lang;
-            selectField.dispatchEvent(new Event('change', { bubbles: true }));
-        }
-    </script>
-
-    <script>
-        // Auto update flag img based on cookie
-        function updateFlag(flagSrc) {
-            document.querySelectorAll('.current-flag-img').forEach(img => {
-                img.src = flagSrc;
-            });
-        }
-        function getCookie(name) {
-            var v = document.cookie.match('(^|;) ?' + name + '=([^;]*)(;|$)');
-            return v ? v[2] : null;
-        }
-        var langCookie = getCookie('googtrans');
-        if (langCookie) {
-            var lang = langCookie.split('|').pop().split('/').pop();
-            var flag = '{{ asset("images/flags/vn.png") }}';
-            if (lang == 'en') flag = '{{ asset("images/flags/us.png") }}';
-            else if (lang == 'zh-CN') flag = '{{ asset("images/flags/cn.png") }}';
-            else if (lang == 'ko') flag = '{{ asset("images/flags/kr.png") }}';
-            updateFlag(flag);
-        }
-    </script>
-@endpush

@@ -34,6 +34,8 @@
     <link rel="icon" href="{{ rtrim($globalFaviconUrl, '?') }}" />
     <link rel="apple-touch-icon" sizes="180x180" href="{{ rtrim($globalFaviconUrl, '?') }}" />
 
+    @stack('head_scripts')
+
     {{-- Bundle Frontend CSS via Vite (Tailwind v4) --}}
     @vite(['resources/css/frontend.css'])
 
@@ -44,7 +46,7 @@
 </head>
 
 <body
-    class="bg-white text-gray-900 font-sans antialiased dark:bg-gray-900 dark:text-gray-100 {{ Auth::check() ? 'logged-in' : '' }}">
+    class="bg-[#fff7f7] pb-20 text-stone-900 font-sans antialiased lg:pb-0 {{ Auth::check() ? 'logged-in' : '' }}">
     {!! $setting->body_start_script ?? '' !!}
     
 
@@ -56,25 +58,26 @@
 
     @include('partials.frontend.footer')
 
-    {{-- KHỐI CÁC NÚT HÀNH ĐỘNG CỐ ĐỊNH Ở GÓC MÀN HÌNH --}}
-    <div class="fixed bottom-6 right-6 flex flex-col gap-3 z-50">
-        {{-- Nút gọi điện (với hiệu ứng rung bg-color Tailwind) --}}
-        <a href="tel:{{ $setting->phone ?? '' }}"
-            class="w-12 h-12 flex items-center justify-center bg-green-500 hover:bg-green-600 text-white rounded-full shadow-lg transition-transform hover:scale-110">
-            <i class="fas fa-phone-alt animate-pulse"></i>
-        </a>
-        {{-- Nút Zalo --}}
-        <a href="{{ $setting->zalo ?? '' }}" target="_blank"
-            class="w-12 h-12 flex items-center justify-center bg-blue-500 hover:bg-blue-600 text-white rounded-full shadow-lg transition-transform hover:scale-110">
-            <i class="fas fa-comment-dots"></i>
-        </a>
-        {{-- Nút Lên đầu trang (Back to top) --}}
-        <a href="#"
-            class="w-12 h-12 hidden items-center justify-center bg-gray-800 hover:bg-gray-700 text-white rounded-full shadow-lg transition-transform hover:scale-110"
-            id="js-back-to-top">
-            <i class="fas fa-arrow-up"></i>
-        </a>
-    </div>
+    <nav class="fixed inset-x-0 bottom-0 z-50 border-t border-stone-200 bg-white/95 px-2 py-2 shadow-2xl backdrop-blur lg:hidden" aria-label="Rychlá mobilní navigace">
+        <div class="mx-auto grid max-w-md grid-cols-4 gap-1">
+            <a href="{{ route('meli.booking') }}" class="flex min-h-14 flex-col items-center justify-center gap-1 rounded-sm text-[11px] font-bold text-stone-700 {{ request()->routeIs('meli.booking') ? 'bg-rose-50 text-rose-800' : '' }}">
+                <i class="fa-solid fa-calendar-days text-base"></i>
+                <span>Lịch</span>
+            </a>
+            <a href="{{ route('meli.services') }}" class="flex min-h-14 flex-col items-center justify-center gap-1 rounded-sm text-[11px] font-bold text-stone-700 {{ request()->routeIs('meli.services') || request()->routeIs('meli.service.*') ? 'bg-rose-50 text-rose-800' : '' }}">
+                <i class="fa-solid fa-spa text-base"></i>
+                <span>Služby</span>
+            </a>
+            <a href="tel:+420777768681" class="flex min-h-14 flex-col items-center justify-center gap-1 rounded-sm text-[11px] font-bold text-stone-700">
+                <i class="fa-solid fa-phone text-base"></i>
+                <span>Zavolat</span>
+            </a>
+            <a href="{{ route('meli.booking') }}" class="flex min-h-14 flex-col items-center justify-center gap-1 rounded-sm bg-stone-950 text-[11px] font-bold text-white">
+                <i class="fa-solid fa-check text-base"></i>
+                <span>Booking</span>
+            </a>
+        </div>
+    </nav>
 
     {{-- Bundle Frontend JS via Vite --}}
     @vite(['resources/js/frontend.js'])

@@ -4,11 +4,13 @@ namespace App\Filament\Pages;
 
 use App\Models\Menu;
 use App\Settings\GeneralSettings;
+use App\Support\BookingMailTemplate;
 use Awcodes\Curator\Components\Forms\CuratorPicker;
 use BackedEnum;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
@@ -159,6 +161,62 @@ class ManageSettings extends SettingsPage
                                             ->searchable()
                                             ->preload()
                                             ->helperText('Chọn menu footer để hiển thị'),
+                                    ])
+                                    ->columns(2),
+                            ]),
+
+                        Tab::make('Booking hệ thống & Mail')
+                            ->icon('heroicon-o-envelope')
+                            ->schema([
+                                Section::make('Cấu hình booking toàn hệ thống')
+                                    ->description('Chỉ quản lý bật/tắt booking và cách gán nhân viên. Sức chứa, slot, buffer và giới hạn đặt lịch nằm trong từng shop.')
+                                    ->schema([
+                                        Toggle::make('booking_online_enabled')
+                                            ->label('Cho phép booking online toàn hệ thống')
+                                            ->default(true),
+                                        Toggle::make('booking_customer_staff_selection_enabled')
+                                            ->label('Cho phép khách chọn nhân viên')
+                                            ->default(true)
+                                            ->helperText('Tắt đi thì khách chỉ chọn chi nhánh, dịch vụ và giờ; backend không gán nhân viên, quản lý tự chia offline.'),
+                                        Toggle::make('booking_staff_auto_assign_enabled')
+                                            ->label('Tự động gán nhân viên ở backend')
+                                            ->default(true)
+                                            ->helperText('Tắt đi thì mọi booking online sẽ lưu nhân viên null, quản lý tự chia offline.'),
+                                        Toggle::make('booking_auto_confirm_enabled')
+                                            ->label('Tự động xác nhận booking')
+                                            ->default(true)
+                                            ->helperText('Bật: booking mới vào Confirmed. Tắt: booking mới vào Pending để quản lý duyệt.'),
+                                    ])
+                                    ->columns(4),
+                                Section::make('Mail xác nhận booking')
+                                    ->description('Soạn mẫu email gửi khách. Có thể dùng biến như [name], [booking_code], [date], [time], [shop], [services], [price].')
+                                    ->schema([
+                                        Toggle::make('booking_customer_mail_enabled')
+                                            ->label('Gửi mail xác nhận cho khách')
+                                            ->default(true),
+                                        TextInput::make('booking_customer_mail_subject')
+                                            ->label('Tiêu đề mail khách')
+                                            ->default(BookingMailTemplate::DEFAULT_SUBJECT)
+                                            ->helperText('Dùng được biến động, ví dụ: Lịch hẹn [booking_code] của [name]')
+                                            ->columnSpanFull(),
+                                        Textarea::make('booking_customer_mail_body')
+                                            ->label('Nội dung email')
+                                            ->rows(12)
+                                            ->default(BookingMailTemplate::DEFAULT_BODY)
+                                            ->helperText('Biến dùng được: ' . implode(', ', array_keys(BookingMailTemplate::placeholders())))
+                                            ->columnSpanFull(),
+                                    ])
+                                    ->columns(1),
+                                Section::make('Thông báo nội bộ')
+                                    ->description('Tuỳ chọn gửi thêm email về salon/admin khi có booking mới.')
+                                    ->schema([
+                                        Toggle::make('booking_admin_mail_enabled')
+                                            ->label('Gửi mail nội bộ')
+                                            ->default(false),
+                                        TextInput::make('booking_admin_mail_to')
+                                            ->label('Email nhận nội bộ')
+                                            ->email()
+                                            ->helperText('Ví dụ: info@melinails.cz'),
                                     ])
                                     ->columns(2),
                             ]),

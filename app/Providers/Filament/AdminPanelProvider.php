@@ -6,12 +6,9 @@ use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
-use Filament\Pages\Dashboard;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
-use Filament\Widgets\AccountWidget;
-use Filament\Widgets\FilamentInfoWidget;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
@@ -27,6 +24,7 @@ use Awcodes\Curator\Config\CurationManager;
 use Awcodes\Curator\Curations\CurationPreset;
 use Awcodes\Curator\Components\Forms\RichEditor\AttachCuratorMediaPlugin;
 use App\Settings\GeneralSettings;
+use App\Filament\Pages\Dashboard;
 use Awcodes\Curator\Models\Media;
 
 class AdminPanelProvider extends PanelProvider
@@ -63,6 +61,7 @@ class AdminPanelProvider extends PanelProvider
             ->brandLogoHeight('3rem')
             ->navigationGroups([
                 NavigationGroup::make('Quản lý Hàng hóa'),
+                NavigationGroup::make('Shop & Booking'),
                 NavigationGroup::make('Nội dung Trang chủ'),
                 NavigationGroup::make('Lĩnh vực & Dịch vụ'),
                 NavigationGroup::make('Dự án & Đối tác'),
@@ -71,9 +70,7 @@ class AdminPanelProvider extends PanelProvider
                 NavigationGroup::make('Hệ thống & Cấu hình'),
             ])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\Filament\Widgets')
-            ->widgets([
-                AccountWidget::class,
-            ])
+            ->widgets([])
             ->middleware([
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,

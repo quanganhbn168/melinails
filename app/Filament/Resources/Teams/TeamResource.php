@@ -18,6 +18,8 @@ class TeamResource extends Resource
 {
     protected static ?string $model = Team::class;
 
+    protected static bool $shouldRegisterNavigation = false;
+
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-user';
 
     public static function getNavigationGroup(): ?string

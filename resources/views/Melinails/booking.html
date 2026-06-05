@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Rezervace online | Meli Nails & Beauty</title>
+  <meta name="description" content="Online rezervace termínu v Meli Nails & Beauty. Vyberte pobočku, více služeb, specialistku, datum a čas." />
+  <meta name="theme-color" content="#F7F1E6" />
+  <link rel="icon" type="image/png" href="assets/favicon.png" />
+  <link rel="apple-touch-icon" href="assets/favicon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://unpkg.com/aos@2.3.4/dist/aos.css" rel="stylesheet" />
+  <link rel="stylesheet" href="css/booking.css" />
+</head>
+<body>
+  <a class="skip-link" href="#main">Přejít na rezervaci</a>
+
+  <header class="site-header" data-aos="fade-down">
+    <div class="container">
+      <div class="nav">
+        <a class="brand" href="booking.html" aria-label="Meli Nails & Beauty domů">
+          <img src="assets/logo.png" alt="Meli Nails & Beauty" width="344" height="120" />
+        </a>
+
+        <nav class="nav-links" aria-label="Hlavní navigace">
+          <a href="#main">Rezervace</a>
+          <a href="#services-info">Jak to funguje</a>
+          <a href="#contact">Kontakt</a>
+        </nav>
+
+        <div class="nav-actions">
+          <a class="btn btn--secondary" href="tel:+420777768681">+420 777 768 681</a>
+          <a class="btn btn--primary" href="#main">Rezervace</a>
+          <button class="menu-toggle" type="button" aria-label="Otevřít menu" aria-expanded="false">
+            <span></span><span></span><span></span>
+          </button>
+        </div>
+      </div>
+
+      <nav class="mobile-menu" aria-label="Mobilní navigace">
+        <a href="#main">Rezervace</a>
+        <a href="#services-info">Jak to funguje</a>
+        <a href="#contact">Kontakt</a>
+        <a class="btn btn--primary" href="#main">Rezervovat termín</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="hero">
+      <div class="container hero-grid">
+        <div data-aos="fade-up">
+          <div class="eyebrow">Online rezervace</div>
+          <h1>Vyberte si více služeb v jednom termínu.</h1>
+          <p>
+            Rezervační formulář pro salon s více kategoriemi služeb. Vyberte pobočku, najděte konkrétní služby, přidejte je do rezervace a zvolte čas v intervalu 15 minut.
+          </p>
+          <div class="hero-pills">
+            <span class="pill">Více služeb najednou</span>
+            <span class="pill">Vyhledávání služeb</span>
+            <span class="pill">Časy po 15 minutách</span>
+          </div>
+        </div>
+
+        <div class="hero-visual" data-aos="fade-left" data-aos-delay="100">
+          <img src="https://images.unsplash.com/photo-1515377905703-c4788e51af15?auto=format&fit=crop&w=1400&q=82" alt="Relaxace v beauty salonu" loading="eager" />
+          <div class="hero-card">
+            <strong>Booking pro více služeb</strong>
+            <p class="text-small">Celková délka a orientační cena se počítá automaticky podle vybraných položek.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="booking-section">
+      <div class="container booking-shell">
+        <div class="booking-panel" data-aos="fade-up">
+          <div class="step-header">
+            <div class="step-title">
+              <h2 id="stepHeading">Vyberte pobočku</h2>
+              <p id="stepDescription">Zvolte salon, ve kterém chcete rezervaci vytvořit.</p>
+            </div>
+            <div class="step-counter"><span id="stepCounter">1/6</span></div>
+          </div>
+          <div class="progress" aria-hidden="true"><div class="progress-bar" id="progressBar"></div></div>
+
+          <form id="bookingForm" novalidate>
+            <section class="step active" data-step="1" aria-labelledby="stepHeading">
+              <div class="option-grid branch-grid">
+                <button class="option-card branch-card" type="button" data-select="branch" data-value="Uherské Hradiště" data-phone="+420 777 768 681">
+                  <span class="icon">UH</span>
+                  <h3>Uherské Hradiště</h3>
+                  <p>Mlýnská 1295, Uherské Hradiště – 686 01</p>
+                  <div class="meta"><span class="mini-tag">+420 777 768 681</span><span class="mini-tag">8:00-20:00</span></div>
+                </button>
+                <button class="option-card branch-card" type="button" data-select="branch" data-value="Zlín" data-phone="+420 777 768 626">
+                  <span class="icon">ZL</span>
+                  <h3>Zlín</h3>
+                  <p>Rašínova 522, Zlín – 760 01</p>
+                  <div class="meta"><span class="mini-tag">+420 777 768 626</span><span class="mini-tag">8:00-20:00</span></div>
+                </button>
+              </div>
+            </section>
+
+            <section class="step" data-step="2" aria-labelledby="stepHeading">
+              <div class="service-picker">
+                <aside class="category-list">
+                  <div class="category-head">
+                    <strong>Kategorie</strong>
+                    <p class="text-small">Vyberte skupinu služeb.</p>
+                  </div>
+                  <div class="category-scroll" id="categoryList"></div>
+                </aside>
+
+                <div class="service-list-card">
+                  <div class="service-search">
+                    <div class="service-search-top">
+                      <div>
+                        <strong id="selectedCategoryLabel">Všechny služby</strong>
+                        <p class="text-small" id="serviceCountLabel">Vyberte jednu nebo více služeb.</p>
+                      </div>
+                      <button class="btn btn--secondary btn-small" type="button" id="clearServices">Vymazat výběr</button>
+                    </div>
+                    <div class="search-wrap">
+                      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+                      <input id="serviceSearch" type="search" placeholder="Hledat službu, např. gel lak, masáž, řasy..." autocomplete="off" />
+                    </div>
+                    <div class="service-toolbar">
+                      <span class="text-small">Seznam služeb má vlastní scroll.</span>
+                      <select id="serviceSort" aria-label="Řazení služeb">
+                        <option value="default">Doporučené</option>
+                        <option value="priceAsc">Cena od nejnižší</option>
+                        <option value="durationAsc">Nejkratší délka</option>
+                        <option value="az">A-Z</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="selected-services-strip" id="selectedServicesStrip"></div>
+                  <div class="service-scroll">
+                    <div class="service-group" id="serviceList"></div>
+                    <div class="empty-state" id="serviceEmpty">
+                      <strong>Žádná služba nenalezena</strong>
+                      <p>Zkuste jiný výraz nebo přepněte kategorii.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <section class="step" data-step="3" aria-labelledby="stepHeading">
+              <div class="staff-list">
+                <button class="option-card staff-card" type="button" data-select="staff" data-value="Kdokoliv dostupný">
+                  <span class="staff-avatar">★</span><h3>Kdokoliv dostupný</h3><p>Salon vám přiřadí nejvhodnější specialistku podle vybraných služeb.</p><div class="meta"><span class="mini-tag">nejrychlejší termín</span></div>
+                </button>
+                <button class="option-card staff-card" type="button" data-select="staff" data-value="Meli tým – nails specialistka">
+                  <span class="staff-avatar">N</span><h3>Nails specialistka</h3><p>Vhodné pro manikúru, modeláž, gel lak, pedikúru a zdobení.</p><div class="meta"><span class="mini-tag">nails</span></div>
+                </button>
+                <button class="option-card staff-card" type="button" data-select="staff" data-value="Meli tým – beauty specialistka">
+                  <span class="staff-avatar">B</span><h3>Beauty specialistka</h3><p>Vhodné pro kosmetiku, obočí, řasy, depilaci a masáže.</p><div class="meta"><span class="mini-tag">beauty</span></div>
+                </button>
+              </div>
+            </section>
+
+            <section class="step" data-step="4" aria-labelledby="stepHeading">
+              <div class="slot-settings">
+                <div>
+                  <strong>Nastavení časů</strong>
+                  <p class="text-small">Aktuálně se časy generují po 15 minutách. Interval lze změnit v souboru <code>js/booking.js</code>.</p>
+                </div>
+                <div class="slot-badges">
+                  <span class="mini-tag" id="slotIntervalLabel">15 min interval</span>
+                  <span class="mini-tag" id="totalDurationLabel">0 min celkem</span>
+                </div>
+              </div>
+              <div class="calendar-wrap">
+                <div class="calendar-card">
+                  <div class="calendar-top">
+                    <h3 id="monthLabel">Měsíc</h3>
+                    <div class="month-controls">
+                      <button class="icon-btn" type="button" id="prevMonth" aria-label="Předchozí měsíc">‹</button>
+                      <button class="icon-btn" type="button" id="nextMonth" aria-label="Další měsíc">›</button>
+                    </div>
+                  </div>
+                  <div class="weekdays" aria-hidden="true"><span>Po</span><span>Út</span><span>St</span><span>Čt</span><span>Pá</span><span>So</span><span>Ne</span></div>
+                  <div class="days" id="daysGrid"></div>
+                </div>
+                <div class="time-card">
+                  <h3>Dostupné časy</h3>
+                  <p class="text-small" id="timeHint">Nejprve vyberte datum.</p>
+                  <div class="times" id="timesGrid"></div>
+                </div>
+              </div>
+            </section>
+
+            <section class="step" data-step="5" aria-labelledby="stepHeading">
+              <div class="form-grid">
+                <div class="field">
+                  <label for="firstName">Jméno *</label>
+                  <input id="firstName" name="firstName" autocomplete="given-name" required />
+                  <div class="field-error" data-error-for="firstName"></div>
+                </div>
+                <div class="field">
+                  <label for="lastName">Příjmení *</label>
+                  <input id="lastName" name="lastName" autocomplete="family-name" required />
+                  <div class="field-error" data-error-for="lastName"></div>
+                </div>
+                <div class="field">
+                  <label for="phone">Telefon *</label>
+                  <input id="phone" name="phone" type="tel" autocomplete="tel" placeholder="+420 ..." required />
+                  <div class="field-error" data-error-for="phone"></div>
+                </div>
+                <div class="field">
+                  <label for="email">E-mail</label>
+                  <input id="email" name="email" type="email" autocomplete="email" placeholder="vas@email.cz" />
+                  <div class="field-error" data-error-for="email"></div>
+                </div>
+                <div class="field full">
+                  <label for="note">Poznámka</label>
+                  <textarea id="note" name="note" placeholder="Např. konkrétní přání, alergie, preferovaný styl, typ masáže..."></textarea>
+                </div>
+              </div>
+              <label class="consent">
+                <input type="checkbox" id="consent" required />
+                <span>Souhlasím se zpracováním osobních údajů za účelem vyřízení rezervace. Beru na vědomí, že termín je platný až po potvrzení salonem.</span>
+              </label>
+              <div class="field-error" data-error-for="consent"></div>
+            </section>
+
+            <section class="step" data-step="6" aria-labelledby="stepHeading">
+              <div class="review-card">
+                <h2>Zkontrolujte rezervaci</h2>
+                <p class="text-muted">Po odeslání se údaje připraví pro backend. V ostré verzi se zde volá API rezervačního systému.</p>
+                <div class="success-details" id="reviewDetails"></div>
+              </div>
+            </section>
+          </form>
+
+          <div class="success-box" id="successBox">
+            <div class="success-card">
+              <div class="success-icon">✓</div>
+              <h2>Rezervace odeslána</h2>
+              <p class="text-muted">Děkujeme. Salon vás bude kontaktovat s potvrzením termínu.</p>
+              <div class="success-details" id="successDetails"></div>
+              <div class="btn-row" style="justify-content:center;">
+                <a class="btn btn--primary" href="booking.html">Zpět na začátek</a>
+                <button class="btn btn--secondary" type="button" id="newBooking">Vytvořit další rezervaci</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="step-actions" id="stepActions">
+            <button class="btn btn--secondary" type="button" id="prevStep">Zpět</button>
+            <button class="btn btn--primary" type="button" id="nextStep">Pokračovat</button>
+          </div>
+        </div>
+
+        <aside class="summary-panel" data-aos="fade-up" data-aos-delay="120" aria-label="Souhrn rezervace">
+          <div class="summary-head">
+            <img src="assets/logo.png" alt="Meli Nails & Beauty" width="344" height="120" />
+            <div>
+              <h2>Souhrn</h2>
+              <p class="text-small">Vaše rezervace se průběžně doplňuje.</p>
+            </div>
+          </div>
+          <div class="summary-body">
+            <div class="summary-row"><span>Pobočka</span><strong id="summaryBranch">Vyberte pobočku</strong></div>
+            <div class="summary-row"><span>Služby</span><div id="summaryServices" class="summary-service-list">Vyberte služby</div></div>
+            <div class="summary-row"><span>Specialistka</span><strong id="summaryStaff">Zatím nezvoleno</strong></div>
+            <div class="summary-row"><span>Datum</span><strong id="summaryDate">Zatím nezvoleno</strong></div>
+            <div class="summary-row"><span>Čas</span><strong id="summaryTime">Zatím nezvoleno</strong></div>
+            <div class="summary-row"><span>Celkem</span><strong id="summaryTotal">Cena a délka se zobrazí po výběru služeb</strong></div>
+            <div class="summary-note">
+              U více služeb se automaticky sčítá délka. Backend potom kontroluje, zda je zvolený čas volný pro celý blok služeb.
+            </div>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <section class="info-section" id="services-info">
+      <div class="container info-grid">
+        <article class="info-card">
+          <span>01</span>
+          <h3>Více služeb</h3>
+          <p>Klient může zvolit například manikúru, zdobení a obočí v jedné rezervaci.</p>
+        </article>
+        <article class="info-card">
+          <span>02</span>
+          <h3>15min sloty</h3>
+          <p>Časy jsou generované po 15 minutách, ne po hodinách. Interval lze změnit v konfiguraci.</p>
+        </article>
+        <article class="info-card">
+          <span>03</span>
+          <h3>Backend ready</h3>
+          <p>Payload obsahuje služby, celkovou délku, celkovou cenu, datum, čas a zákazníka.</p>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer" id="contact">
+    <div class="container footer-inner">
+      <span>© <span id="year"></span> Meli Nails & Beauty</span>
+      <span>Uherské Hradiště • Zlín • info@melinails.cz</span>
+    </div>
+  </footer>
+
+  <script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
+  <script src="js/services-data.js"></script>
+  <script src="js/booking.js"></script>
+</body>
+</html>

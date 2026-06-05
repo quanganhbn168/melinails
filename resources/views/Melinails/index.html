@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Meli Nails & Beauty | Salon krásy v Uherském Hradišti a Zlíně</title>
+  <meta name="description" content="Meli Nails & Beauty – salon krásy v Uherském Hradišti a Zlíně. Manikúra, pedikúra, řasy, kosmetika, masáže, obočí, depilace a dárkové poukazy." />
+  <meta name="theme-color" content="#F7F2EA" />
+  <meta property="og:title" content="Meli Nails & Beauty" />
+  <meta property="og:description" content="Profesionální salon krásy v Uherském Hradišti a Zlíně." />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="logo.png" />
+
+  <link rel="icon" type="image/png" href="favicon.png" />
+  <link rel="apple-touch-icon" href="favicon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://unpkg.com/aos@2.3.4/dist/aos.css" rel="stylesheet" />
+
+  <style>
+    :root {
+      --bg: #f7f1e6;
+      --bg-2: #fbf8f2;
+      --paper: #fffdf8;
+      --paper-2: #f1e7d8;
+      --text: #1f1b16;
+      --muted: #746b60;
+      --soft: #a79b8d;
+      --gold: #d8bd7e;
+      --gold-dark: #ac8449;
+      --black: #15120f;
+      --white: #ffffff;
+      --line: rgba(31, 27, 22, .09);
+      --line-2: rgba(31, 27, 22, .14);
+      --shadow: 0 28px 90px rgba(31, 27, 22, .09);
+      --shadow-small: 0 14px 40px rgba(31, 27, 22, .08);
+      --radius-xl: 42px;
+      --radius-lg: 30px;
+      --radius-md: 20px;
+      --container: 1240px;
+      --ease: cubic-bezier(.2,.8,.2,1);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: "Manrope", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 8% 8%, rgba(216,189,126,.20), transparent 28%),
+        radial-gradient(circle at 92% 12%, rgba(172,132,73,.10), transparent 30%),
+        linear-gradient(180deg, var(--bg), var(--bg-2));
+      line-height: 1.75;
+      overflow-x: hidden;
+      text-rendering: optimizeLegibility;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    img, svg { display: block; max-width: 100%; }
+    a { color: inherit; text-decoration: none; }
+    button, input, select, textarea { font: inherit; }
+    ::selection { background: var(--gold); color: var(--black); }
+
+    .container { width: min(var(--container), calc(100% - 48px)); margin-inline: auto; }
+    .section { position: relative; padding: 118px 0; }
+    .section--compact { padding: 82px 0; }
+    .section--cream { background: rgba(255,255,255,.32); border-block: 1px solid rgba(31,27,22,.045); }
+
+    .skip-link {
+      position: fixed; left: 18px; top: 14px; z-index: 9999;
+      transform: translateY(-140%); padding: 10px 14px; border-radius: 999px;
+      background: var(--black); color: var(--white); transition: transform .2s var(--ease);
+    }
+    .skip-link:focus { transform: translateY(0); }
+
+    h1, h2, h3, h4 { font-family: "Cormorant Garamond", Georgia, serif; line-height: .98; letter-spacing: -.035em; font-weight: 600; }
+    .eyebrow {
+      display: inline-flex; align-items: center; gap: 13px; margin-bottom: 20px;
+      font-size: 12px; line-height: 1.2; letter-spacing: .18em; text-transform: uppercase;
+      color: var(--gold-dark); font-weight: 800;
+    }
+    .eyebrow::before { content: ""; width: 34px; height: 1px; background: currentColor; opacity: .7; }
+    .section-title { font-size: clamp(42px, 5vw, 78px); max-width: 850px; margin-bottom: 20px; }
+    .section-text { max-width: 760px; color: var(--muted); font-size: clamp(16px, 1.35vw, 18px); }
+    .text-small { color: var(--muted); font-size: 14px; line-height: 1.7; }
+
+    .btn {
+      min-height: 54px; padding: 0 24px; border-radius: 999px; border: 1px solid transparent;
+      display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+      font-size: 14px; font-weight: 800; transition: transform .25s var(--ease), background .25s var(--ease), border-color .25s var(--ease), color .25s var(--ease), box-shadow .25s var(--ease);
+      cursor: pointer; white-space: nowrap;
+    }
+    .btn:hover { transform: translateY(-2px); }
+    .btn:focus-visible { outline: 3px solid rgba(216,189,126,.52); outline-offset: 3px; }
+    .btn--primary { background: var(--black); color: var(--white); box-shadow: var(--shadow-small); }
+    .btn--primary:hover { background: #070604; box-shadow: 0 18px 48px rgba(31,27,22,.15); }
+    .btn--secondary { background: rgba(255,255,255,.48); color: var(--text); border-color: var(--line); }
+    .btn--secondary:hover { background: rgba(255,255,255,.74); border-color: rgba(172,132,73,.35); color: var(--gold-dark); }
+    .btn--light { background: var(--white); color: var(--black); }
+    .btn--ghost-light { border-color: rgba(255,255,255,.24); color: var(--white); background: rgba(255,255,255,.06); }
+    .btn--ghost-light:hover { border-color: rgba(255,255,255,.5); background: rgba(255,255,255,.12); color: var(--white); }
+    .btn-row { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 30px; }
+
+    .site-header {
+      position: sticky; top: 0; z-index: 50;
+      background: rgba(247,241,230,.78); backdrop-filter: blur(18px);
+      border-bottom: 1px solid rgba(31,27,22,.06);
+    }
+    .nav { min-height: 84px; display: flex; align-items: center; justify-content: space-between; gap: 22px; }
+    .brand { display: inline-flex; align-items: center; gap: 14px; flex: 0 0 auto; }
+    .brand img { width: 172px; height: auto; }
+    .nav-links { display: flex; align-items: center; gap: 30px; font-size: 14px; font-weight: 800; color: var(--muted); }
+    .nav-links a { position: relative; padding: 7px 0; }
+    .nav-links a::after { content: ""; position: absolute; left: 0; bottom: 0; width: 0; height: 1px; background: var(--gold-dark); transition: width .25s var(--ease); }
+    .nav-links a:hover { color: var(--text); }
+    .nav-links a:hover::after { width: 100%; }
+    .nav-actions { display: flex; align-items: center; gap: 12px; }
+    .menu-toggle { display: none; width: 48px; height: 48px; border: 1px solid var(--line); border-radius: 999px; background: rgba(255,255,255,.5); color: var(--black); cursor: pointer; }
+    .menu-toggle span { display: block; width: 18px; height: 2px; background: currentColor; margin: 4px auto; transition: .25s var(--ease); }
+    .mobile-menu { display: none; border-top: 1px solid var(--line); padding: 16px 0 22px; }
+    .mobile-menu a { display: block; padding: 12px 0; color: var(--muted); font-weight: 800; }
+    .mobile-menu .btn { margin-top: 10px; width: 100%; }
+    body.menu-open .mobile-menu { display: block; }
+    body.menu-open .menu-toggle span:nth-child(1) { transform: translateY(6px) rotate(45deg); }
+    body.menu-open .menu-toggle span:nth-child(2) { opacity: 0; }
+    body.menu-open .menu-toggle span:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
+
+    .hero { padding: 70px 0 88px; }
+    .hero-grid { display: grid; grid-template-columns: 1fr 1.02fr; gap: clamp(42px, 6vw, 88px); align-items: center; }
+    .hero h1 { font-size: clamp(58px, 7.5vw, 112px); max-width: 760px; margin-bottom: 24px; }
+    .hero p { color: var(--muted); max-width: 650px; font-size: clamp(17px, 1.45vw, 19px); }
+    .hero-meta { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 30px; }
+    .pill { display: inline-flex; align-items: center; min-height: 40px; padding: 0 15px; border-radius: 999px; border: 1px solid var(--line); background: rgba(255,255,255,.52); color: var(--muted); font-size: 13px; font-weight: 800; }
+    .hero-visual { position: relative; min-height: 720px; }
+    .hero-photo { position: absolute; overflow: hidden; border-radius: var(--radius-xl); background: var(--paper-2); box-shadow: var(--shadow); }
+    .hero-photo img { width: 100%; height: 100%; object-fit: cover; transform: scale(1.01); }
+    .hero-photo--main { right: 0; top: 0; width: 84%; height: 78%; }
+    .hero-photo--small { left: 0; bottom: 0; width: 48%; height: 42%; border: 12px solid var(--bg); }
+    .hero-card {
+      position: absolute; left: 28px; top: 28px; max-width: 290px; padding: 20px 22px;
+      border: 1px solid rgba(31,27,22,.07); background: rgba(255,255,255,.84); backdrop-filter: blur(16px);
+      border-radius: 24px; box-shadow: var(--shadow-small);
+    }
+    .hero-card strong { display: block; margin-bottom: 6px; font-size: 16px; }
+    .mark-badge { position: absolute; right: 28px; bottom: 28px; width: 112px; height: 112px; display: grid; place-items: center; border-radius: 50%; background: rgba(255,255,255,.78); border: 1px solid rgba(31,27,22,.07); box-shadow: var(--shadow-small); }
+    .mark-badge img { width: 74px; height: 74px; object-fit: contain; }
+
+    .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; }
+    .stat-card { min-height: 164px; padding: 30px; border: 1px solid var(--line); border-radius: var(--radius-lg); background: rgba(255,255,255,.5); }
+    .stat-card strong { font-family: "Cormorant Garamond", serif; font-size: 56px; line-height: 1; display: block; margin-bottom: 10px; }
+
+    .intro-grid { display: grid; grid-template-columns: .95fr 1.05fr; gap: clamp(42px, 6vw, 78px); align-items: center; }
+    .photo-stack { display: grid; grid-template-columns: 1fr .82fr; gap: 18px; align-items: end; }
+    .photo-stack img { width: 100%; object-fit: cover; border-radius: var(--radius-xl); box-shadow: var(--shadow); background: var(--paper-2); }
+    .photo-stack .tall { height: 640px; }
+    .photo-stack .small { height: 300px; }
+    .feature-list { display: grid; gap: 16px; margin-top: 34px; }
+    .feature-item { display: grid; grid-template-columns: 42px 1fr; gap: 16px; padding: 22px; border: 1px solid var(--line); border-radius: 24px; background: rgba(255,255,255,.52); }
+    .feature-item .num { width: 42px; height: 42px; border-radius: 50%; display: grid; place-items: center; background: var(--black); color: var(--white); font-weight: 800; font-size: 13px; }
+    .feature-item strong { display: block; margin-bottom: 4px; }
+
+    .services-head { display: flex; justify-content: space-between; align-items: end; gap: 30px; margin-bottom: 54px; }
+    .service-tabs { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 28px; }
+    .tab-btn { min-height: 42px; padding: 0 15px; border-radius: 999px; border: 1px solid var(--line); background: rgba(255,255,255,.54); color: var(--muted); font-size: 13px; font-weight: 800; cursor: pointer; transition: .2s var(--ease); }
+    .tab-btn:hover, .tab-btn.active { color: var(--black); border-color: rgba(172,132,73,.38); background: var(--white); }
+    .services-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+    .service-card { padding: 28px; min-height: 288px; border: 1px solid var(--line); border-radius: var(--radius-lg); background: rgba(255,255,255,.58); transition: transform .25s var(--ease), box-shadow .25s var(--ease), background .25s var(--ease); }
+    .service-card:hover { transform: translateY(-6px); background: var(--paper); box-shadow: var(--shadow); }
+    .service-icon { width: 54px; height: 54px; display: grid; place-items: center; border-radius: 18px; border: 1px solid rgba(31,27,22,.06); background: #f3eadc; margin-bottom: 26px; }
+    .service-icon svg { width: 26px; height: 26px; stroke: var(--gold-dark); }
+    .service-card h3 { font-size: 35px; margin-bottom: 12px; }
+    .service-card p { color: var(--muted); font-size: 15px; }
+    .service-card .link { display: inline-flex; align-items: center; gap: 8px; margin-top: 22px; color: var(--gold-dark); font-weight: 900; font-size: 13px; }
+    .service-card.hide { display: none; }
+
+    .editorial { padding: 64px; border-radius: var(--radius-xl); background: var(--paper); border: 1px solid var(--line); box-shadow: var(--shadow); display: grid; grid-template-columns: 1.05fr .95fr; gap: 42px; align-items: center; }
+    .editorial h2 { font-size: clamp(40px, 4.5vw, 68px); margin-bottom: 18px; }
+    .editorial-quote { padding: 30px; border-radius: 30px; background: #f5efe6; border: 1px solid var(--line); }
+    .editorial-quote p { font-family: "Cormorant Garamond", serif; font-size: 34px; line-height: 1.1; color: var(--black); }
+
+    .price-preview { display: grid; grid-template-columns: .9fr 1.1fr; gap: 34px; align-items: start; }
+    .price-nav { position: sticky; top: 104px; padding: 28px; border-radius: var(--radius-lg); background: rgba(255,255,255,.58); border: 1px solid var(--line); }
+    .price-nav h3 { font-size: 38px; margin-bottom: 14px; }
+    .price-list { display: grid; gap: 14px; }
+    .price-row { display: grid; grid-template-columns: 1fr auto; gap: 16px; padding: 20px 22px; border-radius: 20px; border: 1px solid var(--line); background: rgba(255,255,255,.62); }
+    .price-row strong { display: block; margin-bottom: 3px; }
+    .price-row span { color: var(--muted); font-size: 14px; }
+    .price-row b { font-size: 16px; white-space: nowrap; }
+
+    .gallery-grid { display: grid; grid-template-columns: 1.12fr .88fr 1fr; grid-auto-rows: 270px; gap: 18px; margin-top: 54px; }
+    .gallery-item { border-radius: 30px; overflow: hidden; box-shadow: var(--shadow); background: var(--paper-2); }
+    .gallery-item img { width: 100%; height: 100%; object-fit: cover; transition: transform .55s var(--ease); }
+    .gallery-item:hover img { transform: scale(1.045); }
+    .gallery-item.large { grid-row: span 2; }
+    .gallery-item.wide { grid-column: span 2; }
+
+    .branches-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; margin-top: 54px; }
+    .branch-card { min-height: 390px; padding: 36px; border-radius: var(--radius-lg); background: rgba(255,255,255,.64); border: 1px solid var(--line); box-shadow: var(--shadow); display: flex; flex-direction: column; justify-content: space-between; }
+    .branch-card h3 { font-size: 46px; margin-bottom: 12px; }
+    .branch-meta { display: grid; gap: 12px; margin: 24px 0 28px; }
+    .branch-meta div { display: grid; grid-template-columns: 24px 1fr; gap: 10px; color: var(--muted); font-size: 15px; }
+    .branch-meta b { color: var(--gold-dark); }
+
+    .reviews-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 54px; }
+    .review-card { padding: 30px; border-radius: var(--radius-lg); background: rgba(255,255,255,.58); border: 1px solid var(--line); }
+    .stars { color: var(--gold-dark); letter-spacing: 4px; margin-bottom: 18px; }
+    .review-card p { color: var(--muted); margin-bottom: 22px; }
+    .reviewer { display: flex; align-items: center; gap: 12px; font-weight: 900; }
+    .avatar { width: 42px; height: 42px; border-radius: 50%; display: grid; place-items: center; background: var(--black); color: var(--white); font-size: 13px; }
+
+    .cta { overflow: hidden; border-radius: var(--radius-xl); padding: 76px 62px; background:
+      linear-gradient(120deg, rgba(16,13,10,.86), rgba(16,13,10,.70)),
+      url("https://images.unsplash.com/photo-1515377905703-c4788e51af15?auto=format&fit=crop&w=1800&q=82") center/cover;
+      color: var(--white); box-shadow: var(--shadow);
+    }
+    .cta .eyebrow { color: #ead39d; }
+    .cta .section-text { color: rgba(255,255,255,.78); }
+    .cta h2 { font-size: clamp(44px, 5.5vw, 82px); max-width: 840px; margin-bottom: 20px; }
+    .contact-strip { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 34px; }
+    .contact-card { padding: 20px; border-radius: 22px; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.16); }
+    .contact-card strong { display: block; margin-bottom: 5px; }
+    .contact-card span, .contact-card a { color: rgba(255,255,255,.78); font-size: 14px; }
+
+    .site-footer { padding: 78px 0 34px; background: #eee4d7; border-top: 1px solid rgba(31,27,22,.07); }
+    .footer-grid { display: grid; grid-template-columns: 1.1fr .7fr 1fr 1fr; gap: 32px; margin-bottom: 42px; }
+    .footer-logo { width: 174px; margin-bottom: 18px; filter: brightness(0) saturate(100%) invert(17%) sepia(12%) saturate(850%) hue-rotate(347deg) brightness(92%) contrast(92%); mix-blend-mode: multiply; }
+    .footer-col h4 { font-size: 30px; margin-bottom: 16px; }
+    .footer-links { display: grid; gap: 9px; }
+    .footer-links a, .footer-links span, .footer-note { color: var(--muted); font-size: 14px; }
+    .footer-links a:hover { color: var(--black); }
+    .footer-bottom { display: flex; justify-content: space-between; gap: 20px; padding-top: 24px; border-top: 1px solid rgba(31,27,22,.07); color: var(--muted); font-size: 13px; }
+
+    .decor { position: absolute; pointer-events: none; opacity: .34; z-index: 0; }
+    .decor--one { top: 40px; right: 3vw; width: 190px; }
+    .decor--two { bottom: 70px; left: 4vw; width: 130px; }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; }
+    }
+
+    @media (max-width: 1120px) {
+      .nav-links, .nav-actions .btn--secondary { display: none; }
+      .menu-toggle { display: inline-block; }
+      .hero-grid, .intro-grid, .editorial, .price-preview { grid-template-columns: 1fr; }
+      .hero-visual { min-height: 660px; }
+      .stats-grid, .services-grid, .reviews-grid, .footer-grid { grid-template-columns: repeat(2, 1fr); }
+      .price-nav { position: static; }
+    }
+
+    @media (max-width: 760px) {
+      .container { width: min(var(--container), calc(100% - 30px)); }
+      .section { padding: 86px 0; }
+      .section--compact { padding: 62px 0; }
+      .nav { min-height: 74px; }
+      .brand img { width: 142px; }
+      .hero { padding-top: 44px; }
+      .hero h1 { font-size: clamp(52px, 15vw, 72px); }
+      .hero-visual { min-height: 520px; }
+      .hero-photo--main { width: 100%; height: 70%; }
+      .hero-photo--small { width: 56%; height: 34%; border-width: 8px; }
+      .hero-card { left: 16px; top: 16px; max-width: 245px; padding: 16px; }
+      .mark-badge { width: 92px; height: 92px; right: 16px; bottom: 16px; }
+      .mark-badge img { width: 60px; height: 60px; }
+      .stats-grid, .services-grid, .branches-grid, .reviews-grid, .footer-grid, .contact-strip { grid-template-columns: 1fr; }
+      .services-head { display: block; }
+      .photo-stack { grid-template-columns: 1fr; }
+      .photo-stack .tall, .photo-stack .small { height: 360px; }
+      .editorial { padding: 34px 22px; }
+      .editorial-quote p { font-size: 28px; }
+      .gallery-grid { grid-template-columns: 1fr; grid-auto-rows: 260px; }
+      .gallery-item.large, .gallery-item.wide { grid-row: auto; grid-column: auto; }
+      .cta { padding: 48px 24px; border-radius: 32px; }
+      .footer-bottom { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#main">Přejít na obsah</a>
+
+  <header class="site-header" data-aos="fade-down">
+    <div class="container">
+      <div class="nav">
+        <a class="brand" href="#top" aria-label="Meli Nails & Beauty domů">
+          <img src="logo.png" alt="Meli Nails & Beauty" width="344" height="120" />
+        </a>
+
+        <nav class="nav-links" aria-label="Hlavní navigace">
+          <a href="#about">O nás</a>
+          <a href="#services">Služby</a>
+          <a href="#prices">Ceník</a>
+          <a href="#gallery">Galerie</a>
+          <a href="#branches">Pobočky</a>
+          <a href="#contact">Kontakt</a>
+        </nav>
+
+        <div class="nav-actions">
+          <a class="btn btn--secondary" href="tel:+420777768681">+420 777 768 681</a>
+          <a class="btn btn--primary" href="#contact">Rezervace</a>
+          <button class="menu-toggle" type="button" aria-label="Otevřít menu" aria-expanded="false">
+            <span></span><span></span><span></span>
+          </button>
+        </div>
+      </div>
+
+      <nav class="mobile-menu" aria-label="Mobilní navigace">
+        <a href="#about">O nás</a>
+        <a href="#services">Služby</a>
+        <a href="#prices">Ceník</a>
+        <a href="#gallery">Galerie</a>
+        <a href="#branches">Pobočky</a>
+        <a href="#contact">Kontakt</a>
+        <a class="btn btn--primary" href="#contact">Rezervovat termín</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="hero" id="top">
+      <div class="container hero-grid">
+        <div class="hero-copy" data-aos="fade-up" data-aos-delay="80">
+          <div class="eyebrow">Salon krásy • Uherské Hradiště & Zlín</div>
+          <h1>Místo, kde krása začíná klidem.</h1>
+          <p>
+            Meli Nails & Beauty propojuje precizní beauty služby, jemnou estetiku a příjemný prostor, kam se chodí nejen pro výsledek, ale i pro chvíli pro sebe.
+          </p>
+          <div class="btn-row">
+            <a class="btn btn--primary" href="#contact">Objednat termín</a>
+            <a class="btn btn--secondary" href="#services">Prohlédnout služby</a>
+          </div>
+          <div class="hero-meta" aria-label="Hlavní výhody">
+            <span class="pill">2 pobočky</span>
+            <span class="pill">Po–Ne 8:00–20:00</span>
+            <span class="pill">Manikúra • řasy • kosmetika • masáže</span>
+          </div>
+        </div>
+
+        <div class="hero-visual" data-aos="fade-left" data-aos-delay="160">
+          <figure class="hero-photo hero-photo--main">
+            <img src="https://images.unsplash.com/photo-1521590832167-7bcbfaa6381f?auto=format&fit=crop&w=1400&q=82" alt="Klidná atmosféra beauty salonu" loading="eager" />
+          </figure>
+          <figure class="hero-photo hero-photo--small">
+            <img src="https://images.unsplash.com/photo-1604654894610-df63bc536371?auto=format&fit=crop&w=900&q=82" alt="Detail manikúry" loading="eager" />
+          </figure>
+          <div class="hero-card" data-aos="fade-up" data-aos-delay="300">
+            <strong>Beauty beyond nails</strong>
+            <p class="text-small">Nehty, pleť, obočí, řasy, masáže i depilace v jednom kultivovaném prostoru.</p>
+          </div>
+          <div class="mark-badge" aria-hidden="true">
+            <img src="favicon.png" alt="" />
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section--compact stats" aria-label="Rychlá fakta">
+      <div class="container stats-grid">
+        <article class="stat-card" data-aos="fade-up">
+          <strong>6+</strong>
+          <p class="text-small">let profesionální beauty péče a individuálního přístupu</p>
+        </article>
+        <article class="stat-card" data-aos="fade-up" data-aos-delay="80">
+          <strong>2</strong>
+          <p class="text-small">pobočky v Uherském Hradišti a ve Zlíně</p>
+        </article>
+        <article class="stat-card" data-aos="fade-up" data-aos-delay="160">
+          <strong>7+</strong>
+          <p class="text-small">kategorií služeb od nehtů po relaxační masáže</p>
+        </article>
+        <article class="stat-card" data-aos="fade-up" data-aos-delay="240">
+          <strong>1</strong>
+          <p class="text-small">místo pro krásu, pohodlí a čas věnovaný sobě</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="section" id="about">
+      <svg class="decor decor--one" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <circle cx="100" cy="100" r="92" stroke="#D8BD7E" stroke-width="1.3" />
+        <path d="M100 12C116 43 155 58 170 100C155 142 116 157 100 188C84 157 45 142 30 100C45 58 84 43 100 12Z" stroke="#D8BD7E" stroke-width="1.3" />
+      </svg>
+      <div class="container intro-grid">
+        <div class="photo-stack" data-aos="fade-right">
+          <img class="tall" src="https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?auto=format&fit=crop&w=900&q=82" alt="Elegantní beauty portrét" loading="lazy" />
+          <div style="display:grid;gap:18px;">
+            <img class="small" src="https://images.unsplash.com/photo-1607779097040-26e80aa78e66?auto=format&fit=crop&w=900&q=82" alt="Kosmetická procedura" loading="lazy" />
+            <img class="small" src="https://images.unsplash.com/photo-1515377905703-c4788e51af15?auto=format&fit=crop&w=900&q=82" alt="Relaxace v salonu" loading="lazy" />
+          </div>
+        </div>
+        <div data-aos="fade-up" data-aos-delay="100">
+          <div class="eyebrow">O salonu</div>
+          <h2 class="section-title">Krása, která působí přirozeně a lehce.</h2>
+          <p class="section-text">
+            V Meli Nails & Beauty se každý detail řeší s klidem – od výběru procedury přes čisté prostředí až po finální výsledek. Salon je navržený jako vzdušné místo s jemnou estetikou, kde se klientka cítí vítaná a opečovaná.
+          </p>
+          <div class="feature-list">
+            <article class="feature-item">
+              <span class="num">01</span>
+              <div><strong>Individuální přístup</strong><p class="text-small">Pomůžeme vybrat proceduru podle vašich potřeb, typu pleti, stylu i času.</p></div>
+            </article>
+            <article class="feature-item">
+              <span class="num">02</span>
+              <div><strong>Šetrná a ověřená péče</strong><p class="text-small">Důraz na hygienu, kvalitní produkty a přirozeně elegantní výsledek.</p></div>
+            </article>
+            <article class="feature-item">
+              <span class="num">03</span>
+              <div><strong>Komplexní beauty koncept</strong><p class="text-small">Manikúra, pedikúra, řasy, obočí, kosmetika, masáže, depilace i poukazy.</p></div>
+            </article>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section--cream" id="services">
+      <div class="container">
+        <div class="services-head">
+          <div data-aos="fade-up">
+            <div class="eyebrow">Služby</div>
+            <h2 class="section-title">Vyberte si péči podle nálady, času i potřeby.</h2>
+            <p class="section-text">Na homepage ukazujeme hlavní kategorie. Detailní ceník a rozsah služeb je lepší otevřít v samostatné sekci nebo podstránce.</p>
+            <div class="service-tabs" role="tablist" aria-label="Filtr služeb">
+              <button class="tab-btn active" type="button" data-filter="all">Vše</button>
+              <button class="tab-btn" type="button" data-filter="nails">Nehty</button>
+              <button class="tab-btn" type="button" data-filter="face">Pleť & obočí</button>
+              <button class="tab-btn" type="button" data-filter="relax">Relax</button>
+            </div>
+          </div>
+          <div class="btn-row" style="margin-top:0;" data-aos="fade-up" data-aos-delay="120">
+            <a class="btn btn--secondary" href="#prices">Orientační ceník</a>
+          </div>
+        </div>
+
+        <div class="services-grid">
+          <article class="service-card" data-category="nails" data-aos="fade-up">
+            <div class="service-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.7"><path d="M7 3c2 2 2 6 0 8M12 3c2 2 2 6 0 8M17 3c2 2 2 6 0 8M5 13c2.5 5 11.5 5 14 0" /></svg></div>
+            <h3>Manikúra</h3><p>Klasická péče, gel lak, modelace i jemné zdobení pro čistý a upravený vzhled.</p><a class="link" href="#prices">od 200 Kč →</a>
+          </article>
+          <article class="service-card" data-category="nails" data-aos="fade-up" data-aos-delay="60">
+            <div class="service-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.7"><path d="M8 4c0 5-2 7-4 9 2 4 10 4 12 0-2-2-4-4-4-9M16 4c0 5 2 7 4 9-2 4-10 4-12 0" /></svg></div>
+            <h3>Pedikúra</h3><p>Péče o chodidla, gel lak na nohy a komfortní procedury pro lehký pocit.</p><a class="link" href="#prices">od 420 Kč →</a>
+          </article>
+          <article class="service-card" data-category="face" data-aos="fade-up" data-aos-delay="120">
+            <div class="service-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.7"><path d="M4 12c2-3 5-5 8-5s6 2 8 5c-2 3-5 5-8 5s-6-2-8-5Z" /><circle cx="12" cy="12" r="2.2" /></svg></div>
+            <h3>Řasy</h3><p>Prodlužování, doplnění, lash lifting a barvení pro otevřený pohled.</p><a class="link" href="#prices">od 500 Kč →</a>
+          </article>
+          <article class="service-card" data-category="face" data-aos="fade-up" data-aos-delay="180">
+            <div class="service-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.7"><path d="M3 13c2.5-3 5.5-4.5 9-4.5s6.5 1.5 9 4.5" /><path d="M6 16c1.8-1.6 3.8-2.4 6-2.4s4.2.8 6 2.4" /></svg></div>
+            <h3>Obočí</h3><p>Úprava, barvení a laminace obočí pro přirozeně zvýrazněný výraz.</p><a class="link" href="#prices">od 50 Kč →</a>
+          </article>
+          <article class="service-card" data-category="face" data-aos="fade-up">
+            <div class="service-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.7"><path d="M12 3c3 3 6 5.5 6 10a6 6 0 1 1-12 0c0-4.5 3-7 6-10Z" /></svg></div>
+            <h3>Kosmetika</h3><p>Čištění pleti, masky, masáže obličeje a cílené ošetření podle typu pleti.</p><a class="link" href="#prices">od 550 Kč →</a>
+          </article>
+          <article class="service-card" data-category="relax" data-aos="fade-up" data-aos-delay="60">
+            <div class="service-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.7"><path d="M6 12c1.5-3 3.5-5 6-6 2.5 1 4.5 3 6 6-1.5 3-3.5 5-6 6-2.5-1-4.5-3-6-6Z" /></svg></div>
+            <h3>Masáže</h3><p>Tradiční vietnamské, relaxační, záda, šíje, hlava, obličej i párové procedury.</p><a class="link" href="#prices">od 450 Kč →</a>
+          </article>
+          <article class="service-card" data-category="relax" data-aos="fade-up" data-aos-delay="120">
+            <div class="service-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.7"><path d="M8 6c1.5 0 2.5 1.2 2.5 2.7S9.5 11.5 8 11.5 5.5 10.3 5.5 8.7 6.5 6 8 6Zm8 6c1.5 0 2.5 1.2 2.5 2.7S17.5 17.5 16 17.5s-2.5-1.2-2.5-2.8S14.5 12 16 12Z" /><path d="M9 15c1.8-2 4-3.2 6.6-3.5" /></svg></div>
+            <h3>Depilace</h3><p>Šetrná depilace obličeje i těla s důrazem na hladký výsledek.</p><a class="link" href="#prices">od 170 Kč →</a>
+          </article>
+          <article class="service-card" data-category="relax" data-aos="fade-up" data-aos-delay="180">
+            <div class="service-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.7"><rect x="4" y="6" width="16" height="12" rx="2" /><path d="M8 12h8M12 8v8" /></svg></div>
+            <h3>Poukazy</h3><p>Dárkové poukazy pro chvíle krásy, relaxace a péče, které potěší.</p><a class="link" href="#contact">zeptat se →</a>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section--compact">
+      <div class="container">
+        <div class="editorial" data-aos="zoom-in">
+          <div>
+            <div class="eyebrow">Beauty concept</div>
+            <h2>Vzdušný evropský styl, méně hluku, více elegance.</h2>
+            <p class="section-text">Prémiový web pro salon krásy nepotřebuje přeplněné bloky. Stačí kvalitní fotky, výrazná typografie, pomalé animace a čisté CTA.</p>
+          </div>
+          <div class="editorial-quote">
+            <p>„Když má layout prostor dýchat, působí salon dražší a důvěryhodnější.“</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="prices">
+      <div class="container price-preview">
+        <aside class="price-nav" data-aos="fade-right">
+          <div class="eyebrow">Ceník</div>
+          <h3>Orientační ceny</h3>
+          <p class="text-small">Na production webu doporučuji mít kompletní ceník jako samostatnou podstránku. Na homepage nechat jen výběr nejžádanějších položek.</p>
+          <div class="btn-row">
+            <a class="btn btn--primary" href="#contact">Rezervovat</a>
+            <a class="btn btn--secondary" href="#branches">Vybrat pobočku</a>
+          </div>
+        </aside>
+        <div class="price-list" data-aos="fade-up" data-aos-delay="100">
+          <div class="price-row"><div><strong>Manikúra klasická</strong><span>dámská / pánská</span></div><b>200 Kč</b></div>
+          <div class="price-row"><div><strong>Manikúra & Gel lak</strong><span>úprava, péče a barva</span></div><b>380 Kč</b></div>
+          <div class="price-row"><div><strong>Pedikúra klasická</strong><span>dámská od 420 Kč, pánská od 450 Kč</span></div><b>od 420 Kč</b></div>
+          <div class="price-row"><div><strong>Nové gelové nehty</strong><span>lakování / francie / ombré</span></div><b>od 520 Kč</b></div>
+          <div class="price-row"><div><strong>Kosmetické ošetření</strong><span>základní, speciální nebo detox</span></div><b>od 550 Kč</b></div>
+          <div class="price-row"><div><strong>Masáž těla</strong><span>60 nebo 90 minut</span></div><b>od 850 Kč</b></div>
+          <div class="price-row"><div><strong>Lash lifting / Brow lifting</strong><span>řasy, obočí nebo kombinace</span></div><b>od 500 Kč</b></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section--cream" id="gallery">
+      <div class="container">
+        <div data-aos="fade-up">
+          <div class="eyebrow">Galerie</div>
+          <h2 class="section-title">Atmosféra salonu a detaily, které mluví samy.</h2>
+          <p class="section-text">Pro ostrou verzi webu je ideální doplnit reálné fotky interiéru, práce týmu a detailů služeb. Stock fotky níže slouží jako stylový placeholder.</p>
+        </div>
+        <div class="gallery-grid">
+          <figure class="gallery-item large" data-aos="fade-up"><img src="https://images.unsplash.com/photo-1512496015851-a90fb38ba796?auto=format&fit=crop&w=1100&q=82" alt="Kosmetický portrét" loading="lazy" /></figure>
+          <figure class="gallery-item" data-aos="fade-up" data-aos-delay="70"><img src="https://images.unsplash.com/photo-1583001809873-a128495da465?auto=format&fit=crop&w=1000&q=82" alt="Péče o pleť" loading="lazy" /></figure>
+          <figure class="gallery-item" data-aos="fade-up" data-aos-delay="140"><img src="https://images.unsplash.com/photo-1519014816548-bf5fe059798b?auto=format&fit=crop&w=1000&q=82" alt="Detail nehtů" loading="lazy" /></figure>
+          <figure class="gallery-item wide" data-aos="fade-up" data-aos-delay="210"><img src="https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?auto=format&fit=crop&w=1400&q=82" alt="Beauty procedura" loading="lazy" /></figure>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="branches">
+      <svg class="decor decor--two" viewBox="0 0 130 130" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <circle cx="65" cy="65" r="58" stroke="#D8BD7E" stroke-width="1.2" />
+        <path d="M65 24C73 39 88 47 96 65C88 83 73 91 65 106C57 91 42 83 34 65C42 47 57 39 65 24Z" stroke="#D8BD7E" stroke-width="1.2" />
+      </svg>
+      <div class="container">
+        <div data-aos="fade-up">
+          <div class="eyebrow">Pobočky</div>
+          <h2 class="section-title">Dvě adresy, stejná péče a stejný klid.</h2>
+          <p class="section-text">Vyberte si pobočku, která je vám blíž. Kontakty jsou připravené pro rychlé volání, e-mail i navigaci.</p>
+        </div>
+        <div class="branches-grid">
+          <article class="branch-card" data-aos="fade-up">
+            <div>
+              <h3>Uherské Hradiště</h3>
+              <p class="text-small">Původní salon v centru města s kompletní nabídkou beauty služeb.</p>
+              <div class="branch-meta">
+                <div><b>⌖</b><span>Mlýnská 1295, Uherské Hradiště – 686 01</span></div>
+                <div><b>☎</b><a href="tel:+420777768681">+420 777 768 681</a></div>
+                <div><b>✉</b><a href="mailto:info@melinails.cz">info@melinails.cz</a></div>
+                <div><b>◷</b><span>Po – Ne | 8:00 – 20:00</span></div>
+              </div>
+            </div>
+            <div class="btn-row"><a class="btn btn--primary" href="tel:+420777768681">Zavolat</a><a class="btn btn--secondary" href="https://www.google.com/maps/search/?api=1&query=Ml%C3%BDnsk%C3%A1%201295%20Uhersk%C3%A9%20Hradi%C5%A1t%C4%9B" target="_blank" rel="noopener">Navigace</a></div>
+          </article>
+          <article class="branch-card" data-aos="fade-up" data-aos-delay="100">
+            <div>
+              <h3>Zlín</h3>
+              <p class="text-small">Novější pobočka pro klientky ze Zlína a okolí.</p>
+              <div class="branch-meta">
+                <div><b>⌖</b><span>Rašínova 522, Zlín – 760 01</span></div>
+                <div><b>☎</b><a href="tel:+420777768626">+420 777 768 626</a></div>
+                <div><b>✉</b><a href="mailto:info@melinails.cz">info@melinails.cz</a></div>
+                <div><b>◷</b><span>Po – Ne | 8:00 – 20:00</span></div>
+              </div>
+            </div>
+            <div class="btn-row"><a class="btn btn--primary" href="tel:+420777768626">Zavolat</a><a class="btn btn--secondary" href="https://www.google.com/maps/search/?api=1&query=Ra%C5%A1%C3%ADnova%20522%20Zl%C3%ADn" target="_blank" rel="noopener">Navigace</a></div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section--cream" aria-label="Recenze klientek">
+      <div class="container">
+        <div data-aos="fade-up">
+          <div class="eyebrow">Recenze</div>
+          <h2 class="section-title">Klientky se vrací kvůli detailu.</h2>
+          <p class="section-text">V produkční verzi doporučuji napojit reálné Google recenze nebo ručně vybrat 3–6 nejlepších.</p>
+        </div>
+        <div class="reviews-grid">
+          <article class="review-card" data-aos="fade-up"><div class="stars">★★★★★</div><p>„Krásná práce, příjemný přístup a salon, kde se člověk opravdu cítí dobře.“</p><div class="reviewer"><span class="avatar">K</span>Klára</div></article>
+          <article class="review-card" data-aos="fade-up" data-aos-delay="80"><div class="stars">★★★★★</div><p>„Manikúra vydržela perfektně a prostředí je čisté, jemné a velmi příjemné.“</p><div class="reviewer"><span class="avatar">A</span>Anna</div></article>
+          <article class="review-card" data-aos="fade-up" data-aos-delay="160"><div class="stars">★★★★★</div><p>„Skvělé služby na jednom místě. Oceňuji rychlé objednání a profesionální přístup.“</p><div class="reviewer"><span class="avatar">M</span>Monika</div></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="contact">
+      <div class="container">
+        <div class="cta" data-aos="fade-up">
+          <div class="eyebrow">Rezervace & kontakt</div>
+          <h2>Dopřejte si termín, který patří jen vám.</h2>
+          <p class="section-text">Objednejte se telefonicky, e-mailem nebo přes online rezervaci. Vyberte pobočku, službu a čas – o zbytek se postará tým Meli Nails & Beauty.</p>
+          <div class="btn-row">
+            <a class="btn btn--light" href="tel:+420777768681">Zavolat Uherské Hradiště</a>
+            <a class="btn btn--ghost-light" href="tel:+420777768626">Zavolat Zlín</a>
+            <a class="btn btn--ghost-light" href="mailto:info@melinails.cz">Napsat e-mail</a>
+          </div>
+          <div class="contact-strip">
+            <div class="contact-card"><strong>Uherské Hradiště</strong><a href="tel:+420777768681">+420 777 768 681</a></div>
+            <div class="contact-card"><strong>Zlín</strong><a href="tel:+420777768626">+420 777 768 626</a></div>
+            <div class="contact-card"><strong>E-mail</strong><a href="mailto:info@melinails.cz">info@melinails.cz</a></div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div>
+          <img class="footer-logo" src="logo.png" alt="Meli Nails & Beauty" width="344" height="120" />
+          <p class="footer-note">Profesionální salon krásy v Uherském Hradišti a Zlíně. Manikúra, pedikúra, řasy, kosmetika, masáže, obočí a depilace.</p>
+        </div>
+        <div class="footer-col">
+          <h4>Menu</h4>
+          <div class="footer-links"><a href="#about">O nás</a><a href="#services">Služby</a><a href="#prices">Ceník</a><a href="#gallery">Galerie</a><a href="#branches">Pobočky</a></div>
+        </div>
+        <div class="footer-col">
+          <h4>Uherské Hradiště</h4>
+          <div class="footer-links"><span>Mlýnská 1295</span><a href="tel:+420777768681">+420 777 768 681</a><a href="mailto:info@melinails.cz">info@melinails.cz</a><span>Po – Ne | 8:00 – 20:00</span></div>
+        </div>
+        <div class="footer-col">
+          <h4>Zlín</h4>
+          <div class="footer-links"><span>Rašínova 522</span><a href="tel:+420777768626">+420 777 768 626</a><a href="mailto:info@melinails.cz">info@melinails.cz</a><span>Po – Ne | 8:00 – 20:00</span></div>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>© <span id="year"></span> Meli Nails & Beauty. Všechna práva vyhrazena.</span>
+        <span>Design concept: airy European beauty salon.</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
+  <script>
+    const menuToggle = document.querySelector('.menu-toggle');
+    const mobileLinks = document.querySelectorAll('.mobile-menu a');
+
+    menuToggle?.addEventListener('click', () => {
+      const isOpen = document.body.classList.toggle('menu-open');
+      menuToggle.setAttribute('aria-expanded', String(isOpen));
+    });
+
+    mobileLinks.forEach((link) => {
+      link.addEventListener('click', () => {
+        document.body.classList.remove('menu-open');
+        menuToggle?.setAttribute('aria-expanded', 'false');
+      });
+    });
+
+    const tabButtons = document.querySelectorAll('.tab-btn');
+    const serviceCards = document.querySelectorAll('.service-card');
+
+    tabButtons.forEach((button) => {
+      button.addEventListener('click', () => {
+        const filter = button.dataset.filter;
+        tabButtons.forEach((btn) => btn.classList.remove('active'));
+        button.classList.add('active');
+        serviceCards.forEach((card) => {
+          const match = filter === 'all' || card.dataset.category === filter;
+          card.classList.toggle('hide', !match);
+        });
+      });
+    });
+
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    AOS.init({
+      duration: 850,
+      once: true,
+      offset: 70,
+      easing: 'ease-out-cubic',
+      disable: window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    });
+  </script>
+</body>
+</html>

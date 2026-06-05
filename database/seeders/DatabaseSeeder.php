@@ -26,6 +26,7 @@ class DatabaseSeeder extends Seeder
 
         $this->call([
             DemoHomepageSeeder::class,
+            MelinailsSeeder::class,
             // Thêm các seeder khác nếu cần
         ]);
     }

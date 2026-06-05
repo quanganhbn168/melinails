@@ -1,0 +1,1898 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Služby podle kategorie | Meli Nails & Beauty</title>
+  <meta
+    name="description"
+    content="Detail kategorie služeb Meli Nails & Beauty. Vyberte si konkrétní proceduru a rezervujte termín online."
+  />
+  <meta name="theme-color" content="#F7F1E6" />
+
+  <link rel="icon" type="image/png" href="assets/favicon.png" />
+  <link rel="apple-touch-icon" href="assets/favicon.png" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet"
+  />
+
+  <link href="https://unpkg.com/aos@2.3.4/dist/aos.css" rel="stylesheet" />
+
+  <style>
+    :root {
+      --bg: #f7f1e6;
+      --bg-2: #fbf8f2;
+      --paper: #fffdf8;
+      --paper-2: #f1e7d8;
+      --text: #1f1b16;
+      --muted: #746b60;
+      --soft: #a79b8d;
+      --gold: #d8bd7e;
+      --gold-dark: #ac8449;
+      --black: #15120f;
+      --white: #ffffff;
+      --line: rgba(31, 27, 22, .09);
+      --shadow: 0 28px 90px rgba(31, 27, 22, .09);
+      --shadow-small: 0 14px 40px rgba(31, 27, 22, .08);
+      --radius-xl: 42px;
+      --radius-lg: 30px;
+      --radius-md: 20px;
+      --container: 1240px;
+      --ease: cubic-bezier(.2,.8,.2,1);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: "Manrope", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 8% 8%, rgba(216,189,126,.20), transparent 28%),
+        radial-gradient(circle at 92% 12%, rgba(172,132,73,.10), transparent 30%),
+        linear-gradient(180deg, var(--bg), var(--bg-2));
+      line-height: 1.7;
+      overflow-x: hidden;
+      text-rendering: optimizeLegibility;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    img,
+    svg {
+      display: block;
+      max-width: 100%;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    button,
+    input,
+    select {
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    ::selection {
+      background: var(--gold);
+      color: var(--black);
+    }
+
+    .container {
+      width: min(var(--container), calc(100% - 48px));
+      margin-inline: auto;
+    }
+
+    h1,
+    h2,
+    h3,
+    h4 {
+      font-family: "Cormorant Garamond", Georgia, serif;
+      line-height: .98;
+      letter-spacing: -.035em;
+      font-weight: 600;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 13px;
+      margin-bottom: 20px;
+      font-size: 12px;
+      line-height: 1.2;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      color: var(--gold-dark);
+      font-weight: 800;
+    }
+
+    .eyebrow::before {
+      content: "";
+      width: 34px;
+      height: 1px;
+      background: currentColor;
+      opacity: .7;
+    }
+
+    .text-muted {
+      color: var(--muted);
+    }
+
+    .text-small {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.7;
+    }
+
+    .btn {
+      min-height: 54px;
+      padding: 0 24px;
+      border-radius: 999px;
+      border: 1px solid transparent;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      font-size: 14px;
+      font-weight: 800;
+      transition:
+        transform .25s var(--ease),
+        background .25s var(--ease),
+        border-color .25s var(--ease),
+        color .25s var(--ease),
+        box-shadow .25s var(--ease);
+      white-space: nowrap;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+    }
+
+    .btn:focus-visible,
+    input:focus-visible,
+    select:focus-visible,
+    .menu-toggle:focus-visible,
+    .service-card:focus-visible,
+    .category-link:focus-visible,
+    .faq-trigger:focus-visible {
+      outline: 3px solid rgba(216,189,126,.52);
+      outline-offset: 3px;
+    }
+
+    .btn--primary {
+      background: var(--black);
+      color: var(--white);
+      box-shadow: var(--shadow-small);
+    }
+
+    .btn--primary:hover {
+      background: #070604;
+      box-shadow: 0 18px 48px rgba(31,27,22,.15);
+    }
+
+    .btn--secondary {
+      background: rgba(255,255,255,.55);
+      color: var(--text);
+      border-color: var(--line);
+    }
+
+    .btn--secondary:hover {
+      background: rgba(255,255,255,.82);
+      border-color: rgba(172,132,73,.35);
+      color: var(--gold-dark);
+    }
+
+    .btn--light {
+      background: var(--white);
+      color: var(--black);
+    }
+
+    .btn--ghost-light {
+      background: rgba(255,255,255,.08);
+      color: var(--white);
+      border-color: rgba(255,255,255,.22);
+    }
+
+    .btn--ghost-light:hover {
+      background: rgba(255,255,255,.14);
+      border-color: rgba(255,255,255,.42);
+      color: var(--white);
+    }
+
+    .btn-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      margin-top: 30px;
+    }
+
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: rgba(247,241,230,.78);
+      backdrop-filter: blur(18px);
+      border-bottom: 1px solid rgba(31,27,22,.06);
+    }
+
+    .nav {
+      min-height: 84px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 22px;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 14px;
+      flex: 0 0 auto;
+    }
+
+    .brand img {
+      width: 172px;
+      height: auto;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 30px;
+      font-size: 14px;
+      font-weight: 800;
+      color: var(--muted);
+    }
+
+    .nav-links a {
+      position: relative;
+      padding: 7px 0;
+    }
+
+    .nav-links a::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      width: 0;
+      height: 1px;
+      background: var(--gold-dark);
+      transition: width .25s var(--ease);
+    }
+
+    .nav-links a:hover {
+      color: var(--text);
+    }
+
+    .nav-links a:hover::after {
+      width: 100%;
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .menu-toggle {
+      display: none;
+      width: 48px;
+      height: 48px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255,255,255,.5);
+      color: var(--black);
+    }
+
+    .menu-toggle span {
+      display: block;
+      width: 18px;
+      height: 2px;
+      background: currentColor;
+      margin: 4px auto;
+      transition: .25s var(--ease);
+    }
+
+    .mobile-menu {
+      display: none;
+      border-top: 1px solid var(--line);
+      padding: 16px 0 22px;
+    }
+
+    .mobile-menu a {
+      display: block;
+      padding: 12px 0;
+      color: var(--muted);
+      font-weight: 800;
+    }
+
+    .mobile-menu .btn {
+      margin-top: 10px;
+      width: 100%;
+    }
+
+    body.menu-open .mobile-menu {
+      display: block;
+    }
+
+    body.menu-open .menu-toggle span:nth-child(1) {
+      transform: translateY(6px) rotate(45deg);
+    }
+
+    body.menu-open .menu-toggle span:nth-child(2) {
+      opacity: 0;
+    }
+
+    body.menu-open .menu-toggle span:nth-child(3) {
+      transform: translateY(-6px) rotate(-45deg);
+    }
+
+    .hero {
+      padding: 76px 0 78px;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: .92fr 1.08fr;
+      gap: clamp(38px, 6vw, 84px);
+      align-items: center;
+    }
+
+    .breadcrumb {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 22px;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .breadcrumb a {
+      color: var(--gold-dark);
+    }
+
+    .hero h1 {
+      font-size: clamp(56px, 7.4vw, 112px);
+      max-width: 840px;
+      margin-bottom: 24px;
+    }
+
+    .hero p {
+      color: var(--muted);
+      max-width: 690px;
+      font-size: clamp(17px, 1.35vw, 19px);
+    }
+
+    .hero-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 30px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 40px;
+      padding: 0 15px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.52);
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .hero-visual {
+      position: relative;
+      min-height: 640px;
+    }
+
+    .hero-photo {
+      position: absolute;
+      overflow: hidden;
+      border-radius: var(--radius-xl);
+      background: var(--paper-2);
+      box-shadow: var(--shadow);
+    }
+
+    .hero-photo img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform .6s var(--ease);
+    }
+
+    .hero-photo:hover img {
+      transform: scale(1.045);
+    }
+
+    .hero-photo--main {
+      right: 0;
+      top: 0;
+      width: 82%;
+      height: 74%;
+    }
+
+    .hero-photo--small {
+      left: 0;
+      bottom: 0;
+      width: 50%;
+      height: 39%;
+      border: 12px solid var(--bg);
+    }
+
+    .hero-info {
+      position: absolute;
+      right: 28px;
+      bottom: 28px;
+      z-index: 3;
+      width: min(310px, calc(100% - 56px));
+      padding: 22px;
+      border-radius: 26px;
+      background: rgba(255,255,255,.86);
+      backdrop-filter: blur(14px);
+      border: 1px solid rgba(255,255,255,.55);
+      box-shadow: var(--shadow-small);
+    }
+
+    .hero-info strong {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 16px;
+    }
+
+    .category-switch-section {
+      padding: 18px 0 72px;
+    }
+
+    .category-switch {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding: 16px;
+      border: 1px solid var(--line);
+      border-radius: 32px;
+      background: rgba(255,255,255,.58);
+      box-shadow: var(--shadow-small);
+    }
+
+    .category-link {
+      min-height: 44px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 16px;
+      border-radius: 999px;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 900;
+      border: 1px solid transparent;
+      transition: .25s var(--ease);
+    }
+
+    .category-link:hover,
+    .category-link.active {
+      background: var(--black);
+      color: var(--white);
+    }
+
+    .intro-section {
+      padding: 0 0 110px;
+    }
+
+    .intro-card {
+      display: grid;
+      grid-template-columns: 1.06fr .94fr;
+      gap: 34px;
+      align-items: center;
+      padding: 58px;
+      border-radius: var(--radius-xl);
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.65);
+      box-shadow: var(--shadow);
+    }
+
+    .intro-card h2 {
+      font-size: clamp(42px, 5vw, 74px);
+      max-width: 760px;
+      margin-bottom: 18px;
+    }
+
+    .intro-list {
+      display: grid;
+      gap: 14px;
+    }
+
+    .intro-item {
+      padding: 20px;
+      border-radius: 22px;
+      background: #f5ede2;
+      border: 1px solid var(--line);
+    }
+
+    .intro-item strong {
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .services-section {
+      padding: 112px 0;
+      background: rgba(255,255,255,.24);
+      border-block: 1px solid rgba(31,27,22,.045);
+    }
+
+    .section-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 30px;
+      align-items: end;
+      margin-bottom: 44px;
+    }
+
+    .section-head h2 {
+      font-size: clamp(44px, 5vw, 78px);
+      max-width: 780px;
+      margin-bottom: 16px;
+    }
+
+    .filter-bar {
+      display: grid;
+      grid-template-columns: 1fr 180px;
+      gap: 12px;
+      margin-top: 24px;
+      max-width: 680px;
+    }
+
+    input,
+    select {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: rgba(255,255,255,.68);
+      padding: 15px 16px;
+      color: var(--text);
+      outline: none;
+      transition: .2s var(--ease);
+      font-weight: 700;
+    }
+
+    input:focus,
+    select:focus {
+      border-color: rgba(172,132,73,.46);
+      background: var(--paper);
+    }
+
+    .service-grid-list {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+
+    .service-card {
+      min-height: 360px;
+      position: relative;
+      overflow: hidden;
+      border-radius: var(--radius-xl);
+      background: var(--paper);
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow-small);
+      transition:
+        transform .25s var(--ease),
+        box-shadow .25s var(--ease),
+        border-color .25s var(--ease);
+    }
+
+    .service-card:hover {
+      transform: translateY(-6px);
+      border-color: rgba(172,132,73,.34);
+      box-shadow: var(--shadow);
+    }
+
+    .service-image {
+      height: 205px;
+      overflow: hidden;
+      background: var(--paper-2);
+    }
+
+    .service-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform .6s var(--ease);
+    }
+
+    .service-card:hover .service-image img {
+      transform: scale(1.055);
+    }
+
+    .service-body {
+      padding: 24px;
+    }
+
+    .service-body h3 {
+      font-family: "Manrope", sans-serif;
+      letter-spacing: 0;
+      line-height: 1.25;
+      font-size: 18px;
+      font-weight: 900;
+      margin-bottom: 8px;
+    }
+
+    .service-body p {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.6;
+      margin-bottom: 16px;
+    }
+
+    .service-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 18px;
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      min-height: 28px;
+      padding: 0 10px;
+      border-radius: 999px;
+      background: rgba(216,189,126,.16);
+      color: var(--gold-dark);
+      font-weight: 900;
+      font-size: 12px;
+    }
+
+    .service-bottom {
+      display: flex;
+      justify-content: space-between;
+      gap: 14px;
+      align-items: center;
+    }
+
+    .price {
+      display: grid;
+      gap: 2px;
+    }
+
+    .price strong {
+      font-size: 16px;
+    }
+
+    .price span {
+      color: var(--soft);
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    .tiny-link {
+      color: var(--gold-dark);
+      font-size: 13px;
+      font-weight: 900;
+    }
+
+    .empty-state {
+      display: none;
+      grid-column: 1 / -1;
+      padding: 48px;
+      text-align: center;
+      border-radius: var(--radius-lg);
+      background: rgba(255,255,255,.6);
+      border: 1px solid var(--line);
+      color: var(--muted);
+    }
+
+    .empty-state.active {
+      display: block;
+    }
+
+    .story-section {
+      padding: 112px 0;
+    }
+
+    .story-grid {
+      display: grid;
+      grid-template-columns: .95fr 1.05fr;
+      gap: clamp(38px, 6vw, 84px);
+      align-items: center;
+    }
+
+    .story-copy h2 {
+      font-size: clamp(44px, 5vw, 78px);
+      margin-bottom: 18px;
+    }
+
+    .story-copy p {
+      color: var(--muted);
+      font-size: 17px;
+      max-width: 680px;
+    }
+
+    .story-points {
+      display: grid;
+      gap: 14px;
+      margin-top: 30px;
+    }
+
+    .story-point {
+      display: grid;
+      grid-template-columns: 42px 1fr;
+      gap: 16px;
+      padding: 20px;
+      border-radius: 22px;
+      background: rgba(255,255,255,.62);
+      border: 1px solid var(--line);
+    }
+
+    .story-point span {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background: var(--black);
+      color: var(--white);
+      font-size: 13px;
+      font-weight: 900;
+    }
+
+    .story-point strong {
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .story-images {
+      display: grid;
+      grid-template-columns: 1fr .78fr;
+      gap: 18px;
+      align-items: end;
+    }
+
+    .story-images img {
+      width: 100%;
+      object-fit: cover;
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow);
+      background: var(--paper-2);
+    }
+
+    .story-images .tall {
+      height: 650px;
+    }
+
+    .story-images .small {
+      height: 300px;
+    }
+
+    .faq-section {
+      padding: 112px 0;
+      background: rgba(255,255,255,.22);
+      border-block: 1px solid rgba(31,27,22,.045);
+    }
+
+    .faq-grid {
+      display: grid;
+      grid-template-columns: .82fr 1.18fr;
+      gap: 42px;
+      align-items: start;
+    }
+
+    .faq-head h2 {
+      font-size: clamp(42px, 5vw, 74px);
+      margin-bottom: 16px;
+    }
+
+    .faq-list {
+      display: grid;
+      gap: 12px;
+    }
+
+    .faq-item {
+      border-radius: 24px;
+      background: rgba(255,255,255,.66);
+      border: 1px solid var(--line);
+      overflow: hidden;
+    }
+
+    .faq-trigger {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      gap: 18px;
+      align-items: center;
+      padding: 22px;
+      border: 0;
+      background: transparent;
+      text-align: left;
+      font-weight: 900;
+      color: var(--text);
+    }
+
+    .faq-trigger span:last-child {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background: var(--black);
+      color: var(--white);
+      flex: 0 0 32px;
+      transition: transform .25s var(--ease);
+    }
+
+    .faq-item.active .faq-trigger span:last-child {
+      transform: rotate(45deg);
+    }
+
+    .faq-body {
+      display: none;
+      padding: 0 22px 22px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .faq-item.active .faq-body {
+      display: block;
+      animation: fadeIn .22s var(--ease);
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(6px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .related-section {
+      padding: 112px 0;
+    }
+
+    .related-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 18px;
+      margin-top: 42px;
+    }
+
+    .related-card {
+      position: relative;
+      min-height: 270px;
+      overflow: hidden;
+      border-radius: 30px;
+      box-shadow: var(--shadow-small);
+      background: var(--paper-2);
+    }
+
+    .related-card img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      position: absolute;
+      inset: 0;
+      transition: transform .6s var(--ease);
+    }
+
+    .related-card:hover img {
+      transform: scale(1.06);
+    }
+
+    .related-card::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(0,0,0,.06), rgba(0,0,0,.62));
+    }
+
+    .related-card span {
+      position: absolute;
+      z-index: 2;
+      left: 18px;
+      right: 18px;
+      bottom: 18px;
+      color: var(--white);
+      font-weight: 900;
+      font-size: 18px;
+    }
+
+    .cta-section {
+      padding: 0 0 112px;
+    }
+
+    .cta-card {
+      border-radius: var(--radius-xl);
+      padding: 72px 58px;
+      background:
+        linear-gradient(120deg, rgba(16,13,10,.86), rgba(16,13,10,.70)),
+        url("https://images.unsplash.com/photo-1515377905703-c4788e51af15?auto=format&fit=crop&w=1800&q=82") center/cover;
+      color: var(--white);
+      box-shadow: var(--shadow);
+    }
+
+    .cta-card .eyebrow {
+      color: #ead39d;
+    }
+
+    .cta-card h2 {
+      font-size: clamp(44px, 5.5vw, 86px);
+      max-width: 880px;
+      margin-bottom: 20px;
+    }
+
+    .cta-card p {
+      color: rgba(255,255,255,.78);
+      max-width: 720px;
+      font-size: 17px;
+    }
+
+    .footer {
+      padding: 44px 0;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .footer-inner {
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        scroll-behavior: auto !important;
+        animation-duration: .001ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: .001ms !important;
+      }
+    }
+
+    @media (max-width: 1120px) {
+      .nav-links,
+      .nav-actions .btn--secondary {
+        display: none;
+      }
+
+      .menu-toggle {
+        display: inline-block;
+      }
+
+      .hero-grid,
+      .intro-card,
+      .story-grid,
+      .faq-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-visual {
+        min-height: 620px;
+      }
+
+      .service-grid-list {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .related-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 760px) {
+      .container {
+        width: min(var(--container), calc(100% - 30px));
+      }
+
+      .nav {
+        min-height: 74px;
+      }
+
+      .brand img {
+        width: 142px;
+      }
+
+      .hero {
+        padding: 44px 0 48px;
+      }
+
+      .hero h1 {
+        font-size: clamp(50px, 15vw, 72px);
+      }
+
+      .hero-visual {
+        min-height: 500px;
+      }
+
+      .hero-photo--main {
+        width: 100%;
+        height: 68%;
+      }
+
+      .hero-photo--small {
+        width: 58%;
+        height: 34%;
+        border-width: 8px;
+      }
+
+      .hero-info {
+        left: 16px;
+        right: 16px;
+        bottom: 16px;
+        width: auto;
+      }
+
+      .category-switch {
+        overflow-x: auto;
+        flex-wrap: nowrap;
+        border-radius: 999px;
+      }
+
+      .category-link {
+        flex: 0 0 auto;
+      }
+
+      .intro-card {
+        padding: 34px 22px;
+      }
+
+      .services-section,
+      .story-section,
+      .faq-section,
+      .related-section {
+        padding: 84px 0;
+      }
+
+      .section-head {
+        display: block;
+      }
+
+      .filter-bar {
+        grid-template-columns: 1fr;
+      }
+
+      .service-grid-list,
+      .related-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .story-images {
+        grid-template-columns: 1fr;
+      }
+
+      .story-images .tall,
+      .story-images .small {
+        height: 330px;
+      }
+
+      .cta-card {
+        padding: 46px 24px;
+        border-radius: 32px;
+      }
+
+      .footer-inner {
+        display: grid;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <header class="site-header" data-aos="fade-down">
+    <div class="container">
+      <div class="nav">
+        <a class="brand" href="index.html" aria-label="Meli Nails & Beauty domů">
+          <img src="assets/logo.png" alt="Meli Nails & Beauty" width="344" height="120" />
+        </a>
+
+        <nav class="nav-links" aria-label="Hlavní navigace">
+          <a href="index.html#about">O nás</a>
+          <a href="services.html">Služby</a>
+          <a href="index.html#prices">Ceník</a>
+          <a href="index.html#gallery">Galerie</a>
+          <a href="index.html#branches">Pobočky</a>
+          <a href="contact.html">Kontakt</a>
+        </nav>
+
+        <div class="nav-actions">
+          <a class="btn btn--secondary" href="tel:+420777768681">+420 777 768 681</a>
+          <a class="btn btn--primary" id="headerBookingLink" href="booking.html">Rezervace</a>
+          <button class="menu-toggle" type="button" aria-label="Otevřít menu" aria-expanded="false">
+            <span></span><span></span><span></span>
+          </button>
+        </div>
+      </div>
+
+      <nav class="mobile-menu" aria-label="Mobilní navigace">
+        <a href="index.html#about">O nás</a>
+        <a href="services.html">Služby</a>
+        <a href="index.html#prices">Ceník</a>
+        <a href="index.html#gallery">Galerie</a>
+        <a href="index.html#branches">Pobočky</a>
+        <a href="contact.html">Kontakt</a>
+        <a class="btn btn--primary" id="mobileBookingLink" href="booking.html">Rezervovat termín</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="container hero-grid">
+        <div data-aos="fade-up">
+          <div class="breadcrumb">
+            <a href="services.html">Služby</a>
+            <span>/</span>
+            <span id="breadcrumbCategory">Kategorie</span>
+          </div>
+
+          <div class="eyebrow" id="heroEyebrow">Kategorie služeb</div>
+          <h1 id="heroTitle">Manikúra a péče o nehty.</h1>
+          <p id="heroDescription">
+            Detailní přehled služeb v dané kategorii.
+          </p>
+
+          <div class="btn-row">
+            <a class="btn btn--primary" id="heroBookingLink" href="booking.html">Rezervovat online</a>
+            <a class="btn btn--secondary" href="#serviceList">Zobrazit služby</a>
+          </div>
+
+          <div class="hero-pills" id="heroPills"></div>
+        </div>
+
+        <div class="hero-visual" data-aos="fade-left" data-aos-delay="100">
+          <figure class="hero-photo hero-photo--main">
+            <img id="heroImageMain" src="" alt="" loading="eager" />
+          </figure>
+
+          <figure class="hero-photo hero-photo--small">
+            <img id="heroImageSmall" src="" alt="" loading="eager" />
+          </figure>
+
+          <div class="hero-info">
+            <strong id="heroInfoTitle">Doporučení</strong>
+            <p class="text-small" id="heroInfoText">Vyberte službu a rezervujte si termín online.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="category-switch-section">
+      <div class="container">
+        <nav class="category-switch" id="categorySwitch" aria-label="Přepnutí kategorie" data-aos="fade-up"></nav>
+      </div>
+    </section>
+
+    <section class="intro-section">
+      <div class="container">
+        <div class="intro-card" data-aos="fade-up">
+          <div>
+            <div class="eyebrow">O této kategorii</div>
+            <h2 id="introTitle">Péče navržená pro každodenní eleganci.</h2>
+            <p class="text-muted" id="introText">
+              Vyberte si proceduru podle toho, jaký výsledek očekáváte.
+            </p>
+          </div>
+
+          <div class="intro-list" id="introList"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="services-section" id="serviceList">
+      <div class="container">
+        <div class="section-head" data-aos="fade-up">
+          <div>
+            <div class="eyebrow">Služby v kategorii</div>
+            <h2 id="servicesTitle">Vyberte si konkrétní proceduru.</h2>
+            <p class="text-small" id="servicesCount">Načítám služby...</p>
+
+            <div class="filter-bar">
+              <input id="serviceSearch" type="search" placeholder="Hledat v této kategorii..." autocomplete="off" />
+              <select id="serviceSort" aria-label="Řazení služeb">
+                <option value="default">Doporučené</option>
+                <option value="priceAsc">Cena od nejnižší</option>
+                <option value="durationAsc">Nejkratší délka</option>
+                <option value="az">A–Z</option>
+              </select>
+            </div>
+          </div>
+
+          <a class="btn btn--secondary" href="services.html">Všechny služby</a>
+        </div>
+
+        <div class="service-grid-list" id="servicesGrid"></div>
+
+        <div class="empty-state" id="emptyState">
+          <strong>Žádná služba nenalezena</strong>
+          <p>Zkuste jiný výraz nebo se vraťte na všechny služby.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="story-section">
+      <div class="container story-grid">
+        <div class="story-copy" data-aos="fade-up">
+          <div class="eyebrow">Průběh návštěvy</div>
+          <h2 id="storyTitle">Jak probíhá návštěva?</h2>
+          <p id="storyText">
+            Od rezervace až po finální výsledek je cílem klid, pohodlí a profesionální péče.
+          </p>
+
+          <div class="story-points" id="storyPoints"></div>
+        </div>
+
+        <div class="story-images" data-aos="fade-left" data-aos-delay="100">
+          <img class="tall" id="storyImageTall" src="" alt="" loading="lazy" />
+          <div style="display:grid;gap:18px;">
+            <img class="small" id="storyImageSmall1" src="" alt="" loading="lazy" />
+            <img class="small" id="storyImageSmall2" src="" alt="" loading="lazy" />
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="faq-section">
+      <div class="container faq-grid">
+        <div class="faq-head" data-aos="fade-up">
+          <div class="eyebrow">FAQ</div>
+          <h2>Časté otázky k této kategorii.</h2>
+          <p class="text-muted">
+            Krátké odpovědi pomáhají klientce rychle se rozhodnout a snížit obavy před první návštěvou.
+          </p>
+        </div>
+
+        <div class="faq-list" id="faqList" data-aos="fade-up" data-aos-delay="100"></div>
+      </div>
+    </section>
+
+    <section class="related-section">
+      <div class="container">
+        <div data-aos="fade-up">
+          <div class="eyebrow">Další péče</div>
+          <h2 style="font-size:clamp(42px,5vw,74px);max-width:800px;">Možná vás zaujme také.</h2>
+        </div>
+
+        <div class="related-grid" id="relatedGrid"></div>
+      </div>
+    </section>
+
+    <section class="cta-section">
+      <div class="container">
+        <div class="cta-card" data-aos="fade-up">
+          <div class="eyebrow">Rezervace</div>
+          <h2 id="ctaTitle">Rezervujte si termín v Meli Nails & Beauty.</h2>
+          <p id="ctaText">
+            Vyberte si konkrétní službu, pobočku a čas. Pokud si nejste jistí, napište nám a poradíme vám s výběrem.
+          </p>
+
+          <div class="btn-row">
+            <a class="btn btn--light" id="ctaBookingLink" href="booking.html">Rezervovat online</a>
+            <a class="btn btn--ghost-light" href="contact.html">Kontaktovat salon</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container footer-inner">
+      <span>© <span id="year"></span> Meli Nails & Beauty</span>
+      <span>Uherské Hradiště • Zlín • info@melinails.cz</span>
+    </div>
+  </footer>
+
+  <script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
+
+  <script>
+    const categories = {
+      manicure: {
+        id: 'manicure',
+        nav: 'Manikúra',
+        eyebrow: 'Ruce & nehty',
+        title: 'Manikúra a péče o nehty.',
+        description: 'Upravené ruce jsou detail, který je vidět každý den. Vyberte si klasickou péči, gel lak, modeláž nebo jemné zdobení.',
+        introTitle: 'Péče pro ruce, které působí čistě a elegantně.',
+        introText: 'Manikúra v Meli Nails & Beauty je postavená na precizní úpravě, jemném detailu a dlouhotrvajícím výsledku. Vhodná pro každodenní eleganci i výraznější design.',
+        infoTitle: 'Nejoblíbenější volba',
+        infoText: 'Manikúra & Gel lak je ideální pro dlouhotrvající barvu a upravený vzhled.',
+        bookingCategory: 'manicure',
+        images: {
+          heroMain: 'https://images.unsplash.com/photo-1604654894610-df63bc536371?auto=format&fit=crop&w=1400&q=82',
+          heroSmall: 'https://images.unsplash.com/photo-1519014816548-bf5fe059798b?auto=format&fit=crop&w=900&q=82',
+          storyTall: 'https://images.unsplash.com/photo-1610992015732-2449b76344bc?auto=format&fit=crop&w=900&q=82',
+          storySmall1: 'https://images.unsplash.com/photo-1632345031435-8727f6897d53?auto=format&fit=crop&w=900&q=82',
+          storySmall2: 'https://images.unsplash.com/photo-1604654894611-6973b376cbde?auto=format&fit=crop&w=900&q=82'
+        },
+        pills: ['Manikúra klasik', 'Gel lak', 'Modeláž', 'Francie', 'Ombré', 'Nail art'],
+        introItems: [
+          ['Precizní úprava', 'Tvarování nehtů, péče o kůžičku a čistý finální výsledek.'],
+          ['Dlouhotrvající efekt', 'Gel lak nebo modeláž pro klientky, které chtějí výsledek na delší dobu.'],
+          ['Design podle stylu', 'Minimalistický, elegantní nebo výraznější nail art podle nálady.']
+        ],
+        story: {
+          title: 'Jak probíhá manikúra?',
+          text: 'Nejdřív vybereme tvar, délku a styl. Poté následuje úprava nehtů, aplikace zvolené služby a finální péče.',
+          points: [
+            ['01', 'Konzultace stylu', 'Vybereme barvu, tvar a případné zdobení.'],
+            ['02', 'Precizní úprava', 'Upravíme kůžičku, povrch a délku nehtů.'],
+            ['03', 'Finální výsledek', 'Aplikujeme gel lak, modeláž nebo design podle výběru.']
+          ]
+        },
+        faq: [
+          ['Jak dlouho vydrží gel lak?', 'Obvykle několik týdnů podle typu nehtů, práce rukou a domácí péče.'],
+          ['Můžu přijít s vlastním návrhem designu?', 'Ano, ideálně ukažte inspiraci při návštěvě nebo ji popište do poznámky v rezervaci.'],
+          ['Je možné odstranit starou modeláž?', 'Ano, odstranění nehtů je samostatná služba a lze ji spojit s novou aplikací.']
+        ]
+      },
+
+      pedicure: {
+        id: 'pedicure',
+        nav: 'Pedikúra',
+        eyebrow: 'Chodidla & pohodlí',
+        title: 'Pedikúra pro lehký krok.',
+        description: 'Péče o chodidla, nehty na nohou, gel lak i krátká relaxační masáž. Komfortní služba pro krásu i pohodlí.',
+        introTitle: 'Péče, kterou si vaše nohy zaslouží.',
+        introText: 'Pedikúra je ideální pro klientky i klienty, kteří chtějí upravená chodidla, čisté nehty a příjemný pocit lehkosti.',
+        infoTitle: 'Doporučená kombinace',
+        infoText: 'Pedikúra & Gel lak plus krátká masáž nohou pro kompletní péči.',
+        bookingCategory: 'pedicure',
+        images: {
+          heroMain: 'https://images.unsplash.com/photo-1519415387722-a1c3bbef716c?auto=format&fit=crop&w=1400&q=82',
+          heroSmall: 'https://images.unsplash.com/photo-1515377905703-c4788e51af15?auto=format&fit=crop&w=900&q=82',
+          storyTall: 'https://images.unsplash.com/photo-1519415943484-9fa1873496d4?auto=format&fit=crop&w=900&q=82',
+          storySmall1: 'https://images.unsplash.com/photo-1522337660859-02fbefca4702?auto=format&fit=crop&w=900&q=82',
+          storySmall2: 'https://images.unsplash.com/photo-1544161515-4ab6ce6db874?auto=format&fit=crop&w=900&q=82'
+        },
+        pills: ['Pedikúra klasik', 'Gel lak', 'Lakování', 'Masáž nohou'],
+        introItems: [
+          ['Komfortní péče', 'Úprava chodidel a nehtů v příjemném prostředí salonu.'],
+          ['Estetický výsledek', 'Čisté nehty, upravený tvar a možnost gel laku.'],
+          ['Relax navíc', 'Masáž nohou jako krátké uvolnění po pedikúře.']
+        ],
+        story: {
+          title: 'Jak probíhá pedikúra?',
+          text: 'Zvolíte typ pedikúry, případně barvu nebo gel lak. Poté následuje úprava chodidel, nehtů a finální péče.',
+          points: [
+            ['01', 'Výběr služby', 'Klasická pedikúra, gel lak nebo doplňková masáž.'],
+            ['02', 'Péče o chodidla', 'Úprava nehtů a chodidel podle potřeby.'],
+            ['03', 'Finální komfort', 'Lakování, gel lak nebo relaxační masáž nohou.']
+          ]
+        },
+        faq: [
+          ['Je pedikúra vhodná i pro muže?', 'Ano, v nabídce je také pánská klasická pedikúra.'],
+          ['Lze spojit pedikúru s gel lakem?', 'Ano, služba Pedikúra & Gel lak je připravená právě pro tuto kombinaci.'],
+          ['Jak dlouho pedikúra trvá?', 'Podle služby přibližně 35–75 minut.']
+        ]
+      },
+
+      browslashes: {
+        id: 'browslashes',
+        nav: 'Řasy & obočí',
+        eyebrow: 'Pohled & výraz',
+        title: 'Řasy a obočí pro přirozeně krásný pohled.',
+        description: 'Barvení, úprava, laminace, lifting i prodlužování řas. Služby, které zvýrazní výraz obličeje bez zbytečné těžkosti.',
+        introTitle: 'Jemné zvýraznění, které změní celý výraz.',
+        introText: 'Řasy a obočí pracují s přirozeným rámem obličeje. Výsledek může být velmi jemný, elegantní nebo výraznější podle preferencí.',
+        infoTitle: 'Přirozeně nebo výrazně',
+        infoText: 'Do poznámky při rezervaci napište, jestli chcete jemný, nebo výraznější efekt.',
+        bookingCategory: 'browslashes',
+        images: {
+          heroMain: 'https://images.unsplash.com/photo-1512496015851-a90fb38ba796?auto=format&fit=crop&w=1400&q=82',
+          heroSmall: 'https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?auto=format&fit=crop&w=900&q=82',
+          storyTall: 'https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?auto=format&fit=crop&w=900&q=82',
+          storySmall1: 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?auto=format&fit=crop&w=900&q=82',
+          storySmall2: 'https://images.unsplash.com/photo-1512496015851-a90fb38ba796?auto=format&fit=crop&w=900&q=82'
+        },
+        pills: ['Lash lifting', 'Brow lifting', 'Barvení', 'Volume', 'Mega Volume', 'Doplnění'],
+        introItems: [
+          ['Přirozený pohled', 'Lifting a barvení pro jemné zvýraznění bez prodlužování.'],
+          ['Výraznější efekt', 'Volume nebo Mega Volume pro klientky, které chtějí intenzivnější vzhled.'],
+          ['Úprava obočí', 'Tvarování, barvení a laminace pro čistý rám obličeje.']
+        ],
+        story: {
+          title: 'Jak vybrat efekt?',
+          text: 'Při výběru služby je důležité vědět, zda chcete přirozený výsledek, nebo výraznější pohled. Tým vám pomůže vybrat vhodnou variantu.',
+          points: [
+            ['01', 'Volba stylu', 'Jemný lifting, klasické prodloužení nebo objemový efekt.'],
+            ['02', 'Přizpůsobení očím', 'Výběr délky, objemu a tvaru podle obličeje.'],
+            ['03', 'Doporučení péče', 'Po proceduře dostanete tipy pro delší výdrž výsledku.']
+          ]
+        },
+        faq: [
+          ['Jaký je rozdíl mezi lash liftingem a prodloužením?', 'Lash lifting pracuje s vlastními řasami, prodloužení přidává umělé řasy.'],
+          ['Jak často chodit na doplnění řas?', 'Záleží na růstu řas a zvolené metodě, obvykle po několika týdnech.'],
+          ['Je brow lifting vhodný pro každého?', 'Je vhodný pro mnoho typů obočí, ale konkrétní výběr doporučí specialistka podle stavu obočí.']
+        ]
+      },
+
+      cosmetics: {
+        id: 'cosmetics',
+        nav: 'Kosmetika',
+        eyebrow: 'Pleť & glow',
+        title: 'Kosmetika pro svěží a zdravě vypadající pleť.',
+        description: 'Ošetření pleti, čištění, peeling, masky, sérum a relaxační péče podle aktuální potřeby pokožky.',
+        introTitle: 'Péče o pleť, která působí jemně a přirozeně.',
+        introText: 'Kosmetická ošetření pomáhají pleti získat svěžejší vzhled, hydrataci, zklidnění a pocit čistoty.',
+        infoTitle: 'Nevíte, co vybrat?',
+        infoText: 'Zvolte kosmetiku a do poznámky napište, co vás u pleti trápí.',
+        bookingCategory: 'cosmetics',
+        images: {
+          heroMain: 'https://images.unsplash.com/photo-1583001809873-a128495da465?auto=format&fit=crop&w=1400&q=82',
+          heroSmall: 'https://images.unsplash.com/photo-1607779097040-26e80aa78e66?auto=format&fit=crop&w=900&q=82',
+          storyTall: 'https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&w=900&q=82',
+          storySmall1: 'https://images.unsplash.com/photo-1515377905703-c4788e51af15?auto=format&fit=crop&w=900&q=82',
+          storySmall2: 'https://images.unsplash.com/photo-1607779097040-26e80aa78e66?auto=format&fit=crop&w=900&q=82'
+        },
+        pills: ['Čištění pleti', 'Peeling', 'Maska', 'Sérum', 'Detox', 'Masáž obličeje'],
+        introItems: [
+          ['Základní ošetření', 'Rychlé osvěžení pleti a příjemná relaxace.'],
+          ['Speciální péče', 'Hloubkovější ošetření podle potřeb pokožky.'],
+          ['Detox efekt', 'Procedura pro čistší a svěžejší vzhled pleti.']
+        ],
+        story: {
+          title: 'Jak probíhá kosmetika?',
+          text: 'Procedura začíná očištěním pleti a pokračuje podle zvoleného ošetření. Výběr masky a séra se přizpůsobí potřebám pokožky.',
+          points: [
+            ['01', 'Očištění', 'Pleť se připraví na další kroky.'],
+            ['02', 'Ošetření', 'Peeling, maska, sérum nebo hloubkovější péče.'],
+            ['03', 'Zklidnění', 'Finální krém a doporučení následné péče.']
+          ]
+        },
+        faq: [
+          ['Jaké ošetření zvolit poprvé?', 'Pro první návštěvu je vhodné základní nebo speciální ošetření podle stavu pleti.'],
+          ['Je kosmetika vhodná pro citlivou pleť?', 'Ano, ale doporučujeme zmínit citlivost do poznámky při rezervaci.'],
+          ['Mohu spojit kosmetiku s úpravou obočí?', 'Ano, některé procedury lze kombinovat podle času a dostupnosti.']
+        ]
+      },
+
+      massage: {
+        id: 'massage',
+        nav: 'Masáže',
+        eyebrow: 'Relax & regenerace',
+        title: 'Masáže pro odpočinek těla i mysli.',
+        description: 'Relaxační a regenerační procedury pro uvolnění zad, šíje, hlavy, obličeje, nohou nebo celého těla.',
+        introTitle: 'Zpomalte a dopřejte tělu prostor na regeneraci.',
+        introText: 'Masáže jsou ideální volbou, když potřebujete odpočinek, uvolnění napětí nebo jen klidnou chvíli mimo každodenní ruch.',
+        infoTitle: 'Doporučení pro první návštěvu',
+        infoText: 'Na první masáž doporučujeme 60 minut, pro hlubší relaxaci 90 minut.',
+        bookingCategory: 'massage',
+        images: {
+          heroMain: 'https://images.unsplash.com/photo-1515377905703-c4788e51af15?auto=format&fit=crop&w=1400&q=82',
+          heroSmall: 'https://images.unsplash.com/photo-1544161515-4ab6ce6db874?auto=format&fit=crop&w=900&q=82',
+          storyTall: 'https://images.unsplash.com/photo-1519823551278-64ac92734fb1?auto=format&fit=crop&w=900&q=82',
+          storySmall1: 'https://images.unsplash.com/photo-1544161515-4ab6ce6db874?auto=format&fit=crop&w=900&q=82',
+          storySmall2: 'https://images.unsplash.com/photo-1515377905703-c4788e51af15?auto=format&fit=crop&w=900&q=82'
+        },
+        pills: ['Masáž těla', 'Záda & šíje', 'Hlava & obličej', 'Masáž nohou', 'Párová masáž'],
+        introItems: [
+          ['Krátké uvolnění', '30 minut pro cílenou péči o namáhanou partii.'],
+          ['Celotělový relax', '60 nebo 90 minut pro hlubší odpočinek.'],
+          ['Párový zážitek', 'Společná masáž jako dárek nebo relax ve dvou.']
+        ],
+        story: {
+          title: 'Jak vybrat masáž?',
+          text: 'Zvolte kratší cílenou masáž, pokud vás trápí konkrétní partie, nebo delší variantu pro celkovou relaxaci.',
+          points: [
+            ['01', 'Výběr délky', '30, 60 nebo 90 minut podle potřeby.'],
+            ['02', 'Zaměření', 'Tělo, záda, šíje, hlava, obličej nebo nohy.'],
+            ['03', 'Relaxace', 'Klidný průběh s důrazem na pohodlí klienta.']
+          ]
+        },
+        faq: [
+          ['Jakou délku masáže zvolit?', 'Pro rychlou úlevu 30 minut, pro celkové uvolnění 60–90 minut.'],
+          ['Je možné rezervovat párovou masáž?', 'Ano, v nabídce je párová masáž na 60 nebo 90 minut.'],
+          ['Mohu uvést zdravotní omezení?', 'Ano, napište je do poznámky při rezervaci.']
+        ]
+      },
+
+      depilation: {
+        id: 'depilation',
+        nav: 'Depilace',
+        eyebrow: 'Hladká pokožka',
+        title: 'Depilace s jemným přístupem.',
+        description: 'Profesionální depilace obličeje i těla s důrazem na komfort, citlivost pokožky a hladký výsledek.',
+        introTitle: 'Hladká pokožka bez zbytečného stresu.',
+        introText: 'Depilace je vhodná pro klientky, které chtějí hladký výsledek a profesionální přístup k citlivým partiím.',
+        infoTitle: 'Před návštěvou',
+        infoText: 'U citlivé pokožky doporučujeme napsat poznámku při rezervaci.',
+        bookingCategory: 'depilation',
+        images: {
+          heroMain: 'https://images.unsplash.com/photo-1519415943484-9fa1873496d4?auto=format&fit=crop&w=1400&q=82',
+          heroSmall: 'https://images.unsplash.com/photo-1522337660859-02fbefca4702?auto=format&fit=crop&w=900&q=82',
+          storyTall: 'https://images.unsplash.com/photo-1512496015851-a90fb38ba796?auto=format&fit=crop&w=900&q=82',
+          storySmall1: 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?auto=format&fit=crop&w=900&q=82',
+          storySmall2: 'https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?auto=format&fit=crop&w=900&q=82'
+        },
+        pills: ['Obličej', 'Horní ret', 'Brada', 'Podpaží', 'Paže', 'Záda', 'Nohy'],
+        introItems: [
+          ['Rychlé partie', 'Horní ret, brada, tváře nebo obočí.'],
+          ['Tělová depilace', 'Podpaží, paže, břicho, záda, nohy nebo třísla.'],
+          ['Jemný přístup', 'Péče s ohledem na citlivost pokožky.']
+        ],
+        story: {
+          title: 'Jak se připravit na depilaci?',
+          text: 'Doporučujeme dorazit s čistou pokožkou a bez čerstvého podráždění. Případné citlivosti napište do poznámky.',
+          points: [
+            ['01', 'Volba partie', 'Vyberte konkrétní oblast nebo více služeb.'],
+            ['02', 'Jemné provedení', 'Procedura probíhá s ohledem na komfort.'],
+            ['03', 'Následná péče', 'Po depilaci doporučíme šetrnou péči o pokožku.']
+          ]
+        },
+        faq: [
+          ['Je depilace vhodná pro citlivou pokožku?', 'Ano, ale doporučujeme předem zmínit citlivost nebo podráždění pokožky.'],
+          ['Lze objednat více partií najednou?', 'Ano, v booking formuláři lze vybrat více služeb.'],
+          ['Jak dlouho depilace trvá?', 'Podle partie přibližně 15–90 minut.']
+        ]
+      },
+
+      voucher: {
+        id: 'voucher',
+        nav: 'Poukazy',
+        eyebrow: 'Dárková péče',
+        title: 'Dárkové poukazy pro chvíli krásy.',
+        description: 'Darujte péči, relaxaci a krásný zážitek. Poukaz lze připravit na vybranou hodnotu nebo konkrétní proceduru.',
+        introTitle: 'Dárek, který není jen věc.',
+        introText: 'Poukaz do Meli Nails & Beauty je vhodný pro partnerku, maminku, kamarádku nebo kohokoliv, kdo si zaslouží čas pro sebe.',
+        infoTitle: 'Jak objednat poukaz',
+        infoText: 'Kontaktujte salon a vyberte hodnotu nebo typ procedury.',
+        bookingCategory: 'voucher',
+        images: {
+          heroMain: 'https://images.unsplash.com/photo-1513201099705-a9746e1e201f?auto=format&fit=crop&w=1400&q=82',
+          heroSmall: 'https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=900&q=82',
+          storyTall: 'https://images.unsplash.com/photo-1515377905703-c4788e51af15?auto=format&fit=crop&w=900&q=82',
+          storySmall1: 'https://images.unsplash.com/photo-1513201099705-a9746e1e201f?auto=format&fit=crop&w=900&q=82',
+          storySmall2: 'https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=900&q=82'
+        },
+        pills: ['Poukaz na hodnotu', 'Poukaz na proceduru', 'Dárek', 'Beauty experience'],
+        introItems: [
+          ['Hodnota podle vás', 'Vyberte částku, kterou chcete darovat.'],
+          ['Konkrétní procedura', 'Poukaz lze připravit i na konkrétní službu.'],
+          ['Osobní dárek', 'Vhodné pro narozeniny, svátky nebo jako pozornost.']
+        ],
+        story: {
+          title: 'Jak poukaz funguje?',
+          text: 'Vyberete hodnotu nebo proceduru, salon připraví poukaz a obdarovaná osoba si vybere vhodný termín.',
+          points: [
+            ['01', 'Výběr hodnoty', 'Zvolte částku nebo konkrétní službu.'],
+            ['02', 'Příprava poukazu', 'Salon poukaz připraví podle domluvy.'],
+            ['03', 'Rezervace termínu', 'Obdarovaná osoba si vybere vhodný čas návštěvy.']
+          ]
+        },
+        faq: [
+          ['Lze poukaz koupit na konkrétní službu?', 'Ano, poukaz může být na hodnotu nebo konkrétní proceduru.'],
+          ['Jak poukaz objednat?', 'Nejlépe přes kontakt, telefon nebo e-mail.'],
+          ['Je poukaz vhodný i na masáž?', 'Ano, poukaz lze využít na beauty i relaxační služby.']
+        ]
+      }
+    };
+
+    const services = [
+      { id: 'mani-woman', category: 'manicure', name: 'Manikúra klasik dámská', desc: 'Klasická úprava nehtů a kůžičky.', price: 200, priceText: '200 Kč', duration: 30, image: 'https://images.unsplash.com/photo-1604654894610-df63bc536371?auto=format&fit=crop&w=700&q=82', tags: ['klasik', 'dámská'] },
+      { id: 'mani-man', category: 'manicure', name: 'Manikúra klasik pánská', desc: 'Klasická pánská manikúra s přirozeným výsledkem.', price: 200, priceText: '200 Kč', duration: 30, image: 'https://images.unsplash.com/photo-1519014816548-bf5fe059798b?auto=format&fit=crop&w=700&q=82', tags: ['pánská', 'klasik'] },
+      { id: 'mani-gel-lak', category: 'manicure', name: 'Manikúra & Gel lak', desc: 'Manikúra s aplikací gel laku pro dlouhotrvající barvu.', price: 380, priceText: '380 Kč', duration: 60, image: 'https://images.unsplash.com/photo-1632345031435-8727f6897d53?auto=format&fit=crop&w=700&q=82', tags: ['gel lak', 'barva'] },
+      { id: 'mani-removal', category: 'manicure', name: 'Odstranění nehtů', desc: 'Šetrné odstranění staré modeláže nebo gel laku.', price: 200, priceText: '200 Kč', duration: 30, image: 'https://images.unsplash.com/photo-1610992015732-2449b76344bc?auto=format&fit=crop&w=700&q=82', tags: ['odstranění'] },
+
+      { id: 'pedi-woman', category: 'pedicure', name: 'Pedikúra klasik dámská', desc: 'Klasická dámská pedikúra pro upravená chodidla.', price: 420, priceText: '420 Kč', duration: 60, image: 'https://images.unsplash.com/photo-1519415387722-a1c3bbef716c?auto=format&fit=crop&w=700&q=82', tags: ['klasik', 'dámská'] },
+      { id: 'pedi-man', category: 'pedicure', name: 'Pedikúra klasik pánská', desc: 'Klasická pánská pedikúra s přirozeným výsledkem.', price: 450, priceText: '450 Kč', duration: 60, image: 'https://images.unsplash.com/photo-1515377905703-c4788e51af15?auto=format&fit=crop&w=700&q=82', tags: ['pánská'] },
+      { id: 'pedi-gel-lak', category: 'pedicure', name: 'Pedikúra & Gel lak', desc: 'Pedikúra doplněná o dlouhotrvající gel lak.', price: 500, priceText: '500 Kč', duration: 75, image: 'https://images.unsplash.com/photo-1519415943484-9fa1873496d4?auto=format&fit=crop&w=700&q=82', tags: ['gel lak'] },
+      { id: 'pedi-polish', category: 'pedicure', name: 'Lakování nehtů na nohou', desc: 'Rychlé lakování nehtů na nohou.', price: 350, priceText: '350 Kč', duration: 35, image: 'https://images.unsplash.com/photo-1522337660859-02fbefca4702?auto=format&fit=crop&w=700&q=82', tags: ['lakování'] },
+      { id: 'pedi-feet-massage', category: 'pedicure', name: 'Masáž nohou 20 min', desc: 'Krátká relaxační masáž nohou.', price: 290, priceText: '290 Kč', duration: 20, image: 'https://images.unsplash.com/photo-1544161515-4ab6ce6db874?auto=format&fit=crop&w=700&q=82', tags: ['masáž'] },
+
+      { id: 'lash-lifting', category: 'browslashes', name: 'Lash lifting + barvení řas', desc: 'Přirozené natočení a zvýraznění řas.', price: 500, priceText: '500 Kč', duration: 60, image: 'https://images.unsplash.com/photo-1512496015851-a90fb38ba796?auto=format&fit=crop&w=700&q=82', tags: ['lash lifting'] },
+      { id: 'brow-lifting', category: 'browslashes', name: 'Brow lifting / laminace obočí', desc: 'Laminace obočí pro upravený a plnější vzhled.', price: 500, priceText: '500 Kč', duration: 60, image: 'https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?auto=format&fit=crop&w=700&q=82', tags: ['brow lifting'] },
+      { id: 'lash-11-new', category: 'browslashes', name: 'Řasa na řasu – nový set', desc: 'Přirozenější metoda prodlužování řas.', price: 750, priceText: '750 Kč', duration: 100, image: 'https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?auto=format&fit=crop&w=700&q=82', tags: ['řasy'] },
+      { id: 'lash-volume-new', category: 'browslashes', name: 'Volume řasy 3D–5D – nový set', desc: 'Objemovější vzhled řas pro výraznější efekt.', price: 900, priceText: '900 Kč', duration: 120, image: 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?auto=format&fit=crop&w=700&q=82', tags: ['volume'] },
+      { id: 'lash-mega-new', category: 'browslashes', name: 'Mega Volume 6D–7D – nový set', desc: 'Výrazný objemový efekt řas.', price: 1000, priceText: '1 000 Kč', duration: 130, image: 'https://images.unsplash.com/photo-1512496015851-a90fb38ba796?auto=format&fit=crop&w=700&q=82', tags: ['mega volume'] },
+      { id: 'brow-shape-color', category: 'browslashes', name: 'Úprava & barvení obočí', desc: 'Kompletní úprava a barvení obočí.', price: 150, priceText: '150 Kč', duration: 25, image: 'https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?auto=format&fit=crop&w=700&q=82', tags: ['obočí'] },
+
+      { id: 'cos-basic', category: 'cosmetics', name: 'Základní kosmetické ošetření', desc: 'Očištění pleti, peeling, masáž, maska, sérum a krém.', price: 550, priceText: '550 Kč', duration: 45, image: 'https://images.unsplash.com/photo-1583001809873-a128495da465?auto=format&fit=crop&w=700&q=82', tags: ['pleť'] },
+      { id: 'cos-special', category: 'cosmetics', name: 'Speciální kosmetické ošetření', desc: 'Hloubková péče včetně ultrazvukové špachtle.', price: 850, priceText: '850 Kč', duration: 60, image: 'https://images.unsplash.com/photo-1607779097040-26e80aa78e66?auto=format&fit=crop&w=700&q=82', tags: ['ultrazvuk'] },
+      { id: 'cos-detox', category: 'cosmetics', name: 'Detoxikační ošetření', desc: 'Detox péče s maskou, masáží a acid sérem.', price: 900, priceText: '900 Kč', duration: 60, image: 'https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&w=700&q=82', tags: ['detox'] },
+
+      { id: 'massage-body-60', category: 'massage', name: 'Masáž těla 60 min', desc: 'Relaxační nebo tradiční vietnamská masáž těla.', price: 850, priceText: '850 Kč', duration: 60, image: 'https://images.unsplash.com/photo-1515377905703-c4788e51af15?auto=format&fit=crop&w=700&q=82', tags: ['tělo'] },
+      { id: 'massage-body-90', category: 'massage', name: 'Masáž těla 90 min', desc: 'Delší masáž pro hlubší uvolnění a regeneraci.', price: 1200, priceText: '1 200 Kč', duration: 90, image: 'https://images.unsplash.com/photo-1544161515-4ab6ce6db874?auto=format&fit=crop&w=700&q=82', tags: ['90 min'] },
+      { id: 'massage-special-90', category: 'massage', name: 'Meli Special masáž 90 min', desc: 'Speciální kombinovaná masáž pro maximální odpočinek.', price: 1450, priceText: '1 450 Kč', duration: 90, image: 'https://images.unsplash.com/photo-1519823551278-64ac92734fb1?auto=format&fit=crop&w=700&q=82', tags: ['special'] },
+      { id: 'massage-back-neck-30', category: 'massage', name: 'Masáž zad & šíje 30 min', desc: 'Cílená péče na záda, krk a šíji.', price: 650, priceText: '650 Kč', duration: 30, image: 'https://images.unsplash.com/photo-1515377905703-c4788e51af15?auto=format&fit=crop&w=700&q=82', tags: ['záda'] },
+      { id: 'massage-feet-60', category: 'massage', name: 'Masáž nohou 60 min', desc: 'Kompletní péče pro unavené nohy.', price: 850, priceText: '850 Kč', duration: 60, image: 'https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=700&q=82', tags: ['nohy'] },
+
+      { id: 'dep-face', category: 'depilation', name: 'Depilace obličeje', desc: 'Komplexní depilace obličejových partií.', price: 600, priceText: '600 Kč', duration: 45, image: 'https://images.unsplash.com/photo-1519415943484-9fa1873496d4?auto=format&fit=crop&w=700&q=82', tags: ['obličej'] },
+      { id: 'dep-lip', category: 'depilation', name: 'Depilace horního rtu', desc: 'Jemná depilace horního rtu.', price: 170, priceText: '170 Kč', duration: 15, image: 'https://images.unsplash.com/photo-1522337660859-02fbefca4702?auto=format&fit=crop&w=700&q=82', tags: ['horní ret'] },
+      { id: 'dep-armpit', category: 'depilation', name: 'Depilace podpaží', desc: 'Rychlá depilace podpaží.', price: 400, priceText: '400 Kč', duration: 15, image: 'https://images.unsplash.com/photo-1512496015851-a90fb38ba796?auto=format&fit=crop&w=700&q=82', tags: ['podpaží'] },
+      { id: 'dep-back', category: 'depilation', name: 'Depilace zad', desc: 'Depilace zad podle rozsahu.', price: 680, priceText: '680 Kč', duration: 75, image: 'https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?auto=format&fit=crop&w=700&q=82', tags: ['záda'] },
+
+      { id: 'voucher-custom', category: 'voucher', name: 'Dárkový poukaz na vybranou hodnotu', desc: 'Poukaz na libovolnou částku nebo konkrétní proceduru.', price: 0, priceText: 'dle hodnoty', duration: 10, image: 'https://images.unsplash.com/photo-1513201099705-a9746e1e201f?auto=format&fit=crop&w=700&q=82', tags: ['dárek'] }
+    ];
+
+    const categoryOrder = ['manicure', 'pedicure', 'browslashes', 'cosmetics', 'massage', 'depilation', 'voucher'];
+
+    const params = new URLSearchParams(window.location.search);
+    let currentCategoryId = params.get('category') || 'manicure';
+
+    if (!categories[currentCategoryId]) {
+      currentCategoryId = 'manicure';
+    }
+
+    const state = {
+      category: currentCategoryId,
+      query: '',
+      sort: 'default'
+    };
+
+    const els = {
+      breadcrumbCategory: document.getElementById('breadcrumbCategory'),
+      heroEyebrow: document.getElementById('heroEyebrow'),
+      heroTitle: document.getElementById('heroTitle'),
+      heroDescription: document.getElementById('heroDescription'),
+      heroPills: document.getElementById('heroPills'),
+      heroImageMain: document.getElementById('heroImageMain'),
+      heroImageSmall: document.getElementById('heroImageSmall'),
+      heroInfoTitle: document.getElementById('heroInfoTitle'),
+      heroInfoText: document.getElementById('heroInfoText'),
+      introTitle: document.getElementById('introTitle'),
+      introText: document.getElementById('introText'),
+      introList: document.getElementById('introList'),
+      categorySwitch: document.getElementById('categorySwitch'),
+      servicesTitle: document.getElementById('servicesTitle'),
+      servicesCount: document.getElementById('servicesCount'),
+      servicesGrid: document.getElementById('servicesGrid'),
+      serviceSearch: document.getElementById('serviceSearch'),
+      serviceSort: document.getElementById('serviceSort'),
+      emptyState: document.getElementById('emptyState'),
+      storyTitle: document.getElementById('storyTitle'),
+      storyText: document.getElementById('storyText'),
+      storyPoints: document.getElementById('storyPoints'),
+      storyImageTall: document.getElementById('storyImageTall'),
+      storyImageSmall1: document.getElementById('storyImageSmall1'),
+      storyImageSmall2: document.getElementById('storyImageSmall2'),
+      faqList: document.getElementById('faqList'),
+      relatedGrid: document.getElementById('relatedGrid'),
+      ctaTitle: document.getElementById('ctaTitle'),
+      ctaText: document.getElementById('ctaText'),
+      heroBookingLink: document.getElementById('heroBookingLink'),
+      ctaBookingLink: document.getElementById('ctaBookingLink'),
+      headerBookingLink: document.getElementById('headerBookingLink'),
+      mobileBookingLink: document.getElementById('mobileBookingLink')
+    };
+
+    function getCategoryServices() {
+      const query = state.query.trim().toLowerCase();
+      let list = services.filter(service => service.category === state.category);
+
+      if (query) {
+        list = list.filter(service => {
+          const text = [
+            service.name,
+            service.desc,
+            service.priceText,
+            service.duration,
+            ...service.tags
+          ].join(' ').toLowerCase();
+
+          return text.includes(query);
+        });
+      }
+
+      if (state.sort === 'priceAsc') {
+        list = [...list].sort((a, b) => a.price - b.price);
+      }
+
+      if (state.sort === 'durationAsc') {
+        list = [...list].sort((a, b) => a.duration - b.duration);
+      }
+
+      if (state.sort === 'az') {
+        list = [...list].sort((a, b) => a.name.localeCompare(b.name, 'cs'));
+      }
+
+      return list;
+    }
+
+    function getBookingLink(extra = '') {
+      const base = `booking.html?category=${encodeURIComponent(state.category)}`;
+      return extra ? `${base}&service=${encodeURIComponent(extra)}` : base;
+    }
+
+    function renderCategoryContent() {
+      const category = categories[state.category];
+
+      document.title = `${category.nav} | Meli Nails & Beauty`;
+
+      els.breadcrumbCategory.textContent = category.nav;
+      els.heroEyebrow.textContent = category.eyebrow;
+      els.heroTitle.textContent = category.title;
+      els.heroDescription.textContent = category.description;
+      els.heroPills.innerHTML = category.pills.map(pill => `<span class="pill">${pill}</span>`).join('');
+
+      els.heroImageMain.src = category.images.heroMain;
+      els.heroImageMain.alt = category.title;
+      els.heroImageSmall.src = category.images.heroSmall;
+      els.heroImageSmall.alt = category.nav;
+
+      els.heroInfoTitle.textContent = category.infoTitle;
+      els.heroInfoText.textContent = category.infoText;
+
+      els.introTitle.textContent = category.introTitle;
+      els.introText.textContent = category.introText;
+      els.introList.innerHTML = category.introItems.map(item => `
+        <article class="intro-item">
+          <strong>${item[0]}</strong>
+          <p class="text-small">${item[1]}</p>
+        </article>
+      `).join('');
+
+      els.servicesTitle.textContent = `Konkrétní služby: ${category.nav}`;
+      els.storyTitle.textContent = category.story.title;
+      els.storyText.textContent = category.story.text;
+
+      els.storyPoints.innerHTML = category.story.points.map(point => `
+        <article class="story-point">
+          <span>${point[0]}</span>
+          <div>
+            <strong>${point[1]}</strong>
+            <p class="text-small">${point[2]}</p>
+          </div>
+        </article>
+      `).join('');
+
+      els.storyImageTall.src = category.images.storyTall;
+      els.storyImageTall.alt = category.story.title;
+      els.storyImageSmall1.src = category.images.storySmall1;
+      els.storyImageSmall1.alt = category.nav;
+      els.storyImageSmall2.src = category.images.storySmall2;
+      els.storyImageSmall2.alt = category.nav;
+
+      els.faqList.innerHTML = category.faq.map((faq, index) => `
+        <article class="faq-item ${index === 0 ? 'active' : ''}">
+          <button class="faq-trigger" type="button">
+            <span>${faq[0]}</span>
+            <span>+</span>
+          </button>
+          <div class="faq-body">${faq[1]}</div>
+        </article>
+      `).join('');
+
+      els.faqList.querySelectorAll('.faq-trigger').forEach(trigger => {
+        trigger.addEventListener('click', () => {
+          trigger.closest('.faq-item').classList.toggle('active');
+        });
+      });
+
+      els.ctaTitle.textContent = `Rezervujte si ${category.nav.toLowerCase()} v Meli Nails & Beauty.`;
+      els.ctaText.textContent = `Vyberte si konkrétní službu v kategorii ${category.nav.toLowerCase()}, pobočku a termín. Pokud si nejste jistí, napište nám a poradíme vám.`;
+
+      els.heroBookingLink.href = getBookingLink();
+      els.ctaBookingLink.href = getBookingLink();
+      els.headerBookingLink.href = getBookingLink();
+      els.mobileBookingLink.href = getBookingLink();
+    }
+
+    function renderCategorySwitch() {
+      els.categorySwitch.innerHTML = categoryOrder.map(id => {
+        const category = categories[id];
+
+        return `
+          <a class="category-link ${state.category === id ? 'active' : ''}" href="services-category.html?category=${id}">
+            ${category.nav}
+          </a>
+        `;
+      }).join('');
+    }
+
+    function renderServices() {
+      const list = getCategoryServices();
+
+      els.servicesCount.textContent = `${list.length} služeb v této kategorii`;
+      els.emptyState.classList.toggle('active', list.length === 0);
+
+      els.servicesGrid.innerHTML = list.map(service => `
+        <article class="service-card" data-aos="fade-up">
+          <figure class="service-image">
+            <img src="${service.image}" alt="${service.name}" loading="lazy" />
+          </figure>
+
+          <div class="service-body">
+            <h3>${service.name}</h3>
+            <p>${service.desc}</p>
+
+            <div class="service-meta">
+              <span class="tag">${service.duration} min</span>
+              ${service.tags.slice(0, 3).map(tag => `<span class="tag">${tag}</span>`).join('')}
+            </div>
+
+            <div class="service-bottom">
+              <div class="price">
+                <strong>${service.priceText}</strong>
+                <span>orientačně</span>
+              </div>
+
+              <a class="tiny-link" href="${getBookingLink(service.id)}">Rezervovat →</a>
+            </div>
+          </div>
+        </article>
+      `).join('');
+    }
+
+    function renderRelated() {
+      const related = categoryOrder
+        .filter(id => id !== state.category)
+        .slice(0, 4)
+        .map(id => categories[id]);
+
+      els.relatedGrid.innerHTML = related.map(category => `
+        <a class="related-card" href="services-category.html?category=${category.id}" data-aos="fade-up">
+          <img src="${category.images.heroMain}" alt="${category.nav}" loading="lazy" />
+          <span>${category.nav}</span>
+        </a>
+      `).join('');
+    }
+
+    function renderAll() {
+      renderCategoryContent();
+      renderCategorySwitch();
+      renderServices();
+      renderRelated();
+    }
+
+    const menuToggle = document.querySelector('.menu-toggle');
+    const mobileLinks = document.querySelectorAll('.mobile-menu a');
+
+    menuToggle?.addEventListener('click', () => {
+      const isOpen = document.body.classList.toggle('menu-open');
+      menuToggle.setAttribute('aria-expanded', String(isOpen));
+    });
+
+    mobileLinks.forEach(link => {
+      link.addEventListener('click', () => {
+        document.body.classList.remove('menu-open');
+        menuToggle?.setAttribute('aria-expanded', 'false');
+      });
+    });
+
+    els.serviceSearch.addEventListener('input', event => {
+      state.query = event.target.value;
+      renderServices();
+    });
+
+    els.serviceSort.addEventListener('change', event => {
+      state.sort = event.target.value;
+      renderServices();
+    });
+
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    renderAll();
+
+    AOS.init({
+      duration: 850,
+      once: true,
+      offset: 70,
+      easing: 'ease-out-cubic',
+      disable: window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    });
+  </script>
+</body>
+</html>

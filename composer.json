@@ -12,10 +12,12 @@
         "bezhansalleh/filament-shield": "^4.2",
         "filament/filament": "^5.0",
         "filament/spatie-laravel-settings-plugin": "^5.0",
+        "guava/calendar": "^3.1",
         "intervention/image-laravel": "^1.5",
         "laravel/framework": "^11.0",
         "laravel/tinker": "^2.9",
         "livewire/livewire": "^4.2",
+        "phpoffice/phpspreadsheet": "^5.7",
         "spatie/laravel-permission": "^6.21",
         "spatie/laravel-settings": "^3.7",
         "spatie/laravel-sitemap": "^8.0"

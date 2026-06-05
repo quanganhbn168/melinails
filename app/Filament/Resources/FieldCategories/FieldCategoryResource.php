@@ -19,6 +19,8 @@ class FieldCategoryResource extends Resource
 {
     protected static ?string $model = FieldCategory::class;
 
+    protected static bool $shouldRegisterNavigation = false;
+
     protected static string|UnitEnum|null $navigationGroup = 'Lĩnh vực & Dịch vụ';
     protected static ?string $navigationLabel = 'Danh mục Lĩnh vực';
     protected static ?string $modelLabel = 'Danh mục Lĩnh vực';

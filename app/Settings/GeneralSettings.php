@@ -50,6 +50,20 @@ class GeneralSettings extends Settings
     public ?string $body_start_script;
     public ?string $body_script;
 
+    // ── Booking rules ───────────────────────────────────────────
+    public ?bool $booking_online_enabled;
+    public ?bool $booking_customer_staff_selection_enabled;
+    public ?bool $booking_staff_auto_assign_enabled;
+    public ?bool $booking_auto_confirm_enabled;
+
+    // ── Booking mail ────────────────────────────────────────────
+    public ?bool $booking_customer_mail_enabled;
+    public ?string $booking_customer_mail_subject;
+    public ?string $booking_customer_mail_intro;
+    public ?string $booking_customer_mail_body;
+    public ?bool $booking_admin_mail_enabled;
+    public ?string $booking_admin_mail_to;
+
     public static function group(): string
     {
         return 'general';

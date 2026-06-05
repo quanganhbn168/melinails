@@ -19,6 +19,8 @@ class CategoryResource extends Resource
 {
     protected static ?string $model = Category::class;
 
+    protected static bool $shouldRegisterNavigation = false;
+
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedFolder;
     protected static ?string $navigationLabel = 'Danh mục';
     protected static ?string $modelLabel = 'Danh mục';

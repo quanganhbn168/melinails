@@ -21,7 +21,10 @@ class ProductController extends Controller
      */
     public function resolveBySlug(string $slug, Request $request)
     {
-        $slugData = Slug::where('slug', $slug)->firstOrFail();
+        $slugData = Slug::query()
+            ->where('slug', $slug)
+            ->whereIn('sluggable_type', [Category::class, Product::class])
+            ->firstOrFail();
         $model = $slugData->sluggable;
 
         return match (true) {
@@ -29,6 +32,26 @@ class ProductController extends Controller
             $model instanceof Product  => $this->show($model),
             default => abort(404),
         };
+    }
+
+    public function productBySlug(string $slug)
+    {
+        $slugData = Slug::query()
+            ->where('slug', $slug)
+            ->where('sluggable_type', Product::class)
+            ->firstOrFail();
+
+        return $this->show($slugData->sluggable);
+    }
+
+    public function categoryBySlug(string $slug, Request $request)
+    {
+        $slugData = Slug::query()
+            ->where('slug', $slug)
+            ->where('sluggable_type', Category::class)
+            ->firstOrFail();
+
+        return $this->byCategory($slugData->sluggable, $request);
     }
 
     /**

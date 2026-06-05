@@ -18,6 +18,7 @@ class ServiceCategory extends Model
 
     protected $fillable = [
         'name',
+        'position',
         'image_id',
         'banner_id',
         'parent_id',
@@ -27,6 +28,10 @@ class ServiceCategory extends Model
         'is_footer',
         'description',
         'content',
+        'meta_title',
+        'meta_description',
+        'meta_keywords',
+        'meta_image_id',
     ];
 
     protected $casts = [
@@ -42,6 +47,13 @@ class ServiceCategory extends Model
     public function services(): HasMany
     {
         return $this->hasMany(Service::class);
+    }
+
+    public function branches()
+    {
+        return $this->belongsToMany(Branch::class, 'branch_service_category')
+            ->withPivot(['is_available'])
+            ->withTimestamps();
     }
 
     public function image(): BelongsTo

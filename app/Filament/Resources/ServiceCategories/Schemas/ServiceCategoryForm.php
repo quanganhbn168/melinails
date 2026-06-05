@@ -4,8 +4,11 @@ namespace App\Filament\Resources\ServiceCategories\Schemas;
 
 use App\Filament\Forms\Components\ParentCategorySelect;
 use App\Filament\Forms\Components\SlugInput;
+use App\Models\Branch;
 use App\Models\ServiceCategory;
 use Awcodes\Curator\Components\Forms\CuratorPicker;
+use Filament\Forms\Components\Hidden;
+use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
@@ -101,6 +104,42 @@ class ServiceCategoryForm
                         'default' => 1,
                         'lg' => 1,
                     ]),
+
+                Section::make('Shop áp dụng danh mục')
+                    ->description('Bật/tắt danh mục dịch vụ theo từng chi nhánh.')
+                    ->schema([
+                        Repeater::make('branch_category_settings')
+                            ->label('')
+                            ->schema([
+                                Hidden::make('branch_id'),
+                                TextInput::make('branch_name')
+                                    ->label('Shop')
+                                    ->disabled()
+                                    ->dehydrated(true),
+                                Toggle::make('is_available')
+                                    ->label('Hiển thị / dùng tại shop')
+                                    ->default(true),
+                            ])
+                            ->columns([
+                                'default' => 1,
+                                'lg' => 3,
+                            ])
+                            ->default(fn () => Branch::query()
+                                ->orderBy('id')
+                                ->get(['id', 'name'])
+                                ->map(fn (Branch $branch) => [
+                                    'branch_id' => $branch->id,
+                                    'branch_name' => $branch->name,
+                                    'is_available' => true,
+                                ])
+                                ->values()
+                                ->all())
+                            ->addable(false)
+                            ->deletable(false)
+                            ->reorderable(false)
+                            ->columnSpanFull(),
+                    ])
+                    ->columnSpanFull(),
             ]);
     }
 }

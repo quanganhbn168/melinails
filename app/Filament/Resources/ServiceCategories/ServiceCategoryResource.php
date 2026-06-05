@@ -20,19 +20,21 @@ class ServiceCategoryResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-folder-open';
 
+    protected static ?int $navigationSort = 4;
+
     public static function getNavigationGroup(): ?string
     {
-        return 'Lĩnh vực & Dịch vụ';
+        return 'Shop & Booking';
     }
 
     public static function getModelLabel(): string
     {
-        return 'Loại Dịch vụ';
+        return 'Danh mục dịch vụ';
     }
 
     public static function getPluralModelLabel(): string
     {
-        return 'Loại Dịch vụ';
+        return 'Danh mục dịch vụ';
     }
 
     public static function form(Schema $schema): Schema
