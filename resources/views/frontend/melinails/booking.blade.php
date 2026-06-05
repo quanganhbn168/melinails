@@ -148,7 +148,7 @@
                             <strong class="block text-base text-stone-950 sm:text-lg" x-text="branch.name"></strong>
                             <span class="mt-1 block text-sm text-stone-600 sm:mt-2" x-text="branch.city"></span>
                             <span class="mt-1 block text-sm text-stone-500" x-text="branch.opening_time + ' - ' + branch.closing_time"></span>
-                            <span x-show="!branch.online_booking_enabled" class="mt-2 block text-xs font-bold uppercase tracking-[0.14em] text-red-700">Booking vypnutý</span>
+                            <span x-show="!branch.online_booking_enabled" class="mt-2 block text-xs font-bold uppercase tracking-[0.14em] text-[#8d6837]">Booking vypnutý</span>
                         </button>
                     </template>
                 </div>
@@ -187,7 +187,7 @@
                             <div class="flex items-start justify-between gap-3">
                                 <div class="min-w-0">
                                     <strong class="block text-stone-950" x-text="service.name"></strong>
-                                    <span class="mt-1 block text-xs font-semibold uppercase tracking-[0.18em] text-rose-700" x-text="service.category"></span>
+                                    <span class="mt-1 block text-xs font-semibold uppercase tracking-[0.18em] text-[#ac8449]" x-text="service.category"></span>
                                 </div>
                                 <span class="shrink-0 text-sm font-bold text-stone-950" x-text="service.price_text"></span>
                             </div>
@@ -241,13 +241,12 @@
                 <div class="flex justify-between"><span>Celková cena</span><strong x-text="formatPrice(totalPrice())"></strong></div>
                 <div><span class="text-stone-500">Termín</span><strong class="block text-stone-950" x-text="date + ' ' + time"></strong></div>
             </div>
-            <p x-show="errorMessage" x-text="errorMessage" class="mt-4 rounded-sm bg-red-50 px-4 py-3 text-sm font-semibold text-red-700"></p>
+            <p x-show="errorMessage" x-text="errorMessage" class="mt-4 rounded-sm bg-[#f4ebde] px-4 py-3 text-sm font-semibold text-[#8d6837]"></p>
             <p x-show="successMessage" x-text="successMessage" class="mt-4 rounded-sm bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-700"></p>
-            <button type="button" class="mt-6 w-full rounded-sm bg-stone-950 px-5 py-3 text-sm font-bold text-white hover:bg-rose-800 disabled:cursor-not-allowed disabled:opacity-60" @click="submitBooking()" :disabled="isSubmitting || successMessage">
+            <button type="button" class="mt-6 w-full rounded-sm bg-stone-950 px-5 py-3 text-sm font-bold text-white hover:bg-[#ac8449] disabled:cursor-not-allowed disabled:opacity-60" @click.prevent="submitBooking()" :disabled="isSubmitting">
                 <span x-show="!isSubmitting">Odeslat rezervaci</span>
                 <span x-show="isSubmitting">Ukládám rezervaci...</span>
             </button>
-            <p class="mt-3 text-xs leading-5 text-stone-500">Po odeslání se termín uloží a stejná specialistka už nepůjde rezervovat v překrývajícím se čase.</p>
         </aside>
     </div>
 </section>
@@ -507,7 +506,7 @@
                 if (!this.selectedBranchId) return 'Vyberte pobočku.';
                 if (!this.selectedServices.length) return 'Vyberte alespoň jednu službu.';
                 if (!this.time) return this.allowStaffSelection ? 'Pro zvolený den a specialistku není volný čas.' : 'Pro zvolený den není volný čas.';
-                if (!this.customer.name || !this.customer.phone) return 'Vyplňte jméno a telefon.';
+                if (!this.customer.name?.trim() || !this.customer.phone?.trim()) return 'Vyplňte jméno a telefon.';
                 return '';
             },
             async submitBooking() {

@@ -9,7 +9,7 @@
     ];
 @endphp
 
-<header class="sticky top-0 z-50 border-b border-stone-200/80 bg-[#fff7f7]/95 backdrop-blur" x-data="{ open: false }">
+<header class="sticky top-0 z-50 border-b border-[#d8bd7e]/30 bg-[#fffdf8]/95 backdrop-blur" x-data="{ open: false }">
     <div class="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-8">
         <a href="{{ route('home') }}" class="flex items-center gap-3" aria-label="Meli Nails & Beauty">
             <img src="{{ asset('melinails/assets/logo.png') }}" alt="Meli Nails & Beauty" class="h-12 w-auto object-contain">
@@ -17,15 +17,15 @@
 
         <nav class="hidden items-center gap-7 lg:flex" aria-label="Hlavní navigace">
             @foreach($meliNav as $item)
-                <a href="{{ $item['url'] }}" class="text-sm font-semibold text-stone-700 transition hover:text-rose-700">
+                <a href="{{ $item['url'] }}" class="text-sm font-semibold text-stone-700 transition hover:text-[#ac8449]">
                     {{ $item['label'] }}
                 </a>
             @endforeach
         </nav>
 
         <div class="hidden items-center gap-3 lg:flex">
-            <a href="tel:+420777768681" class="text-sm font-semibold text-stone-700 hover:text-rose-700">+420 777 768 681</a>
-            <a href="{{ route('meli.booking') }}" class="inline-flex items-center justify-center rounded-sm bg-stone-950 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-rose-800">
+            <a href="tel:+420777768681" class="text-sm font-semibold text-stone-700 hover:text-[#ac8449]">+420 777 768 681</a>
+            <a href="{{ route('meli.booking') }}" class="inline-flex items-center justify-center rounded-sm bg-stone-950 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#ac8449]">
                 Rezervace
             </a>
         </div>
@@ -36,7 +36,7 @@
         </button>
     </div>
 
-    <div id="mobile-menu" class="border-t border-stone-200 bg-[#fff7f7] px-4 py-4 lg:hidden" x-show="open" x-transition>
+    <div id="mobile-menu" class="border-t border-[#d8bd7e]/30 bg-[#fffdf8] px-4 py-4 lg:hidden" x-show="open" x-transition>
         <nav class="flex flex-col gap-1" aria-label="Mobilní navigace">
             @foreach($meliNav as $item)
                 <a href="{{ $item['url'] }}" class="rounded-sm px-3 py-3 text-sm font-semibold text-stone-800 hover:bg-white">

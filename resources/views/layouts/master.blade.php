@@ -46,7 +46,7 @@
 </head>
 
 <body
-    class="bg-[#fff7f7] pb-20 text-stone-900 font-sans antialiased lg:pb-0 {{ Auth::check() ? 'logged-in' : '' }}">
+    class="bg-[#fffdf8] pb-20 text-stone-900 font-sans antialiased lg:pb-0 {{ Auth::check() ? 'logged-in' : '' }}">
     {!! $setting->body_start_script ?? '' !!}
     
 
@@ -60,11 +60,11 @@
 
     <nav class="fixed inset-x-0 bottom-0 z-50 border-t border-stone-200 bg-white/95 px-2 py-2 shadow-2xl backdrop-blur lg:hidden" aria-label="Rychlá mobilní navigace">
         <div class="mx-auto grid max-w-md grid-cols-4 gap-1">
-            <a href="{{ route('meli.booking') }}" class="flex min-h-14 flex-col items-center justify-center gap-1 rounded-sm text-[11px] font-bold text-stone-700 {{ request()->routeIs('meli.booking') ? 'bg-rose-50 text-rose-800' : '' }}">
+            <a href="{{ route('meli.booking') }}" class="flex min-h-14 flex-col items-center justify-center gap-1 rounded-sm text-[11px] font-bold text-stone-700 {{ request()->routeIs('meli.booking') ? 'bg-[#f4ebde] text-[#8d6837]' : '' }}">
                 <i class="fa-solid fa-calendar-days text-base"></i>
                 <span>Lịch</span>
             </a>
-            <a href="{{ route('meli.services') }}" class="flex min-h-14 flex-col items-center justify-center gap-1 rounded-sm text-[11px] font-bold text-stone-700 {{ request()->routeIs('meli.services') || request()->routeIs('meli.service.*') ? 'bg-rose-50 text-rose-800' : '' }}">
+            <a href="{{ route('meli.services') }}" class="flex min-h-14 flex-col items-center justify-center gap-1 rounded-sm text-[11px] font-bold text-stone-700 {{ request()->routeIs('meli.services') || request()->routeIs('meli.service.*') ? 'bg-[#f4ebde] text-[#8d6837]' : '' }}">
                 <i class="fa-solid fa-spa text-base"></i>
                 <span>Služby</span>
             </a>
